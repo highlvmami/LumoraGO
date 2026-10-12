@@ -1,0 +1,182 @@
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Threading;
+using LumoraGo.App.Services;
+using LumoraGo.App.ViewModels;
+using LumoraGo.Core;
+using LumoraGo.Plugin;
+
+namespace LumoraGo.App;
+
+/// <summary>
+/// Arama penceresi. Uygulama boyunca bir kez oluşturulur; kapatılmaz, sadece gizlenir. Hızlı açılmanın sırrı bu.
+/// </summary>
+public partial class MainWindow : Window
+{
+    private readonly MainViewModel _viewModel;
+    private readonly ILog _log;
+    private readonly IntPtr _hwnd;
+    private bool _allowClose;
+
+    internal MainWindow(MainViewModel viewModel, ILog log)
+    {
+        InitializeComponent();
+        _viewModel = viewModel;
+        _log = log;
+        DataContext = viewModel;
+
+        // Pencere tutamacını göstermeden oluştur; ilk açılış da hızlı olsun.
+        _hwnd = new WindowInteropHelper(this).EnsureHandle();
+
+        viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(MainViewModel.SelectedIndex) && viewModel.SelectedIndex >= 0)
+            {
+                ResultsList.ScrollIntoView(ResultsList.Items[viewModel.SelectedIndex]);
+            }
+        };
+    }
+
+    public void ToggleLauncher(Stopwatch? sinceHotkey = null)
+    {
+        if (IsVisible && IsActive)
+        {
+            HideLauncher();
+        }
+        else
+        {
+            ShowLauncher(sinceHotkey);
+        }
+    }
+
+    public void ShowLauncher() => ShowLauncher(null);
+
+    private void ShowLauncher(Stopwatch? sinceHotkey)
+    {
+        PositionOnCursorScreen();
+        Show();
+        Activate();
+        if (!ForegroundHelper.ForceForeground(_hwnd))
+        {
+            _log.Warn("Pencere öne alınamadı (SetForegroundWindow reddedildi).");
+        }
+
+        QueryBox.Focus();
+        Keyboard.Focus(QueryBox);
+        // Önceki aramayı seçili bırak: yazmaya başlayınca yerine geçer.
+        QueryBox.SelectAll();
+
+        if (sinceHotkey is not null)
+        {
+            // Render önceliğinden sonra çalışır, yani pencere çizildikten sonra ölçer.
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+                _log.Info($"Kısayoldan görünmeye: {sinceHotkey.Elapsed.TotalMilliseconds:F1} ms"));
+        }
+    }
+
+    public void HideLauncher() => Hide();
+
+    public void SetQuery(string text)
+    {
+        ShowLauncher();
+        _viewModel.QueryText = text;
+        QueryBox.CaretIndex = text.Length;
+    }
+
+    internal void AllowClose()
+    {
+        _allowClose = true;
+        Close();
+    }
+
+    private void PositionOnCursorScreen()
+    {
+        // Fare hangi ekrandaysa orada, ekranın üst kısmında ortala (PowerToys Run gibi).
+        var screen = System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Cursor.Position);
+        var area = screen.WorkingArea;
+        var dpi = VisualTreeHelper.GetDpi(this);
+
+        var left = area.Left / dpi.DpiScaleX;
+        var top = area.Top / dpi.DpiScaleY;
+        var width = area.Width / dpi.DpiScaleX;
+        var height = area.Height / dpi.DpiScaleY;
+
+        Left = left + ((width - Width) / 2);
+        Top = top + (height * 0.2);
+    }
+
+    protected override void OnDeactivated(EventArgs e)
+    {
+        base.OnDeactivated(e);
+        HideLauncher();
+    }
+
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Key.Escape:
+                HideLauncher();
+                e.Handled = true;
+                break;
+            case Key.Down:
+                _viewModel.MoveSelection(1);
+                e.Handled = true;
+                break;
+            case Key.Up:
+                _viewModel.MoveSelection(-1);
+                e.Handled = true;
+                break;
+            case Key.Enter:
+                ExecuteSelected();
+                e.Handled = true;
+                break;
+        }
+
+        base.OnPreviewKeyDown(e);
+    }
+
+    private void ResultsList_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        // Sadece bir sonuca tıklanınca çalıştır, kaydırma çubuğuna değil.
+        if (e.OriginalSource is DependencyObject source
+            && ItemsControl.ContainerFromElement(ResultsList, source) is ListBoxItem)
+        {
+            ExecuteSelected();
+        }
+    }
+
+    private void ExecuteSelected()
+    {
+        if (_viewModel.ExecuteSelected(CurrentModifiers()))
+        {
+            HideLauncher();
+        }
+    }
+
+    private static ActionModifiers CurrentModifiers()
+    {
+        var modifiers = ActionModifiers.None;
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) modifiers |= ActionModifiers.Ctrl;
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) modifiers |= ActionModifiers.Shift;
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) modifiers |= ActionModifiers.Alt;
+        return modifiers;
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        // Alt+F4 pencereyi kapatmasın, gizlesin.
+        if (!_allowClose)
+        {
+            e.Cancel = true;
+            HideLauncher();
+        }
+
+        base.OnClosing(e);
+    }
+}

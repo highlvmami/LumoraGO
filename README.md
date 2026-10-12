@@ -2,7 +2,7 @@
 
 Alt+Space ile açılan, her özelliği bir eklenti olan Windows launcher'ı (Raycast / PowerToys Run tarzı).
 
-> Durum: **Faz 1 – İskelet.** Pencere, kısayol, tepsi simgesi ve sonuç listesi çalışıyor. Uygulama arama (Faz 2) henüz yok; şimdilik sadece LumoraGo'nun kendi komutları listelenir ("çık" yazmayı dene).
+> Durum: **Faz 1 – İskelet** (sürüm 0.2.0). Pencere, kısayol, tepsi simgesi ve sonuç listesi çalışıyor. Uygulama arama (Faz 2) henüz yok; şimdilik sadece LumoraGo'nun kendi komutları listelenir ("çık" yazmayı dene).
 
 ## Çalıştırma
 
@@ -12,7 +12,19 @@ Gerekenler: Windows 10/11 ve [.NET 10 SDK](https://dotnet.microsoft.com/download
 dotnet run --project src/LumoraGo.App
 ```
 
-Derlenmiş sürümü denemek için: GitHub'da **Actions** sekmesindeki son başarılı çalışmadan `LumoraGo-win-x64` dosyasını indir, içindeki `LumoraGo.exe`'yi aç (.NET 10 Desktop Runtime gerekir).
+## Kurulum ve güncelleme
+
+[Releases](https://github.com/highlvmami/LumoraGO/releases) sayfasındaki `LumoraGo-win-Setup.exe` ile kur. Kurulan LumoraGo her açılışta yeni sürüm arar, bulursa arka planda indirir ve launcher gizlenince kurup sessizce yeniden başlar. `/version` yazınca çalışan sürümü, güncelleme durumunu ve sürüm notlarını gösterir.
+
+`dotnet run` ile veya Actions'tan indirilen zip ile çalışan kopyalar kendini güncellemez.
+
+### Yeni sürüm çıkarmak
+
+1. `Directory.Build.props` içindeki `<Version>` değerini artır (örn. `0.3.0`).
+2. `CHANGELOG.md` dosyasının başına `## 0.3.0` başlığı ve altına `- ` ile başlayan maddeler ekle.
+3. Birleştirdikten sonra etiketi gönder: `git tag v0.3.0` ve `git push origin v0.3.0`.
+
+Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncelleme paketlerini üretip GitHub Releases'a yükler. Etiket ile `<Version>` uyuşmazsa veya CHANGELOG'da o sürüm yoksa durur.
 
 | Tuş | Ne yapar |
 |---|---|
@@ -20,6 +32,8 @@ Derlenmiş sürümü denemek için: GitHub'da **Actions** sekmesindeki son başa
 | ↑ / ↓ | Sonuçlarda gez |
 | Enter | Seçili sonucu çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |
+
+`/version` yazınca sürüm ve sürüm notları görünür.
 
 `/liste` yazınca yazabileceğin tüm komutlar A'dan Z'ye listelenir; `/liste çık` gibi devam edersen liste süzülür.
 

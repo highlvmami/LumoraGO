@@ -1,0 +1,72 @@
+name: Release
+
+# "v0.2.0" gibi bir etiket gönderilince kurulum dosyasını ve güncelleme paketlerini GitHub Releases'a yükler.
+# Kurulu LumoraGo'lar açılışta buradan güncellenir.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Check version and extract release notes
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          [xml]$props = Get-Content Directory.Build.props
+          $propsVersion = $props.Project.PropertyGroup.Version
+          if ($propsVersion -ne $version) {
+            throw "Etiket ($version) ile Directory.Build.props sürümü ($propsVersion) aynı değil"
+          }
+
+          # Changelog.GetNotes ile aynı kural: "## X.Y.Z" başlığı, altındaki maddeler
+          $pattern = "^##\s+\[?v?$([regex]::Escape($version))\]?(\s|$)"
+          $notes = @(); $inSection = $false
+          foreach ($line in Get-Content CHANGELOG.md -Encoding utf8) {
+            if ($line.StartsWith('## ')) {
+              if ($inSection) { break }
+              $inSection = $line -match $pattern
+              continue
+            }
+            if ($inSection -and $line.Trim()) { $notes += $line }
+          }
+          if ($notes.Count -eq 0) { throw "CHANGELOG.md içinde '## $version' başlığı veya maddesi yok" }
+          $notes -join "`n" | Out-File release-notes.md -Encoding utf8
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test --configuration Release
+
+      - name: Publish
+        run: >
+          dotnet publish src/LumoraGo.App --configuration Release --runtime win-x64 --self-contained true
+          -p:Version=${{ steps.version.outputs.version }} --output publish
+
+      - name: Install vpk
+        run: dotnet tool install --global vpk --version 1.2.161
+
+      - name: Download previous release (for delta updates)
+        shell: bash
+        run: vpk download github --repoUrl "https://github.com/${{ github.repository }}" --token "${{ secrets.GITHUB_TOKEN }}" || echo "Önceki sürüm yok, delta paketi atlanıyor"
+
+      - name: Pack
+        run: >
+          vpk pack --packId LumoraGo --packVersion ${{ steps.version.outputs.version }} --packDir publish
+          --mainExe LumoraGo.exe --packTitle LumoraGo --releaseNotes release-notes.md
+
+      - name: Upload to GitHub Releases
+        run: >
+          vpk upload github --repoUrl "https://github.com/${{ github.repository }}" --publish
+          --releaseName "LumoraGo ${{ steps.version.outputs.version }}" --tag ${{ github.ref_name }}
+          --token "${{ secrets.GITHUB_TOKEN }}"

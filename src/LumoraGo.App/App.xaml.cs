@@ -25,6 +25,7 @@ public partial class App : Application
     private HotkeyService? _hotkey;
     private TrayIcon? _tray;
     private MainWindow? _window;
+    private UpdateService? _updates;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -51,12 +52,20 @@ public partial class App : Application
         _window = new MainWindow(new MainViewModel(search, _log), _log);
         _tray = new TrayIcon(() => _window.ShowLauncher(), OpenLogFolder, ExitApplication);
 
+        _updates = new UpdateService(_log);
+        var updates = _updates;
+        var releaseNotes = ReadEmbeddedChangelog();
+
         var host = new LauncherHost(_window, _tray, _log);
         var commands = BuildCommands(host);
         plugins.Initialize(
             [
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
                 new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
+                new PluginEntry(VersionPlugin.Metadata, new VersionPlugin(() => new VersionInfo(
+                    updates.CurrentVersion,
+                    Changelog.GetNotes(releaseNotes, updates.CurrentVersion),
+                    updates.Status))),
             ],
             host,
             Path.Combine(DataRoot, "plugins"));
@@ -81,6 +90,13 @@ public partial class App : Application
             executeOnlyOnce: false);
 
         _log.Info($"Hazır: {startup.ElapsedMilliseconds} ms");
+
+        if (Program.RestartedAfterUpdate is { } updatedTo)
+        {
+            _tray.ShowBalloon("LumoraGo güncellendi", $"Sürüm {updatedTo}. Neler değişti: /version");
+        }
+
+        _ = CheckForUpdatesAsync();
 
         // Windows açılışında --background ile başlar ve sessizce tepside bekler.
         if (!e.Args.Contains(StartupRegistration.BackgroundArg))
@@ -137,6 +153,47 @@ public partial class App : Application
             return true;
         }),
     ];
+
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_updates is null || _window is null)
+        {
+            return;
+        }
+
+        await _updates.CheckAndDownloadAsync();
+        if (!_updates.IsReadyToApply)
+        {
+            return;
+        }
+
+        // Kullanıcı yazarken yeniden başlama; pencere gizliyse hemen, değilse gizlendiği an kur.
+        if (!_window.IsVisible)
+        {
+            _updates.ApplyAndRestart();
+            return;
+        }
+
+        _window.IsVisibleChanged += (_, e) =>
+        {
+            if (e.NewValue is false)
+            {
+                _updates.ApplyAndRestart();
+            }
+        };
+    }
+
+    private static string ReadEmbeddedChangelog()
+    {
+        using var stream = typeof(App).Assembly.GetManifestResourceStream("CHANGELOG.md");
+        if (stream is null)
+        {
+            return "";
+        }
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
 
     private void OpenLogFolder()
     {

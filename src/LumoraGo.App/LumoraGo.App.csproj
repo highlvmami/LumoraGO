@@ -12,6 +12,8 @@
     <RootNamespace>LumoraGo.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <TieredPGO>true</TieredPGO>
+    <!-- Velopack ilk iş çalışmalı; Main'i Program.cs'te kendimiz yazıyoruz -->
+    <StartupObject>LumoraGo.App.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- /version sürüm notlarını buradan okur -->
+    <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="CHANGELOG.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LumoraGo.Core\LumoraGo.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.161" />
   </ItemGroup>
 
 </Project>

@@ -52,15 +52,28 @@
         </Border.Effect>
 
         <StackPanel Margin="8">
-            <TextBox x:Name="QueryBox"
-                     Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="22"
-                     Padding="10,8"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     Foreground="{StaticResource PrimaryText}"
-                     CaretBrush="{StaticResource AccentBrush}"
-                     SelectionBrush="{StaticResource AccentBrush}" />
+            <Grid>
+                <TextBox x:Name="QueryBox"
+                         Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="22"
+                         Padding="10,8,120,8"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="{StaticResource PrimaryText}"
+                         CaretBrush="{StaticResource AccentBrush}"
+                         SelectionBrush="{StaticResource AccentBrush}" />
+
+                <!-- Sağda şeffaf marka yazısı; tıklamaları kutuya bırakır -->
+                <TextBlock Text="LumoraGo"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Margin="0,0,14,0"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource PrimaryText}"
+                           Opacity="0.25"
+                           IsHitTestVisible="False" />
+            </Grid>
 
             <Separator Margin="4,6,4,4"
                        Background="{StaticResource WindowBorder}"

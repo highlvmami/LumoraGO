@@ -21,6 +21,8 @@ Derlenmiş sürümü denemek için: GitHub'da **Actions** sekmesindeki son başa
 | Enter | Seçili sonucu çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |
 
+`/liste` yazınca yazabileceğin tüm komutlar A'dan Z'ye listelenir; `/liste çık` gibi devam edersen liste süzülür.
+
 Tepsi simgesine sağ tıklayınca: Göster, Windows açılışında başlat, Günlük klasörünü aç, Çıkış.
 
 Günlükler: `%LocalAppData%\LumoraGo\logs`. Her açılışta "Kısayoldan görünmeye: X ms" satırı yazılır; hedef 50 ms altı.

@@ -50,6 +50,10 @@ internal sealed class NullHost : IPluginHost
     public void Log(LogLevel level, string message)
     {
     }
+
+    public void CopyToClipboard(string text) => Copied.Add(text);
+
+    public List<string> Copied { get; } = [];
 }
 
 internal sealed class ListLog : ILog

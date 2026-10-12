@@ -5,6 +5,7 @@ using System.Windows.Input;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
+using LumoraGo.Core.Apps;
 using LumoraGo.Core.Plugins;
 using LumoraGo.Plugin;
 
@@ -26,6 +27,8 @@ public partial class App : Application
     private TrayIcon? _tray;
     private MainWindow? _window;
     private UpdateService? _updates;
+    private ThemeService? _theme;
+    private StaWorker? _shellWorker;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -47,9 +50,16 @@ public partial class App : Application
         _log.Info($"LumoraGo {typeof(App).Assembly.GetName().Version} başlıyor");
         HookUnhandledExceptions(_log);
 
+        _theme = new ThemeService(this, WindowEffects.SupportsBackdrop);
+        _shellWorker = new StaWorker("LumoraGo.Shell");
+        IconCache.Initialize(_shellWorker);
+        var apps = new WindowsAppSource(Path.Combine(DataRoot, "cache", "apps.json"), _shellWorker, _log);
+        apps.Start();
+        var usage = new UsageStore(Path.Combine(DataRoot, "usage.json"), _log);
+
         var plugins = new PluginManager(_log);
         var search = new SearchService(plugins, _log);
-        _window = new MainWindow(new MainViewModel(search, _log), _log);
+        _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
         _tray = new TrayIcon(() => _window.ShowLauncher(), OpenLogFolder, ExitApplication);
 
         _updates = new UpdateService(_log);
@@ -60,6 +70,8 @@ public partial class App : Application
         var commands = BuildCommands(host);
         plugins.Initialize(
             [
+                new PluginEntry(CalculatorPlugin.Metadata, new CalculatorPlugin()),
+                new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, new ShellAppLauncher(), usage)),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
                 new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
                 new PluginEntry(VersionPlugin.Metadata, new VersionPlugin(() => new VersionInfo(
@@ -244,6 +256,8 @@ public partial class App : Application
         _showWait?.Unregister(null);
         _showEvent?.Dispose();
         _hotkey?.Dispose();
+        _theme?.Dispose();
+        _shellWorker?.Dispose();
         _tray?.Dispose();
         _log?.Dispose();
         if (_mutex is not null)

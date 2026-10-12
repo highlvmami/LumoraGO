@@ -20,6 +20,9 @@ public interface IPluginHost
     /// <summary>Launcher penceresini gizler.</summary>
     void HideLauncher();
 
+    /// <summary>Metni panoya kopyalar.</summary>
+    void CopyToClipboard(string text);
+
     /// <summary>Kullanıcıya kısa bir bildirim gösterir.</summary>
     void ShowMessage(string title, string message);
 

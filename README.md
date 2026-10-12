@@ -2,7 +2,7 @@
 
 Alt+Space ile açılan, her özelliği bir eklenti olan Windows launcher'ı (Raycast / PowerToys Run tarzı).
 
-> Durum: **Faz 1 – İskelet** (sürüm 0.2.0). Pencere, kısayol, tepsi simgesi ve sonuç listesi çalışıyor. Uygulama arama (Faz 2) henüz yok; şimdilik sadece LumoraGo'nun kendi komutları listelenir ("çık" yazmayı dene).
+> Durum: **Faz 2 – MVP** (sürüm 0.3.0). Yazdıkça Başlat menüsü ve Store uygulamaları bulanık aramayla listelenir ("vsc" → Visual Studio Code), "2+3*4" gibi hesaplar anında sonuçlanır.
 
 ## Çalıştırma
 
@@ -31,6 +31,8 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 | Alt+Space | Aç / gizle |
 | ↑ / ↓ | Sonuçlarda gez |
 | Enter | Seçili sonucu çalıştır |
+| Ctrl+Enter | Uygulamanın klasörünü aç |
+| Shift+Enter | Yönetici olarak çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |
 
 `/version` yazınca sürüm ve sürüm notları görünür.
@@ -67,8 +69,8 @@ Core ve testler Linux/macOS'ta da çalışır. Uygulama projesi `EnableWindowsTa
 Fazlar:
 
 - [x] Faz 0: Hazırlık (depo, solution, CI)
-- [ ] Faz 1: İskelet (kısayol, tepsi, göster/gizle, sonuç listesi) ← burada
-- [ ] Faz 2: Uygulama başlatma ve bulanık arama → MVP
+- [x] Faz 1: İskelet (kısayol, tepsi, göster/gizle, sonuç listesi)
+- [x] Faz 2: Uygulama başlatma ve bulanık arama → MVP ← burada
 - [ ] Faz 3: Eklenti sistemi
 - [ ] Faz 4: Yerleşik eklentiler
 - [ ] Faz 5: Kısayollar, tema, ayarlar

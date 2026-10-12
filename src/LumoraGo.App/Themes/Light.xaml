@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Akrilik arka plan varken yarı saydam, yokken (Windows 10) ThemeService opak sürümünü kullanır -->
+    <Color x:Key="WindowBackgroundColor">#B3F9F9F9</Color>
+    <Color x:Key="WindowBackgroundOpaqueColor">#FFF9F9F9</Color>
+    <SolidColorBrush x:Key="WindowBackground" Color="#B3F9F9F9" />
+    <SolidColorBrush x:Key="WindowBorder" Color="#1A000000" />
+    <SolidColorBrush x:Key="PrimaryText" Color="#FF1A1A1A" />
+    <SolidColorBrush x:Key="SecondaryText" Color="#FF5F5F5F" />
+    <SolidColorBrush x:Key="SelectedBackground" Color="#0F000000" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF3D5AFE" />
+    <SolidColorBrush x:Key="Divider" Color="#14000000" />
+    <SolidColorBrush x:Key="KeyCapBackground" Color="#0D000000" />
+</ResourceDictionary>

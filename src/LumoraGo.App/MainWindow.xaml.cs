@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
@@ -23,15 +24,24 @@ public partial class MainWindow : Window
     private readonly IntPtr _hwnd;
     private bool _allowClose;
 
-    internal MainWindow(MainViewModel viewModel, ILog log)
+    internal MainWindow(MainViewModel viewModel, ILog log, ThemeService theme)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _log = log;
         DataContext = viewModel;
 
+        if (!WindowEffects.SupportsBackdrop)
+        {
+            // Akrilik yoksa pencerenin kendisi opak boyanır; yuvarlak köşe de yalnızca Windows 11'de DWM'den gelir.
+            SetResourceReference(BackgroundProperty, "WindowBackground");
+            Root.CornerRadius = new CornerRadius(0);
+        }
+
         // Pencere tutamacını göstermeden oluştur; ilk açılış da hızlı olsun.
         _hwnd = new WindowInteropHelper(this).EnsureHandle();
+        WindowEffects.Apply(_hwnd, theme.IsDark);
+        theme.Changed += (_, _) => WindowEffects.SetDarkMode(_hwnd, theme.IsDark);
 
         viewModel.PropertyChanged += (_, e) =>
         {
@@ -70,6 +80,7 @@ public partial class MainWindow : Window
         Keyboard.Focus(QueryBox);
         // Önceki aramayı seçili bırak: yazmaya başlayınca yerine geçer.
         QueryBox.SelectAll();
+        PlayShowAnimation();
 
         if (sinceHotkey is not null)
         {
@@ -80,6 +91,15 @@ public partial class MainWindow : Window
     }
 
     public void HideLauncher() => Hide();
+
+    /// <summary>Hafif bir aşağı kayma ve belirme. Girdiyi bekletmez; yazı ilk karede kutuya gider.</summary>
+    private void PlayShowAnimation()
+    {
+        var duration = TimeSpan.FromMilliseconds(140);
+        var ease = new QuadraticEase { EasingMode = EasingMode.EaseOut };
+        Root.BeginAnimation(OpacityProperty, new DoubleAnimation(0.6, 1, duration) { EasingFunction = ease });
+        RootOffset.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(-8, 0, duration) { EasingFunction = ease });
+    }
 
     public void SetQuery(string text)
     {

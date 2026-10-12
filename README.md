@@ -22,7 +22,7 @@ dotnet run --project src/LumoraGo.App
 
 1. `Directory.Build.props` içindeki `<Version>` değerini artır (örn. `0.3.0`).
 2. `CHANGELOG.md` dosyasının başına `## 0.3.0` başlığı ve altına `- ` ile başlayan maddeler ekle.
-3. Birleştirdikten sonra etiketi gönder: `git tag v0.3.0` ve `git push origin v0.3.0`.
+3. Birleştirdikten sonra GitHub'da **Actions → Release → Run workflow** ile başlat (ya da `v0.3.0` etiketini gönder).
 
 Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncelleme paketlerini üretip GitHub Releases'a yükler. Etiket ile `<Version>` uyuşmazsa veya CHANGELOG'da o sürüm yoksa durur.
 

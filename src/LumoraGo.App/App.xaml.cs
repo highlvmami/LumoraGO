@@ -52,8 +52,12 @@ public partial class App : Application
         _tray = new TrayIcon(() => _window.ShowLauncher(), OpenLogFolder, ExitApplication);
 
         var host = new LauncherHost(_window, _tray, _log);
+        var commands = BuildCommands(host);
         plugins.Initialize(
-            [new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(BuildCommands(host)))],
+            [
+                new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
+                new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
+            ],
             host,
             Path.Combine(DataRoot, "plugins"));
 
@@ -86,8 +90,35 @@ public partial class App : Application
         }
     }
 
+    /// <summary>"/liste" için: LumoraGo komutları ve tetik kelimesi olan eklentiler.</summary>
+    private static IEnumerable<CommandInfo> ListCommands(
+        IReadOnlyList<LauncherCommand> commands, PluginManager plugins, IPluginHost host)
+    {
+        foreach (var command in commands)
+        {
+            yield return new CommandInfo(command.Title, command.Subtitle, command.Action);
+        }
+
+        foreach (var plugin in plugins.Plugins)
+        {
+            if (plugin.Metadata.ActionKeyword is { } keyword && keyword != CommandListPlugin.Keyword)
+            {
+                yield return new CommandInfo($"{plugin.Metadata.Name} ({keyword})", $"\"{keyword} \" yazarak kullan", _ =>
+                {
+                    host.ChangeQuery(keyword + " ");
+                    return false;
+                });
+            }
+        }
+    }
+
     private IReadOnlyList<LauncherCommand> BuildCommands(IPluginHost host) =>
     [
+        new("Tüm komutları listele", $"Kısayolu: {CommandListPlugin.Keyword}", _ =>
+        {
+            host.ChangeQuery(CommandListPlugin.Keyword);
+            return false;
+        }),
         new("LumoraGo'dan çık", "Launcher'ı tamamen kapatır", _ =>
         {
             Dispatcher.BeginInvoke(ExitApplication);

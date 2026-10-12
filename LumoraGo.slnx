@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LumoraGo.App/LumoraGo.App.csproj" />
+    <Project Path="src/LumoraGo.Core/LumoraGo.Core.csproj" />
+    <Project Path="src/LumoraGo.Plugin.Abstractions/LumoraGo.Plugin.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LumoraGo.Core.Tests/LumoraGo.Core.Tests.csproj" />
+  </Folder>
+</Solution>

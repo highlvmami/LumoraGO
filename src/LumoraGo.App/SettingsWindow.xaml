@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:ClassModifier="internal"
         Title="LumoraGo ayarları"
+        Icon="pack://application:,,,/Assets/LumoraGo.ico"
         Width="560" Height="680"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"

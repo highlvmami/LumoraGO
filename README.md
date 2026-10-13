@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.png" width="96" alt="LumoraGo logosu"></p>
+
 # LumoraGo
 
 Alt+Space ile açılan, her özelliği bir eklenti olan Windows launcher'ı (Raycast / PowerToys Run tarzı).

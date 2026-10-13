@@ -44,9 +44,23 @@ internal sealed class TrayIcon : IDisposable
         _icon.ShowBalloonTip(3000, title, text, icon);
     }
 
+    /// <summary>LumoraGo logosu, tepsinin küçük simge boyutunda (bulanık ölçekleme olmasın diye .ico'nun doğru boyutu).</summary>
     private static Icon LoadIcon()
     {
-        // Faz 5'te kendi simgemiz gelene kadar uygulamanın exe simgesi
+        try
+        {
+            var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/LumoraGo.ico"));
+            if (resource is not null)
+            {
+                using var stream = resource.Stream;
+                return new Icon(stream, SystemInformation.SmallIconSize);
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or ArgumentException)
+        {
+            // Aşağıdaki exe simgesine düş.
+        }
+
         return Environment.ProcessPath is { } path
             ? Icon.ExtractAssociatedIcon(path) ?? SystemIcons.Application
             : SystemIcons.Application;

@@ -159,6 +159,39 @@ public sealed class ContactBookTests : IDisposable
     }
 
     [Fact]
+    public void Search_finds_text_anywhere_in_name_email_or_company_and_ranks_prefix_first()
+    {
+        var book = Book();
+        book.Save([
+            new Contact("Mehmet Ali", ["1"], []),
+            new Contact("Ali Kaya", ["2"], []),
+            new Contact("Zeynep Demir", ["3"], ["zeynep@alimarket.com"]),
+            new Contact("Kalina", ["4"], []),
+            new Contact("Ayşe", ["5"], [], "Lumora Yazılım"),
+            new Contact("Ahmet", ["6"], []),
+        ]);
+
+        Assert.Equal(["Ali Kaya", "Mehmet Ali", "Kalina", "Zeynep Demir"], book.Search("ali").Select(m => m.Contact.Name));
+        Assert.Equal(["Ayşe"], book.Search("yazilim").Select(m => m.Contact.Name));
+        Assert.Equal(["Mehmet Ali"], book.Search("ali meh").Select(m => m.Contact.Name));
+
+        // Harfleri sırayla içeren ama yazılanı içermeyen ("a…h…m" Ahmet değil) eşleşmez.
+        Assert.DoesNotContain(book.Search("ahm"), m => m.Contact.Name == "Ayşe");
+        Assert.Equal(["Ahmet"], book.Search("ahm").Select(m => m.Contact.Name));
+    }
+
+    [Fact]
+    public void Empty_search_lists_everyone_alphabetically()
+    {
+        var book = Book();
+        book.Save(Enumerable.Range(1, 45).Select(i => new Contact($"Kişi {i:00}", [$"{i}"], [])).Append(new Contact("Çağla", ["x"], [])).ToList());
+
+        var all = book.Search("");
+        Assert.Equal(46, all.Count);
+        Assert.Equal("Çağla", all[0].Contact.Name);
+    }
+
+    [Fact]
     public void Clear_removes_file()
     {
         var book = Book();
@@ -257,6 +290,26 @@ public sealed class ContactsPluginTests : IDisposable
 
         _global = false;
         Assert.Empty(await Ask(plugin, "özlem"));
+    }
+
+    [Fact]
+    public async Task Keyword_lists_more_than_twenty_and_filters_by_contained_text()
+    {
+        var people = Enumerable.Range(1, 30).Select(i => new Contact($"Kişi {i:00}", [$"0532000{i:0000}"], [])).ToList();
+        people.Add(new Contact("Mehmet Ali", ["0505"], []));
+        var plugin = Plugin(Book([.. people]), "/rehber");
+
+        Assert.Equal(31, (await Ask(plugin, "")).Count);
+        Assert.Equal(["Mehmet Ali"], (await Ask(plugin, "ali")).Select(r => r.Title));
+        Assert.Equal("lumorago.contacts.kw.rehber", plugin.Metadata.Id);
+    }
+
+    [Fact]
+    public async Task Global_search_shows_only_word_start_matches()
+    {
+        var plugin = Plugin(Book(new Contact("Mehmet Ali", ["1"], []), new Contact("Kalina", ["2"], [])));
+
+        Assert.Equal(["Mehmet Ali"], (await Ask(plugin, "ali")).Select(r => r.Title));
     }
 
     [Fact]

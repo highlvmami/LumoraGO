@@ -7,6 +7,7 @@ Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerde
 - Tab ile tamamlama: seçili sonucun adı kutuya yazılır, hesap sonucunda sayı yazılır
 - Yazdıkça soluk renkte öneri: "vis" yazınca "ual Studio Code" görünür, Tab veya sağ ok ile kabul edilir
 - "/" ile başlayınca komut önerileri: "/v" yazınca "/version" çıkar
+- "/yt ..." YouTube'da, "/gg ..." Google'da arar (varsayılan tarayıcıda açılır)
 
 ## 0.3.0
 - Uygulama arama: Başlat menüsü ve Microsoft Store uygulamaları, simgeleriyle birlikte listelenir

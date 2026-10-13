@@ -36,7 +36,7 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 | Shift+Enter | Yönetici olarak çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |
 
-`/version` yazınca sürüm ve sürüm notları görünür.
+`/version` yazınca sürüm ve sürüm notları görünür. `/yt kedi` YouTube'da, `/gg kedi` Google'da arar.
 
 `/liste` yazınca yazabileceğin tüm komutlar A'dan Z'ye listelenir; `/liste çık` gibi devam edersen liste süzülür.
 

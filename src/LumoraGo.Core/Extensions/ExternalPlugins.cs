@@ -94,7 +94,7 @@ public static class ExternalPlugins
         }
 
         var context = new PluginLoadContext(dllPath);
-        var assembly = context.LoadFromAssemblyPath(dllPath);
+        var assembly = context.LoadFile(dllPath);
         var type = manifest.Type is { Length: > 0 }
             ? assembly.GetType(manifest.Type, throwOnError: true)!
             : assembly.GetExportedTypes().FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && t is { IsClass: true, IsAbstract: false });
@@ -155,7 +155,24 @@ public static class ExternalPlugins
             }
 
             // Bulunamayan (çoğunlukla .NET'in kendi) derlemeler varsayılan bağlamdan gelir.
-            return path is null ? null : LoadFromAssemblyPath(path);
+            return path is null ? null : LoadFile(path);
+        }
+
+        /// <summary>
+        /// DLL'i bellekten yükler; dosya kilitlenmez. Böylece LumoraGo açıkken eklenti güncellenip silinebilir,
+        /// yeni sürüm bir sonraki açılışta yüklenir.
+        /// </summary>
+        public Assembly LoadFile(string path)
+        {
+            using var dll = new MemoryStream(File.ReadAllBytes(path));
+            var pdbPath = Path.ChangeExtension(path, ".pdb");
+            if (!File.Exists(pdbPath))
+            {
+                return LoadFromStream(dll);
+            }
+
+            using var pdb = new MemoryStream(File.ReadAllBytes(pdbPath));
+            return LoadFromStream(dll, pdb);
         }
 
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)

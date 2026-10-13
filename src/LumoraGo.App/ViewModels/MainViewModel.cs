@@ -11,6 +11,10 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
     private int _selectedIndex = -1;
     private CancellationTokenSource? _searchCts;
 
+    // Eylem menüsü açıkken geri dönülecek liste.
+    private IReadOnlyList<Result>? _menuReturnResults;
+    private int _menuReturnIndex;
+
     public string QueryText
     {
         get => _queryText;
@@ -38,6 +42,40 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
     }
 
     public bool HasResults => _results.Count > 0;
+
+    public bool IsMenuOpen => _menuReturnResults is not null;
+
+    /// <summary>Seçili sonucun ek eylemlerini listeler (sağ ok veya Ctrl+K).</summary>
+    /// <returns>Menü açıldıysa true.</returns>
+    public bool OpenMenu()
+    {
+        if (IsMenuOpen || Selected is not { } selected || !ActionMenu.HasActions(selected))
+        {
+            return false;
+        }
+
+        _menuReturnResults = Results;
+        _menuReturnIndex = SelectedIndex;
+        Results = ActionMenu.ToResults(selected);
+        SelectedIndex = 0;
+        OnPropertyChanged(nameof(IsMenuOpen));
+        return true;
+    }
+
+    /// <returns>Menü kapandıysa true.</returns>
+    public bool CloseMenu()
+    {
+        if (_menuReturnResults is not { } previous)
+        {
+            return false;
+        }
+
+        _menuReturnResults = null;
+        Results = previous;
+        SelectedIndex = _menuReturnIndex;
+        OnPropertyChanged(nameof(IsMenuOpen));
+        return true;
+    }
 
     public int SelectedIndex
     {
@@ -98,7 +136,7 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         var text = QueryText;
         var matches = text.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)
             && (text.Length == keyword.Length || text[keyword.Length] == ' ');
-        if (matches)
+        if (matches && !IsMenuOpen)
         {
             _ = RunSearchAsync(text, keepSelection: true);
         }
@@ -115,6 +153,16 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         {
             var response = await search.SearchAsync(text, cts.Token);
             if (cts.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (!keepSelection && _menuReturnResults is not null)
+            {
+                _menuReturnResults = null;
+                OnPropertyChanged(nameof(IsMenuOpen));
+            }
+            else if (IsMenuOpen)
             {
                 return;
             }

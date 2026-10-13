@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.6.0
+- Pano geçmişi: "/c" son kopyaladıklarını listeler, yazarak süzülür; Enter önceki pencereye yapıştırır, Ctrl+Enter sadece kopyalar. Geçmiş yalnızca bellekte tutulur, şifre yöneticilerinin gizli işaretlediği kopyalar alınmaz
+- Eylem menüsü: seçili sonuçta sağ ok (veya Ctrl+K) ek eylemleri açar; uygulamalarda yönetici olarak çalıştır, dosya konumunu aç, yolu kopyala; dosyalarda klasöründe göster, yolu kopyala. Esc veya sol ok geri döner
+
 ## 0.5.0
 - Derin arama: "/ds şifre" tüm bilgisayarda dosya ve klasör adlarında, metin dosyalarının içinde arar; sonuçlar bulundukça listeye eklenir, Enter ile durdurulur
 - Dosya arama: "/f rapor" masaüstü, belgeler, indirilenler, resimler, videolar, müzik ve OneDrive'daki dosyaları adıyla anında bulur

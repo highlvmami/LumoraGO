@@ -7,6 +7,7 @@ using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
 using LumoraGo.Core.Apps;
+using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Plugins;
@@ -32,6 +33,11 @@ public partial class App : Application
     private UpdateService? _updates;
     private DispatcherTimer? _updateTimer;
     private FileIndex? _files;
+    private ClipboardHistory? _clipboard;
+    private ClipboardMonitor? _clipboardMonitor;
+
+    // Launcher gizlendikten sonra önceki pencerenin odağı geri alması için beklenen süre.
+    private static readonly TimeSpan PasteDelay = TimeSpan.FromMilliseconds(120);
     private Timer? _fileIndexTimer;
 
     private static readonly TimeSpan FileIndexFirstBuild = TimeSpan.FromSeconds(3);
@@ -74,6 +80,9 @@ public partial class App : Application
         _files = new FileIndex(UserFolders, DeepSearchOptions.DefaultSkipDirectoryNames, _log);
         _fileIndexTimer = new Timer(_ => _files.Rebuild(), null, FileIndexFirstBuild, FileIndexInterval);
 
+        _clipboard = new ClipboardHistory();
+        _clipboardMonitor = new ClipboardMonitor(_clipboard, _log);
+
         var plugins = new PluginManager(_log);
         var search = new SearchService(plugins, _log);
         _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
@@ -94,6 +103,7 @@ public partial class App : Application
                 LinkEntry(LinkPlugin.GitHub(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl, misspelled: true)),
+                new PluginEntry(ClipboardPlugin.Metadata, new ClipboardPlugin(_clipboard, PasteText)),
                 new PluginEntry(FileSearchPlugin.Metadata, new FileSearchPlugin(_files, OpenPath, RevealPath)),
                 new PluginEntry(DeepSearchPlugin.Metadata, new DeepSearchPlugin(
                     () => new DeepSearchOptions { Roots = FixedDrives() }, OpenPath, RevealPath)),
@@ -296,6 +306,24 @@ public partial class App : Application
 
     private void OpenPath(string path) => Run(path, "");
 
+    /// <summary>Metni panoya koyar, launcher'ı gizler ve önceki pencereye Ctrl+V gönderir.</summary>
+    private void PasteText(string text) => Dispatcher.BeginInvoke(async () =>
+    {
+        try
+        {
+            System.Windows.Clipboard.SetText(text);
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            _log?.Warn($"Panoya yazılamadı: {ex.Message}");
+            return;
+        }
+
+        _window?.HideLauncher();
+        await Task.Delay(PasteDelay);
+        SystemActions.SendPaste();
+    });
+
     private void RevealPath(string path) => Run("explorer.exe", $"/select,\"{path}\"");
 
     private void Run(string file, string arguments)
@@ -371,6 +399,8 @@ public partial class App : Application
         _log?.Info("LumoraGo kapanıyor");
         _showWait?.Unregister(null);
         _showEvent?.Dispose();
+        _clipboardMonitor?.Dispose();
+        _fileIndexTimer?.Dispose();
         _hotkey?.Dispose();
         _theme?.Dispose();
         _shellWorker?.Dispose();

@@ -1,6 +1,7 @@
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using LumoraGo.App.Native;
 
 namespace LumoraGo.App.Services;
 
@@ -25,6 +26,15 @@ internal static class SystemActions
             .Select(a => a.Address)
             .FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
             ?.ToString();
+
+    /// <summary>Öndeki pencereye Ctrl+V basar.</summary>
+    public static void SendPaste()
+    {
+        NativeMethods.keybd_event(NativeMethods.VK_CONTROL, 0, 0, UIntPtr.Zero);
+        NativeMethods.keybd_event(NativeMethods.VK_V, 0, 0, UIntPtr.Zero);
+        NativeMethods.keybd_event(NativeMethods.VK_V, 0, NativeMethods.KEYEVENTF_KEYUP, UIntPtr.Zero);
+        NativeMethods.keybd_event(NativeMethods.VK_CONTROL, 0, NativeMethods.KEYEVENTF_KEYUP, UIntPtr.Zero);
+    }
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

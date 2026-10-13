@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.9.0
+- Pencere geçişi: "/w chrome" açık pencereler arasında başlık veya uygulama adıyla arar; Enter öne getirir, sağ ok ile pencereyi kapat
+- Zamanlayıcı: "/t 10dk çay", "/t 1sa 30dk", "/t 90sn", "/t 14:30 ilaç"; süre dolunca ses ve bildirim gelir. "/t" çalışanları ve kalan süreyi gösterir, Enter iptal eder
+- Kalıcı pano geçmişi: Ayarlar'da "Kapatınca da hatırla" açılırsa son 200 kopya diske yazılır ve LumoraGo yeniden açılınca geri gelir. Kapatınca dosya silinir
+
 ## 0.8.0
 - Birim ve döviz çevirme: "5 km mil", "100 usd tl", "30 c f", "2 gb mb" yazınca sonuç en üstte çıkar; Enter sayıyı kopyalar. Kurlar günde birkaç kez internetten alınır ve önbellekte tutulur
 - Notlar: "/not ekmek al" not ekler, "/not" listeler; Enter tamamlandı işaretler, sağ ok ile kopyala, sil, tamamlananları temizle

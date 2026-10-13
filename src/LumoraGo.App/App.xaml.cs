@@ -14,6 +14,7 @@ using LumoraGo.Core.Notes;
 using LumoraGo.Core.Plugins;
 using LumoraGo.Core.Search;
 using LumoraGo.Core.Settings;
+using LumoraGo.Core.Timers;
 using LumoraGo.Plugin;
 
 namespace LumoraGo.App;
@@ -42,6 +43,8 @@ public partial class App : Application
     private SettingsWindow? _settingsWindow;
     private ClipboardHistory? _clipboard;
     private ClipboardMonitor? _clipboardMonitor;
+    private ClipboardPersistence? _clipboardPersistence;
+    private TimerService? _timers;
 
     // Launcher gizlendikten sonra önceki pencerenin odağı geri alması için beklenen süre.
     private static readonly TimeSpan PasteDelay = TimeSpan.FromMilliseconds(120);
@@ -94,6 +97,11 @@ public partial class App : Application
             _clipboardMonitor = new ClipboardMonitor(_clipboard, _log);
         }
 
+        ApplyClipboardPersistence(_settings.Current);
+
+        _timers = new TimerService();
+        _timers.Elapsed += timer => Dispatcher.BeginInvoke(() => TimerElapsed(timer));
+
         _settings.Changed += (_, settings) => ApplySettings(settings);
 
         var plugins = new PluginManager(_log);
@@ -127,6 +135,9 @@ public partial class App : Application
                     DeepSearchSettings, OpenPath, RevealPath)),
                 new PluginEntry(NotesPlugin.Metadata, new NotesPlugin(new NotesStore(Path.Combine(DataRoot, "notes.json"), _log))),
                 new PluginEntry(EmojiPlugin.Metadata, new EmojiPlugin(PasteText)),
+                new PluginEntry(WindowSwitcherPlugin.Metadata, new WindowSwitcherPlugin(
+                    WindowEnumerator.List, ActivateWindow, WindowEnumerator.Close)),
+                new PluginEntry(TimerPlugin.Metadata, new TimerPlugin(_timers)),
                 .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
@@ -341,9 +352,43 @@ public partial class App : Application
             _clipboard?.Clear();
         }
 
+        ApplyClipboardPersistence(settings);
+
         // Klasörler değişmiş olabilir; dosya listesini arka planda yeniden kur.
         _ = Task.Run(() => _files?.Rebuild());
     }
+
+    private static string ClipboardFile => Path.Combine(DataRoot, "clipboard.json");
+
+    private void ApplyClipboardPersistence(LauncherSettings settings)
+    {
+        var persist = settings.ClipboardHistory && settings.ClipboardPersist;
+        if (persist && _clipboardPersistence is null && _clipboard is not null)
+        {
+            _clipboardPersistence = new ClipboardPersistence(_clipboard, ClipboardFile, _log);
+        }
+        else if (!persist && _clipboardPersistence is not null)
+        {
+            _clipboardPersistence.Dispose();
+            _clipboardPersistence = null;
+            ClipboardPersistence.Delete(ClipboardFile, _log);
+        }
+    }
+
+    private void TimerElapsed(RunningTimer timer)
+    {
+        System.Media.SystemSounds.Exclamation.Play();
+        var title = timer.Label.Length > 0 ? $"⏰ {timer.Label}" : "⏰ Süre doldu";
+        _tray?.ShowBalloon(title, $"{TimerRequest.Format(timer.Duration)} doldu ({timer.EndsAt:HH:mm})");
+    }
+
+    /// <summary>Launcher gizlendikten sonra pencereyi öne getirir; yoksa gizlenen launcher odağı geri alabilir.</summary>
+    private void ActivateWindow(Core.Windows.OpenWindow window) => Dispatcher.BeginInvoke(async () =>
+    {
+        _window?.HideLauncher();
+        await Task.Delay(PasteDelay);
+        WindowEnumerator.Activate(window);
+    });
 
     /// <summary>"Ctrl+Shift+Space" gibi metinden kısayolu kaydeder.</summary>
     private bool RegisterHotkey(string text)
@@ -510,6 +555,8 @@ public partial class App : Application
         _showWait?.Unregister(null);
         _showEvent?.Dispose();
         _clipboardMonitor?.Dispose();
+        _clipboardPersistence?.Dispose();
+        _timers?.Dispose();
         _fileIndexTimer?.Dispose();
         _hotkey?.Dispose();
         _theme?.Dispose();

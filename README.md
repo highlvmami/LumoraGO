@@ -42,9 +42,9 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 
 `/c` pano geçmişini açar (Enter yapıştırır). Seçili sonuçta sağ ok veya Ctrl+K ek eylemleri gösterir.
 
-`5 km mil`, `100 usd tl` gibi yazınca birim ve döviz çevirir. `/not ekmek al` not ekler, `/not` notları listeler. `/e kalp` emoji arar. `#1e90ff` gibi bir renk kodu yazınca HEX, RGB ve HSL karşılıkları çıkar.
+`5 km mil`, `100 usd tl` gibi yazınca birim ve döviz çevirir. `/not ekmek al` not ekler, `/not` notları listeler. `/e kalp` emoji arar. `#1e90ff` gibi bir renk kodu yazınca HEX, RGB ve HSL karşılıkları çıkar. `/w chrome` açık pencereye geçer. `/t 10dk çay` zamanlayıcı kurar.
 
-Arama tamamen bilgisayarında yapılır. İnternete yalnızca güncelleme kontrolü ve döviz kurları için çıkılır (open.er-api.com); notlar ve ayarlar `%LOCALAPPDATA%\LumoraGo` altında durur.
+Arama tamamen bilgisayarında yapılır. İnternete yalnızca güncelleme kontrolü ve döviz kurları için çıkılır (open.er-api.com); notlar, ayarlar ve (istenirse) pano geçmişi `%LOCALAPPDATA%\LumoraGo` altında durur.
 
 `/liste` yazınca yazabileceğin tüm komutlar A'dan Z'ye listelenir; `/liste çık` gibi devam edersen liste süzülür.
 

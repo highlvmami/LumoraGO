@@ -149,6 +149,8 @@
                          VirtualizingPanel.IsVirtualizing="True"
                          VirtualizingPanel.VirtualizationMode="Recycling"
                          ItemContainerStyle="{StaticResource ResultItemStyle}"
+                         PreviewMouseLeftButtonDown="ResultsList_OnPreviewMouseLeftButtonDown"
+                         PreviewMouseMove="ResultsList_OnPreviewMouseMove"
                          PreviewMouseLeftButtonUp="ResultsList_OnPreviewMouseLeftButtonUp">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

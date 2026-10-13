@@ -40,6 +40,7 @@ public sealed class CalculatorPlugin : IPlugin
         {
             // Tab sonucu kutuya yazar; hesaba oradan devam edilebilir.
             AutoComplete = copyText,
+            DragData = DragPayload.Text(copyText),
         };
 
         return Task.FromResult<IReadOnlyList<Result>>([result]);

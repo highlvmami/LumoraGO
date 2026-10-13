@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.21.0
+- Sürükle-bırak: bir sonucu fareyle tutup başka bir pencereye bırak. Dosyalar (/f, /ds, /son, betikler) gerçek dosya olarak gider: Gezgin'e kopyalanır, WhatsApp, Teams ya da Gmail'e ek olur. Yer imleri ve toplantılar bağlantı olarak, pano kayıtları, notlar, hesap sonucu, emoji, sözlük maddesi ve kişi numarası düz metin olarak gider. Uygulamayı masaüstüne bırakınca kısayolu kopyalanır
+- Sürüklerken launcher kapanmaz, bırakınca kapanır; Esc sürüklemeyi iptal eder
+- Dış eklentiler de sonuçlarına DragData (dosya, adres ya da metin) koyabilir
+
 ## 0.20.0
 - Kutudan doğrudan eylem: düz Türkçe yaz, LumoraGo ne anladığını satırda gösterir, Enter onaylar
 - "hatırlat yarın 9 fatura", "hatırlat 20 dk sonra çay", "hatırlat cuma akşam annemi ara": vakti gelince sesli bildirim. LumoraGo kapalıyken kaçan hatırlatıcılar açılınca gösterilir. "/hatırlatıcılar" bekleyenleri listeler: Enter tamamlandı, Ctrl+Enter 10 dakika ertele

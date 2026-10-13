@@ -36,7 +36,10 @@ public sealed class EmojiPlugin(Action<string> paste) : IPlugin
                 }
 
                 return true;
-            }))
+            })
+            {
+                DragData = DragPayload.Text(e.Emoji),
+            })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<Result>>(results);

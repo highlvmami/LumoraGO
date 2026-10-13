@@ -54,6 +54,9 @@ public sealed class AppsPlugin : IPlugin
             .Select(m => new Result(m.App.Name, m.App.Subtitle, m.App.LaunchPath, m.Score, ctx => Launch(m.App, ctx), Menu(m.App))
             {
                 PreviewPath = m.App.TargetPath is { Length: > 0 } target ? target : null,
+
+                // Başlat menüsü kısayolu bırakıldığı yere kopyalanır (masaüstüne kısayol koymanın kolay yolu).
+                DragData = m.App.Kind == AppKind.Shortcut ? DragPayload.File(m.App.LaunchPath) : null,
             })
             .ToList();
 

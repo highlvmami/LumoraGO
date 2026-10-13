@@ -148,6 +148,7 @@ public sealed class ScriptsPlugin : IPlugin
         {
             AutoComplete = script.Name + " ",
             PreviewPath = script.Path,
+            DragData = DragPayload.File(script.Path),
         };
     }
 

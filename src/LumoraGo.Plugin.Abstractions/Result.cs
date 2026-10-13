@@ -30,8 +30,40 @@ public sealed record Result(
     /// <summary>Dosya değilse hızlı önizlemede gösterilecek metin (pano kaydının tamamı, not, yer imi adresi).</summary>
     public string? PreviewText { get; init; }
 
+    /// <summary>
+    /// Satır fareyle tutulup başka bir pencereye bırakılınca giden şey: dosya, adres ya da metin. Boşsa ve
+    /// <see cref="PreviewText"/> doluysa o metin gider; ikisi de yoksa satır sürüklenmez.
+    /// </summary>
+    public DragPayload? DragData { get; init; }
+
     /// <summary>Sonucu üreten eklentinin kimliği. Çekirdek tarafından doldurulur.</summary>
     public string PluginId { get; init; } = "";
+}
+
+public enum DragKind
+{
+    /// <summary>Gerçek dosya ya da klasör: Gezgin'e kopyalanır, sohbet uygulamalarına ek olur.</summary>
+    File,
+
+    /// <summary>Bağlantı: tarayıcıya ya da metin kutusuna adres olarak.</summary>
+    Url,
+
+    /// <summary>Düz metin.</summary>
+    Text,
+}
+
+/// <summary>Sürükle-bırak ile giden veri.</summary>
+public sealed record DragPayload(DragKind Kind, string Value)
+{
+    public static DragPayload File(string path) => new(DragKind.File, path);
+
+    public static DragPayload Url(string url) => new(DragKind.Url, url);
+
+    public static DragPayload Text(string text) => new(DragKind.Text, text);
+
+    /// <summary>Satırın sürüklenince taşıyacağı veri; yoksa null.</summary>
+    public static DragPayload? For(Result result) =>
+        result.DragData ?? (result.PreviewText is { Length: > 0 } text ? Text(text) : null);
 }
 
 /// <summary>Bilgi kartı: büyük başlık değeri, altında açıklama ve satırlar, isteğe bağlı küçük eğri.</summary>

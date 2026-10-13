@@ -68,6 +68,7 @@ public sealed class BookmarksPlugin(Func<IReadOnlyList<Bookmark>> bookmarks, Act
         })
         {
             PreviewText = $"{bookmark.Title}\n\n{bookmark.Url}\n\n{where}",
+            DragData = DragPayload.Url(bookmark.Url),
             ContextMenu =
             [
                 new ContextAction("Aç", _ =>

@@ -31,6 +31,7 @@ internal partial class SettingsWindow : Window
         Fill(DeepFoldersList, s.DeepSearchFolders);
         Fill(FileFoldersList, s.FileSearchFolders);
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
+        CustomShortcutsBox.Text = CustomShortcutText.Format(s.CustomShortcuts);
         DefaultSkipNote.Text = "Virgülle ayır. Bunlar her zaman atlanır: "
             + string.Join(", ", DeepSearchOptions.DefaultSkipDirectoryNames.Order(StringComparer.OrdinalIgnoreCase));
     }
@@ -104,6 +105,13 @@ internal partial class SettingsWindow : Window
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
         var current = _store.Current;
+        var shortcuts = CustomShortcutText.Parse(CustomShortcutsBox.Text, out var shortcutErrors);
+        if (shortcutErrors.Count > 0)
+        {
+            MessageBox.Show(this, string.Join(Environment.NewLine, shortcutErrors), "Özel kısayollar", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         if (HotkeyBox.Text != current.Hotkey && !_tryHotkey(HotkeyBox.Text))
         {
             MessageBox.Show(this, $"{HotkeyBox.Text} başka bir uygulama tarafından kullanılıyor. Başka bir birleşim dene.",
@@ -128,6 +136,7 @@ internal partial class SettingsWindow : Window
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList(),
             FileSearchFolders = Items(FileFoldersList),
+            CustomShortcuts = shortcuts,
         });
         Close();
     }

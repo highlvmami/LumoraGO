@@ -52,6 +52,13 @@ internal static class NativeMethods
     public const byte VK_MENU = 0x12;
     public const byte VK_CONTROL = 0x11;
     public const byte VK_V = 0x56;
+    public const byte VK_VOLUME_MUTE = 0xAD;
+    public const byte VK_VOLUME_DOWN = 0xAE;
+    public const byte VK_VOLUME_UP = 0xAF;
+    public const byte VK_MEDIA_NEXT_TRACK = 0xB0;
+    public const byte VK_MEDIA_PREV_TRACK = 0xB1;
+    public const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
+    public const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
     public const uint KEYEVENTF_KEYUP = 0x0002;
 
     // --- Simgeler ---

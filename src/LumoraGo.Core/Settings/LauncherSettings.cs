@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LumoraGo.Core.Plugins;
 
 namespace LumoraGo.Core.Settings;
 
@@ -31,6 +32,9 @@ public sealed record LauncherSettings
 
     /// <summary>"/f"nin varsayılan kullanıcı klasörlerine ek olarak tarayacağı klasörler.</summary>
     public IReadOnlyList<string> FileSearchFolders { get; init; } = [];
+
+    /// <summary>Kullanıcının eklediği kelime → site/dosya/uygulama kısayolları.</summary>
+    public IReadOnlyList<CustomShortcut> CustomShortcuts { get; init; } = [];
 }
 
 /// <summary>Ayarları JSON dosyasında tutar. Dosya bozuksa varsayılanlarla açılır.</summary>

@@ -49,6 +49,10 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.tool.count"] = "\uE8C8",
         ["lumorago.kill"] = "\uE711",
         ["lumorago.media"] = "\uE767",
+        ["lumorago.bookmarks"] = "\uE734",
+        ["lumorago.winsettings"] = "\uE713",
+        ["lumorago.recent"] = "\uE81C",
+        ["lumorago.clock"] = "\uE12B",
         ["lumorago.keywordhints"] = "",
     };
 

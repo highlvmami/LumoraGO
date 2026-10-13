@@ -44,7 +44,7 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 
 `5 km mil`, `100 usd tl` gibi yazınca birim ve döviz çevirir. `/not ekmek al` not ekler, `/not` notları listeler. `/e kalp` emoji arar. `#1e90ff` gibi bir renk kodu yazınca HEX, RGB ve HSL karşılıkları çıkar. `/w chrome` açık pencereye geçer. `/t 10dk çay` zamanlayıcı kurar.
 
-`/tr`, `/wiki`, `/harita`, `/gh` web'de arar. `/uuid`, `/sifre`, `/b64`, `/url`, `/hash`, `/say` küçük araçlardır. `/kill chrome` donan uygulamayı kapatır, `/ses 40` sesi ayarlar. Ayarlar'daki "Özel kısayollar" kutusuna `/okul | https://okul.example.com` gibi kendi kısayollarını yazabilirsin.
+`/tr`, `/wiki`, `/harita`, `/gh` web'de arar. `/uuid`, `/sifre`, `/b64`, `/url`, `/hash`, `/say` küçük araçlardır. `/kill chrome` donan uygulamayı kapatır, `/ses 40` sesi ayarlar. `/b` tarayıcı yer imlerinde, `/son` son açılan dosyalarda arar, `/saat tokyo` dünya saatini gösterir; "bluetooth" gibi yazınca Windows Ayarları sayfası çıkar. Ayarlar'daki "Özel kısayollar" kutusuna `/okul | https://okul.example.com` gibi kendi kısayollarını yazabilirsin.
 
 Arama tamamen bilgisayarında yapılır. İnternete yalnızca güncelleme kontrolü ve döviz kurları için çıkılır (open.er-api.com); notlar, ayarlar ve (istenirse) pano geçmişi `%LOCALAPPDATA%\LumoraGo` altında durur.
 

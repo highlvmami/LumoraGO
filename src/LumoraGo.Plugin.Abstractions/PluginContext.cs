@@ -23,6 +23,12 @@ public interface IPluginHost
     /// <summary>Metni panoya kopyalar.</summary>
     void CopyToClipboard(string text);
 
+    /// <summary>
+    /// Kutudaki metin <paramref name="keyword"/> ile başlıyorsa aramayı yeniden çalıştırır, seçili satır korunur.
+    /// Arka planda sonuç üreten eklentiler (derin arama gibi) listeyi böyle tazeler.
+    /// </summary>
+    void RefreshResults(string keyword);
+
     /// <summary>Kullanıcıya kısa bir bildirim gösterir.</summary>
     void ShowMessage(string title, string message);
 

@@ -92,7 +92,19 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         }
     }
 
-    private async Task RunSearchAsync(string text)
+    /// <summary>Kutudaki metin <paramref name="keyword"/> ile başlıyorsa aramayı seçili satırı koruyarak yeniden çalıştırır.</summary>
+    public void Refresh(string keyword)
+    {
+        var text = QueryText;
+        var matches = text.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)
+            && (text.Length == keyword.Length || text[keyword.Length] == ' ');
+        if (matches)
+        {
+            _ = RunSearchAsync(text, keepSelection: true);
+        }
+    }
+
+    private async Task RunSearchAsync(string text, bool keepSelection = false)
     {
         // Her tuşta önceki aramayı iptal et; sadece en son yazılanın sonucu ekrana gelir.
         _searchCts?.Cancel();
@@ -107,8 +119,11 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
                 return;
             }
 
+            var previous = SelectedIndex;
             Results = response.Results;
-            SelectedIndex = response.Results.Count > 0 ? 0 : -1;
+            SelectedIndex = keepSelection && previous >= 0 && previous < response.Results.Count
+                ? previous
+                : response.Results.Count > 0 ? 0 : -1;
             log.Debug($"Sorgu \"{text}\": {response.Results.Count} sonuç, {response.Elapsed.TotalMilliseconds:F1} ms");
         }
         catch (OperationCanceledException)

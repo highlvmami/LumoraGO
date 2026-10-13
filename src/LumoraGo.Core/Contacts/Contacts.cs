@@ -381,7 +381,7 @@ public sealed class ContactBook
     private readonly Func<byte[], byte[]> _protect;
     private readonly Func<byte[], byte[]> _unprotect;
     private readonly ILog _log;
-    private IReadOnlyList<(Contact Contact, FoldedText Name, string[] Phones)> _index = [];
+    private IReadOnlyList<(Contact Contact, string Name, string Haystack, string[] Phones)> _index = [];
 
     public ContactBook(string path, Func<byte[], byte[]> protect, Func<byte[], byte[]> unprotect, ILog? log = null)
     {
@@ -433,7 +433,10 @@ public sealed class ContactBook
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Ada göre bulanık, numaraya göre (en az 4 rakam) parça eşleşmesiyle arar.</summary>
+    /// <summary>
+    /// Yazılanın geçtiği kişiler: her kelime adda, e-postada ya da şirkette geçmeli (Türkçe harfsiz de olur);
+    /// en az 4 rakam yazılırsa numaranın içinde de aranır. Ad yazılanla başlayanlar önce, sonra kelime başı, sonra içinde geçenler.
+    /// </summary>
     public IReadOnlyList<(Contact Contact, int Score)> Search(string text)
     {
         var query = text.Trim();
@@ -443,15 +446,24 @@ public sealed class ContactBook
         }
 
         var folded = FuzzyMatcher.Fold(query);
+        var words = folded.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var digits = PhoneNumber.Digits(query);
         var byNumber = digits.Length >= 4 && digits.Length * 2 >= query.Count(c => !char.IsWhiteSpace(c));
         var matches = new List<(Contact, int)>();
-        foreach (var (contact, name, phones) in _index)
+        foreach (var (contact, name, haystack, phones) in _index)
         {
-            var score = FuzzyMatcher.Score(folded, name);
+            var score = 0;
+            if (words.All(w => haystack.Contains(w, StringComparison.Ordinal)))
+            {
+                score = name.StartsWith(folded, StringComparison.Ordinal) ? 900
+                    : words.All(w => name.Split(' ').Any(n => n.StartsWith(w, StringComparison.Ordinal))) ? 700
+                    : words.All(w => name.Contains(w, StringComparison.Ordinal)) ? 500
+                    : 300;
+            }
+
             if (byNumber && phones.Any(p => p.Contains(digits.TrimStart('0'), StringComparison.Ordinal)))
             {
-                score = Math.Max(score, 500);
+                score = Math.Max(score, 600);
             }
 
             if (score > 0)
@@ -460,7 +472,8 @@ public sealed class ContactBook
             }
         }
 
-        return matches.OrderByDescending(m => m.Item2).ToList();
+        var tr = StringComparer.Create(new System.Globalization.CultureInfo("tr-TR"), true);
+        return matches.OrderByDescending(m => m.Item2).ThenBy(m => m.Item1.Name, tr).ToList();
     }
 
     /// <summary>"ahmet" için en iyi eşleşen kişi; hiç eşleşme yoksa null.</summary>
@@ -469,7 +482,12 @@ public sealed class ContactBook
     private void Set(IReadOnlyList<Contact> contacts)
     {
         All = contacts;
-        _index = contacts.Select(c => (c, new FoldedText(c.Name), c.Phones.Select(p => PhoneNumber.Normalize(p)).ToArray())).ToList();
+        _index = contacts.Select(c =>
+        {
+            var name = FuzzyMatcher.Fold(c.Name);
+            var haystack = string.Join(' ', new[] { name, FuzzyMatcher.Fold(c.Organization ?? "") }.Concat(c.Emails.Select(FuzzyMatcher.Fold)));
+            return (c, name, haystack, c.Phones.Select(p => PhoneNumber.Normalize(p)).ToArray());
+        }).ToList();
     }
 
     private IReadOnlyList<Contact> Load()

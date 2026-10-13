@@ -73,6 +73,7 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.reminders.hatırlatıcılar"] = "\uEA8F",
         ["lumorago.contacts.kw"] = "\uE77B",
         ["lumorago.contacts.kw.kişi"] = "\uE77B",
+        ["lumorago.contacts.kw.rehber"] = "\uE77B",
         ["lumorago.scripts.run"] = "\uE756",
         ["lumorago.scripts.run.calistir"] = "\uE756",
         ["lumorago.keywordhints"] = "",

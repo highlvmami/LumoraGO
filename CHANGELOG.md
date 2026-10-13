@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.21.2
+- LumoraGo'nun kendi logosu: uygulama, görev çubuğu, tepsi, Ayarlar penceresi ve kurulum dosyası artık mor "L" ve yıldız simgesini kullanır
+- "/rehber" (ya da "/kisi", "/kişi") boş yazılınca artık tüm kişiler listelenir; önceden ilk 20 kişide kalıyordu
+- Kişi araması yazdığın metnin geçtiği kişileri getirir: "/kişi ali" adında, e-postasında ya da şirketinde "ali" geçenleri gösterir (adı "ali" ile başlayanlar önce). Önceden harfleri sırayla içeren alakasız kişiler de çıkıyordu. Genel aramada yalnızca adı ya da soyadı yazılanla başlayan kişiler çıkar
+
 ## 0.21.1
 - "/mac" düzeldi: "/mac fenerbahçe", "/mac fb", "/mac galatasaray", "/mac arsenal" artık takımın maçlarını getiriyor. En üstte son oynanan maç büyük kart olarak, altında sıradaki maçlar, en altta önceki maçlar. Sorun, maç kaynağının (ESPN) tarih aralığıyla yapılan isteği reddetmesiydi; artık takımın fikstürü doğrudan okunuyor
 - "/lig": Süper Lig puan tablosu (sıra, puan, maç, galibiyet/beraberlik/mağlubiyet, averaj). "/lig premier", "/lig la liga", "/lig serie a", "/lig bundesliga", "/lig ligue 1" diğer ligler

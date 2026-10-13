@@ -197,6 +197,7 @@ public partial class App : Application
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => _settings.Current.ContactsInGlobalSearch)),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), ContactsPlugin.Keyword)),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/kişi")),
+                ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/rehber")),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, ScriptsPlugin.RunKeyword)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, "/çalıştır")),

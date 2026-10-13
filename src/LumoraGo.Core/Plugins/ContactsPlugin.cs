@@ -12,7 +12,11 @@ public sealed class ContactsPlugin : IPlugin
     public const string Keyword = "/kisi";
     public static readonly PluginMetadata GlobalMetadata = new("lumorago.contacts", "Kişiler");
 
-    private const int MaxResults = 20;
+    /// <summary>Liste sanal çizildiği için büyük rehberler de tek seferde gösterilebilir.</summary>
+    private const int MaxResults = 2000;
+
+    /// <summary>Genel aramada kalabalık etmesin.</summary>
+    private const int MaxGlobalResults = 8;
 
     private readonly ContactBook _book;
     private readonly Action<string> _open;
@@ -59,7 +63,9 @@ public sealed class ContactsPlugin : IPlugin
         }
 
         var results = _book.Search(text)
-            .Take(MaxResults)
+            // Genel aramada yalnızca adı ya da adın bir kelimesi yazılanla başlayanlar; "ch" yazınca Chrome'un önüne kişiler dolmasın.
+            .Where(m => IsKeyword || m.Score >= 600)
+            .Take(IsKeyword ? MaxResults : MaxGlobalResults)
             .Select(m => Row(m.Contact, IsKeyword ? m.Score : m.Score / 2))
             .ToList();
         return Task.FromResult<IReadOnlyList<Result>>(results);

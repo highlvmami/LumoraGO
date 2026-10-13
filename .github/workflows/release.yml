@@ -69,6 +69,7 @@ jobs:
         run: >
           vpk pack --packId LumoraGo --packVersion ${{ steps.version.outputs.version }} --packDir publish
           --mainExe LumoraGo.exe --packTitle LumoraGo --releaseNotes release-notes.md
+          --icon src/LumoraGo.App/Assets/LumoraGo.ico
 
       - name: Upload to GitHub Releases
         run: >

@@ -10,6 +10,7 @@ using LumoraGo.Core.Apps;
 using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
+using LumoraGo.Core.Desktop;
 using LumoraGo.Core.Extensions;
 using LumoraGo.Core.Accounts;
 using LumoraGo.Core.Calendar;
@@ -19,6 +20,7 @@ using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
 using LumoraGo.Core.Plugins;
+using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Search;
 using LumoraGo.Core.Settings;
 using LumoraGo.Core.Timers;
@@ -36,6 +38,9 @@ public partial class App : Application
 
     /// <summary>Kullanıcının kurduğu dış eklentiler; her biri kendi alt klasöründe plugin.json ile.</summary>
     private static readonly string ExtensionsRoot = Path.Combine(DataRoot, "extensions");
+
+    /// <summary>Adıyla çalıştırılabilen betiklerin klasörü.</summary>
+    private static readonly string ScriptsRoot = Path.Combine(DataRoot, "scripts");
 
     private static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
@@ -133,6 +138,24 @@ public partial class App : Application
 
         var host = new LauncherHost(_window, _tray, _log);
         var commands = BuildCommands(host);
+        var media = new MediaControl(_log);
+        var appLauncher = new ShellAppLauncher();
+        var scripts = new ScriptCatalog(() => ScriptsRoot);
+        try
+        {
+            scripts.EnsureFolder();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _log.Warn($"Betik klasörü oluşturulamadı: {ex.Message}");
+        }
+
+        var scriptRunner = new ScriptRunner();
+        var scriptHost = new ScriptHost(
+            scriptRunner.RunAsync,
+            ScriptRunner.Launch,
+            () => ChainActionsFor(host, apps, appLauncher, media, scripts, scriptRunner),
+            OpenPath);
         plugins.Initialize(
             [
                 new PluginEntry(CalculatorPlugin.Metadata, new CalculatorPlugin()),
@@ -141,7 +164,7 @@ public partial class App : Application
                     ct => Http.GetStringAsync(CurrencyRates.SourceUrl, ct),
                     _log))),
                 new PluginEntry(ColorPlugin.Metadata, new ColorPlugin()),
-                new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, new ShellAppLauncher(), usage)),
+                new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, appLauncher, usage)),
                 WebSearchEntry(WebSearchPlugin.YouTube(OpenUrl)),
                 WebSearchEntry(WebSearchPlugin.Google(OpenUrl)),
                 WebSearchEntry(WebSearchPlugin.Translate(OpenUrl)),
@@ -150,9 +173,12 @@ public partial class App : Application
                 WebSearchEntry(WebSearchPlugin.GitHubSearch(OpenUrl)),
                 new PluginEntry(CustomShortcutsPlugin.Metadata, new CustomShortcutsPlugin(
                     () => _settings.Current.CustomShortcuts, OpenUrl)),
+                ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost)),
+                ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, ScriptsPlugin.RunKeyword)),
+                ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, "/çalıştır")),
                 .. ToolPlugin.All().Select(t => new PluginEntry(t.Metadata, t)),
                 new PluginEntry(ProcessKillPlugin.Metadata, new ProcessKillPlugin(ProcessService.List, ProcessService.Kill)),
-                new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(new MediaControl(_log))),
+                new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(media)),
                 .. NetworkToolPlugins.Create(
                     new NetworkTools(Http, SystemNetwork.PingAsync, SystemNetwork.WhoisAsync),
                     new SpeedTest(LongHttp)).Select(p => new PluginEntry(p.Metadata, p)),
@@ -335,6 +361,61 @@ public partial class App : Application
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
+
+    private static PluginEntry ScriptsEntry(ScriptsPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private (string Text, IReadOnlyList<ActionChain> Chains) _chainCache = ("", []);
+
+    /// <summary>Ayarlardaki zincir metni; değişmedikçe yeniden ayrıştırılmaz.</summary>
+    private IReadOnlyList<ActionChain> Chains()
+    {
+        var text = _settings?.Current.ScriptChains ?? "";
+        var cache = _chainCache;
+        if (cache.Text != text)
+        {
+            cache = (text, ChainText.Parse(text, out _));
+            _chainCache = cache;
+        }
+
+        return cache.Chains;
+    }
+
+    private ChainActions ChainActionsFor(
+        IPluginHost host, WindowsAppSource apps, IAppLauncher launcher, IMediaControl media, ScriptCatalog scripts, ScriptRunner runner) => new(
+        Open: path =>
+        {
+            path = Environment.ExpandEnvironmentVariables(path.Trim().Trim('"'));
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return $"{path} bulunamadı";
+            }
+
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            return null;
+        },
+        LaunchApp: name =>
+        {
+            if (ChainSteps.FindApp(apps.Apps, name) is not { } app)
+            {
+                return $"\"{name}\" adında uygulama bulunamadı";
+            }
+
+            launcher.Launch(app, LaunchMode.Normal);
+            return null;
+        },
+        OpenUrl: url =>
+        {
+            Process.Start(new ProcessStartInfo(ChainSteps.NormalizeUrl(url)) { UseShellExecute = true });
+            return null;
+        },
+        RunScript: (text, ct) => ChainSteps.RunScriptAsync(scripts, runner.RunAsync, text, ct),
+        SetVolume: percent => media.SetVolume(percent) ? null : "ses düzeyi ayarlanamadı",
+        Copy: text =>
+        {
+            host.CopyToClipboard(text);
+            return null;
+        },
+        Notify: host.ShowMessage);
 
     private static PluginEntry WebSearchEntry(WebSearchPlugin plugin) => new(plugin.Metadata, plugin);
 

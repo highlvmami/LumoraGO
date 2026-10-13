@@ -106,6 +106,12 @@
                          FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
                 <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kısayol: &quot;kelime | hedef&quot; veya &quot;kelime | ad | hedef&quot;. Hedef bir site, dosya, klasör ya da uygulama olabilir. Hedefte {0} varsa kelimeden sonra yazılan metin oraya konur. Örnek: /okul | Okul portalı | https://okul.example.com, ekşi | https://eksisozluk.com/?q={0}" />
 
+                <TextBlock Text="Eylem zincirleri" Style="{StaticResource Heading}" />
+                <TextBox x:Name="ScriptChainsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
+                <TextBlock Style="{StaticResource Note}" Text="Birkaç adımı tek isimde topla, launcher'da adını yazıp Enter'a bas. Her zincir [ad] satırıyla başlar, altına &quot;tür | değer&quot; adımları gelir. Türler: aç (dosya/klasör), uygulama, site, betik, ses (0-100), bekle (saniye), yaz (panoya), bildirim. Bir adım hata verirse zincir orada durur. Örnek: [çalışma] / uygulama | Visual Studio Code / site | https://github.com / ses | 30. Betikler için Ayarlar'a gerek yok: %LOCALAPPDATA%\LumoraGo\scripts klasörüne .ps1, .bat, .cmd ya da .py koyman yeter (&quot;betik&quot; yazınca klasör açılır)." />
+
                 <TextBlock Text="Takvim (/takvim)" Style="{StaticResource Heading}" />
                 <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"

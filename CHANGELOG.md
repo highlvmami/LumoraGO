@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.18.0
+- Betikler: %LOCALAPPDATA%\LumoraGo\scripts klasörüne konan .ps1, .bat, .cmd ve .py dosyaları adıyla aranır ve çalıştırılır ("yedekle" ya da "/calistir yedekle"). Addan sonra yazılanlar betiğe argüman olarak gider ("yedekle D:\Yedek"). Enter arka planda çalıştırır ve bitince çıkış kodunu ve son satırları bildirir, Ctrl+Enter terminalde açar, Shift+Enter yönetici olarak çalıştırır. "betik" yazınca klasör açılır; ilk açılışta örnek "merhaba.ps1" konur
+- Eylem zincirleri: Ayarlar'da birkaç adımı tek isimde topla (uygulama aç, site aç, dosya/klasör aç, betik çalıştır, sesi ayarla, bekle, panoya yaz, bildirim göster) ve launcher'da adını yazıp çalıştır. Bir adım hata verirse zincir durur ve hangi adımda durduğunu bildirir
+
 ## 0.17.0
 - Sözlük: "/tanım kalem" (ya da "/tanim") TDK'dan anlamları, örnek cümleleri, atasözü ve deyimleri gösterir; "/tanım en serendipity" İngilizce anlam, okunuş ve eş anlamlılar. Enter anlamı kopyalar, Shift+Boşluk maddenin tamamını önizler
 - Bilgi kartları: sonuçlar büyük kart olarak görünür

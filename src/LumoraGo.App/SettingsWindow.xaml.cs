@@ -3,6 +3,7 @@ using System.Windows.Input;
 using LumoraGo.App.Services;
 using LumoraGo.Core.Accounts;
 using LumoraGo.Core.DeepSearch;
+using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Settings;
 
 namespace LumoraGo.App;
@@ -40,6 +41,7 @@ internal partial class SettingsWindow : Window
         DeepIncludeSystemBox.IsChecked = s.DeepSearchIncludeSystem;
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
         CustomShortcutsBox.Text = CustomShortcutText.Format(s.CustomShortcuts);
+        ScriptChainsBox.Text = s.ScriptChains;
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
         {
@@ -134,6 +136,13 @@ internal partial class SettingsWindow : Window
             return;
         }
 
+        ChainText.Parse(ScriptChainsBox.Text, out var chainErrors);
+        if (chainErrors.Count > 0)
+        {
+            MessageBox.Show(this, string.Join(Environment.NewLine, chainErrors), "Eylem zincirleri", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         var calendarUrls = AccountInput.ParseCalendarUrls(CalendarUrlsBox.Text, out var calendarErrors);
         if (calendarErrors.Count > 0)
         {
@@ -181,6 +190,7 @@ internal partial class SettingsWindow : Window
                 .ToList(),
             FileSearchFolders = Items(FileFoldersList),
             CustomShortcuts = shortcuts,
+            ScriptChains = ScriptChainsBox.Text.Trim(),
         });
         Close();
     }

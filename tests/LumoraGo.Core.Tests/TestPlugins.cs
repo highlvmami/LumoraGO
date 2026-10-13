@@ -61,7 +61,13 @@ internal sealed class NullHost : IPluginHost
 
     public void ShowMessage(string title, string message)
     {
+        lock (Messages)
+        {
+            Messages.Add((title, message));
+        }
     }
+
+    public List<(string Title, string Message)> Messages { get; } = [];
 
     public void Log(LogLevel level, string message)
     {

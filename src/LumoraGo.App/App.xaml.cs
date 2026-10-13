@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
+using LumoraGo.Core.Actions;
 using LumoraGo.Core.Apps;
 using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
@@ -61,6 +62,10 @@ public partial class App : Application
     private SettingsStore? _settings;
     private SecretStore? _secrets;
     private ContactBook? _contacts;
+    private ReminderStore? _reminders;
+    private Timer? _reminderTimer;
+    private static readonly TimeSpan ReminderFirstCheck = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan ReminderInterval = TimeSpan.FromSeconds(15);
     private ContactsWatcher? _contactsWatcher;
     private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
@@ -158,6 +163,11 @@ public partial class App : Application
             _log.Warn($"Betik klasörü oluşturulamadı: {ex.Message}");
         }
 
+        var notes = new NotesStore(Path.Combine(DataRoot, "notes.json"), _log);
+        _reminders = new ReminderStore(Path.Combine(DataRoot, "reminders.json"), _log);
+        var reminders = _reminders;
+        _reminderTimer = new Timer(_ => CheckReminders(), null, ReminderFirstCheck, ReminderInterval);
+
         var scriptRunner = new ScriptRunner();
         var scriptHost = new ScriptHost(
             scriptRunner.RunAsync,
@@ -181,6 +191,9 @@ public partial class App : Application
                 WebSearchEntry(WebSearchPlugin.GitHubSearch(OpenUrl)),
                 new PluginEntry(CustomShortcutsPlugin.Metadata, new CustomShortcutsPlugin(
                     () => _settings.Current.CustomShortcuts, OpenUrl)),
+                new PluginEntry(DirectActionsPlugin.Metadata, new DirectActionsPlugin(reminders, contacts, notes, OpenUrl)),
+                RemindersEntry(new RemindersPlugin(reminders, "/hatırlatıcılar")),
+                RemindersEntry(new RemindersPlugin(reminders, "/hatirlaticilar")),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => _settings.Current.ContactsInGlobalSearch)),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), ContactsPlugin.Keyword)),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/kişi")),
@@ -212,7 +225,7 @@ public partial class App : Application
                 new PluginEntry(FileSearchPlugin.Metadata, new FileSearchPlugin(_files, OpenPath, RevealPath)),
                 new PluginEntry(DeepSearchPlugin.Metadata, new DeepSearchPlugin(
                     DeepSearchSettings, OpenPath, RevealPath)),
-                new PluginEntry(NotesPlugin.Metadata, new NotesPlugin(new NotesStore(Path.Combine(DataRoot, "notes.json"), _log))),
+                new PluginEntry(NotesPlugin.Metadata, new NotesPlugin(notes)),
                 new PluginEntry(EmojiPlugin.Metadata, new EmojiPlugin(PasteText)),
                 new PluginEntry(WindowSwitcherPlugin.Metadata, new WindowSwitcherPlugin(
                     WindowEnumerator.List, ActivateWindow, WindowEnumerator.Close)),
@@ -371,6 +384,30 @@ public partial class App : Application
 
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
+    }
+
+    private static PluginEntry RemindersEntry(RemindersPlugin plugin) => new(plugin.Metadata, plugin);
+
+    /// <summary>Vakti gelen hatırlatıcıları tepside gösterir; LumoraGo kapalıyken kaçanlar açılıştan hemen sonra gelir.</summary>
+    private void CheckReminders()
+    {
+        if (_reminders is null)
+        {
+            return;
+        }
+
+        var now = DateTime.Now;
+        foreach (var reminder in _reminders.TakeDue(now))
+        {
+            var late = now - reminder.Due > TimeSpan.FromMinutes(2);
+            Dispatcher.BeginInvoke(() =>
+            {
+                System.Media.SystemSounds.Exclamation.Play();
+                _tray?.ShowBalloon($"🔔 {reminder.Text}", late
+                    ? $"Kaçırılan hatırlatıcı ({reminder.Due:d MMM HH:mm}). /hatırlatıcılar ile tamamla ya da ertele."
+                    : $"Saat {reminder.Due:HH:mm}. /hatırlatıcılar ile tamamla ya da ertele.");
+            });
+        }
     }
 
     private static PluginEntry ContactsEntry(ContactsPlugin plugin) => new(plugin.Metadata, plugin);
@@ -703,6 +740,7 @@ public partial class App : Application
         _showEvent?.Dispose();
         _clipboardMonitor?.Dispose();
         _contactsWatcher?.Dispose();
+        _reminderTimer?.Dispose();
         _clipboardPersistence?.Dispose();
         _timers?.Dispose();
         _fileIndexTimer?.Dispose();

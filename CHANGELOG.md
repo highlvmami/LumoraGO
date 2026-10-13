@@ -2,6 +2,15 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.20.0
+- Kutudan doğrudan eylem: düz Türkçe yaz, LumoraGo ne anladığını satırda gösterir, Enter onaylar
+- "hatırlat yarın 9 fatura", "hatırlat 20 dk sonra çay", "hatırlat cuma akşam annemi ara": vakti gelince sesli bildirim. LumoraGo kapalıyken kaçan hatırlatıcılar açılınca gösterilir. "/hatırlatıcılar" bekleyenleri listeler: Enter tamamlandı, Ctrl+Enter 10 dakika ertele
+- "mesaj ahmet geliyorum": rehberdeki kişiyi (ya da yazılan numarayı) bulur, WhatsApp'ı mesaj yazılmış olarak açar; göndermeyi sen yaparsın
+- "mail ayşe toplantı | yarın 10'da müsait misin": varsayılan mail uygulamasında konusu ve metni dolu yeni mail
+- "etkinlik cuma 14:00 dişçi": Google Takvim'de dolu bir yeni etkinlik sayfası açar, kaydetmek sende
+- "not süt al": /not listesine hızlı ekleme
+- Anlaşılan tarihler: bugün, yarın, öbür gün, haftaya, pazartesi…pazar, "cuma 14:30", "3 kasım", "2 saat sonra", "20 dk sonra", sabah, öğlen, akşam, gece. Saat yazılmazsa 09:00; bugün geçmiş bir saat yazılırsa ertesi güne kurulur ve satırda yazar
+
 ## 0.19.0
 - Kişiler: Ayarlar → Kişiler'den Google Kişiler, iPhone (iCloud) ya da Outlook'tan aldığın .vcf veya .csv dosyasını seç. "/kisi ahmet" ya da doğrudan "ahmet" yazınca kişi çıkar (Türkçe harfsiz de bulur, numaranın bir parçasını yazınca da). Enter numarayı kopyalar, Ctrl+Enter WhatsApp sohbetini, Shift+Enter yeni maili açar; sağ ok menüsünde telefonla arama (Telefon Bağlantısı) ve diğer numaralar var. 0532…, +90 532… ve 532… aynı numara sayılır
 - Kişiler şifreli (Windows hesabına bağlı) saklanır, hiçbir yere gönderilmez. "Dosya değişince yeniden oku" seçilirse dosya güncellenince rehber de güncellenir

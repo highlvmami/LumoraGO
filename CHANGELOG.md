@@ -2,6 +2,9 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.14.1
+- "/ds" için yeni ayar: "Sistem klasörlerini de ara" açılırsa C:\ içinde Windows, Program Files, AppData, node_modules ve .git dahil her yer taranır (daha uzun sürer). Varsayılan değişmedi
+
 ## 0.14.0
 - Takvim: "/takvim" bugünün kalan toplantılarını, "/takvim yarın" ve "/takvim hafta" ilerisini gösterir; Enter toplantı bağlantısını (Meet, Teams, Zoom) açar. Google Takvim ve Outlook.com için takvimin gizli ICS adresi Ayarlar'a yapıştırılır, uygulama kaydı gerekmez. Tekrarlayan toplantılar ve saat dilimleri desteklenir
 - Mail: "/mail" okunmamış mailleri (gönderen, konu, zaman) listeler, yazınca süzer; Enter gelen kutusunu açar. Gmail, Yahoo, Yandex, iCloud ve diğer IMAP sunucuları çalışır; Gmail için uygulama şifresi gerekir. Mailler okundu işaretlenmez ve gövdeleri indirilmez. Outlook/Hotmail/Microsoft 365 şifreyle IMAP'e kapalı olduğu için desteklenmiyor

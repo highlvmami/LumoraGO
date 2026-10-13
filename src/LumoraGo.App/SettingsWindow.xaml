@@ -71,6 +71,9 @@
                 </StackPanel>
                 <TextBlock Style="{StaticResource Note}" Text="Liste boşsa tüm sabit diskler (C:\, D:\...) aranır." />
 
+                <CheckBox x:Name="DeepIncludeSystemBox" Content="Sistem klasörlerini de ara (Windows, Program Files, AppData, node_modules, .git)" Margin="0,8,0,0" />
+                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken bu klasörler atlanır, arama hızlı biter. Açıkken C:\ içindeki her şey taranır, bu çok daha uzun sürer; $Recycle.Bin ve System Volume Information yine atlanır." />
+
                 <TextBlock Text="Derin aramada atlanacak klasör adları" Style="{StaticResource Heading}" />
                 <TextBox x:Name="SkipNamesBox" Padding="6,4" />
                 <TextBlock x:Name="DefaultSkipNote" Style="{StaticResource Note}" />

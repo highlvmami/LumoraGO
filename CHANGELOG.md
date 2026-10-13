@@ -2,6 +2,9 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.15.0
+- Kullanıma göre sıralama: LumoraGo hangi yazıda hangi sonucu seçtiğini öğrenir. "ch" yazıp hep Chrome'u seçiyorsan bir süre sonra "c" ve "ch" yazınca Chrome en üstte çıkar. Uygulamalar, dosyalar, yer imleri, ayarlar ve komutların hepsinde çalışır; eski seçimlerin etkisi yaklaşık 30 günde yarıya iner. Ayarlar'da "Öğrenilen sıralamayı sıfırla" düğmesi var
+
 ## 0.14.1
 - "/ds" için yeni ayar: "Sistem klasörlerini de ara" açılırsa C:\ içinde Windows, Program Files, AppData, node_modules ve .git dahil her yer taranır (daha uzun sürer). Varsayılan değişmedi
 

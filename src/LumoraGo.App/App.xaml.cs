@@ -53,6 +53,7 @@ public partial class App : Application
     private FileIndex? _files;
     private SettingsStore? _settings;
     private SecretStore? _secrets;
+    private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
     private ClipboardHistory? _clipboard;
     private ClipboardMonitor? _clipboardMonitor;
@@ -120,7 +121,8 @@ public partial class App : Application
         _settings.Changed += (_, settings) => ApplySettings(settings);
 
         var plugins = new PluginManager(_log);
-        var search = new SearchService(plugins, _log);
+        _learning = new QueryLearning(Path.Combine(DataRoot, "learned.json"), _log);
+        var search = new SearchService(plugins, _log, learning: _learning);
         _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
         _tray = new TrayIcon(() => _window.ShowLauncher(), OpenSettings, OpenLogFolder, ExitApplication);
 
@@ -374,7 +376,7 @@ public partial class App : Application
         }
 
         _window?.HideLauncher();
-        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey);
+        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear());
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
         _settingsWindow.Activate();

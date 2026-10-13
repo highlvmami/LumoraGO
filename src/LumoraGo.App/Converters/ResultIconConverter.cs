@@ -22,6 +22,9 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.apps"] = "",
         ["lumorago.youtube"] = "",
         ["lumorago.google"] = "",
+        ["lumorago.github"] = "",
+        ["lumorago.linkedin"] = "",
+        ["lumorago.linkedln"] = "",
         ["lumorago.keywordhints"] = "",
     };
 

@@ -75,6 +75,9 @@ public partial class App : Application
                 new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, new ShellAppLauncher(), usage)),
                 WebSearchEntry(WebSearchPlugin.YouTube(OpenUrl)),
                 WebSearchEntry(WebSearchPlugin.Google(OpenUrl)),
+                LinkEntry(LinkPlugin.GitHub(OpenUrl)),
+                LinkEntry(LinkPlugin.LinkedIn(OpenUrl)),
+                LinkEntry(LinkPlugin.LinkedIn(OpenUrl, misspelled: true)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
                 new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
@@ -212,6 +215,8 @@ public partial class App : Application
     }
 
     private static PluginEntry WebSearchEntry(WebSearchPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private static PluginEntry LinkEntry(LinkPlugin plugin) => new(plugin.Metadata, plugin);
 
     /// <summary>Adresi varsayılan tarayıcıda açar.</summary>
     private void OpenUrl(string url)

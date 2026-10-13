@@ -10,7 +10,9 @@ using LumoraGo.Core.Apps;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Files;
+using LumoraGo.Core.Notes;
 using LumoraGo.Core.Plugins;
+using LumoraGo.Core.Search;
 using LumoraGo.Core.Settings;
 using LumoraGo.Plugin;
 
@@ -23,6 +25,8 @@ public partial class App : Application
 
     private static readonly string DataRoot =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumoraGo");
+
+    private static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
     private Mutex? _mutex;
     private EventWaitHandle? _showEvent;
@@ -106,6 +110,11 @@ public partial class App : Application
         plugins.Initialize(
             [
                 new PluginEntry(CalculatorPlugin.Metadata, new CalculatorPlugin()),
+                new PluginEntry(ConverterPlugin.Metadata, new ConverterPlugin(new CurrencyRates(
+                    Path.Combine(DataRoot, "cache", "rates.json"),
+                    ct => Http.GetStringAsync(CurrencyRates.SourceUrl, ct),
+                    _log))),
+                new PluginEntry(ColorPlugin.Metadata, new ColorPlugin()),
                 new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, new ShellAppLauncher(), usage)),
                 WebSearchEntry(WebSearchPlugin.YouTube(OpenUrl)),
                 WebSearchEntry(WebSearchPlugin.Google(OpenUrl)),
@@ -116,6 +125,8 @@ public partial class App : Application
                 new PluginEntry(FileSearchPlugin.Metadata, new FileSearchPlugin(_files, OpenPath, RevealPath)),
                 new PluginEntry(DeepSearchPlugin.Metadata, new DeepSearchPlugin(
                     DeepSearchSettings, OpenPath, RevealPath)),
+                new PluginEntry(NotesPlugin.Metadata, new NotesPlugin(new NotesStore(Path.Combine(DataRoot, "notes.json"), _log))),
+                new PluginEntry(EmojiPlugin.Metadata, new EmojiPlugin(PasteText)),
                 .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),

@@ -17,10 +17,13 @@ internal partial class SettingsWindow : Window
     private readonly Func<string, bool> _tryHotkey;
     private readonly Action _resetLearning;
     private readonly ContactBook _contacts;
+    private readonly Func<string, string, Task<string>> _connectGoogle;
+    private readonly Func<Task<string>> _syncGoogle;
     private string _contactsFile;
 
     /// <param name="tryHotkey">Kısayolu kaydetmeyi dener; başka uygulama kullanıyorsa false döner ve eskisi kalır.</param>
-    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning, ContactBook contacts)
+    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning, ContactBook contacts,
+        Func<string, string, Task<string>> connectGoogle, Func<Task<string>> syncGoogle)
     {
         InitializeComponent();
 
@@ -31,6 +34,8 @@ internal partial class SettingsWindow : Window
         _tryHotkey = tryHotkey;
         _resetLearning = resetLearning;
         _contacts = contacts;
+        _connectGoogle = connectGoogle;
+        _syncGoogle = syncGoogle;
 
         var s = store.Current;
         HotkeyBox.Text = s.Hotkey;
@@ -50,6 +55,13 @@ internal partial class SettingsWindow : Window
         ContactsWatchBox.IsChecked = s.ContactsWatch;
         ContactsGlobalBox.IsChecked = s.ContactsInGlobalSearch;
         ShowContactsStatus();
+        if (secrets.Current.Google is { } google)
+        {
+            GoogleClientIdBox.Text = google.ClientId;
+            GoogleClientSecretBox.Password = google.ClientSecret;
+        }
+
+        ShowGoogleStatus();
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
         {
@@ -129,6 +141,65 @@ internal partial class SettingsWindow : Window
         {
             MessageBox.Show(this, ex.Message, "Kişiler", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    private void ShowGoogleStatus()
+    {
+        var google = _secrets.Current.Google;
+        var count = _contacts.All.Count(c => c.FromGoogle);
+        GoogleStatus.Text = google is { RefreshToken.Length: > 0 }
+            ? $"Bağlı{(google.Email.Length > 0 ? ": " + google.Email : "")} · {count} kişi · 3 saatte bir yenilenir"
+            : "Bağlı değil.";
+        GoogleSyncButton.IsEnabled = GoogleDisconnectButton.IsEnabled = google is { RefreshToken.Length: > 0 };
+    }
+
+    private async void ConnectGoogle_OnClick(object sender, RoutedEventArgs e)
+    {
+        var id = GoogleClientIdBox.Text.Trim();
+        var secret = GoogleClientSecretBox.Password.Trim();
+        if (id.Length == 0 || secret.Length == 0)
+        {
+            MessageBox.Show(this, "Önce Google Cloud'da oluşturduğun masaüstü istemcisinin kimliğini ve gizli anahtarını yapıştır (adımlar kutuların altında).",
+                "Google Rehber", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        await RunGoogle(GoogleConnectButton, "Tarayıcıda Google hesabını seç ve izin ver…", () => _connectGoogle(id, secret));
+    }
+
+    private async void SyncGoogle_OnClick(object sender, RoutedEventArgs e) =>
+        await RunGoogle(GoogleSyncButton, "Google Rehber okunuyor…", _syncGoogle);
+
+    private async Task RunGoogle(System.Windows.Controls.Button button, string working, Func<Task<string>> action)
+    {
+        button.IsEnabled = false;
+        GoogleStatus.Text = working;
+        try
+        {
+            var message = await action();
+            ShowGoogleStatus();
+            ShowContactsStatus();
+            GoogleStatus.Text += $" ({message})";
+        }
+        finally
+        {
+            button.IsEnabled = true;
+        }
+    }
+
+    private void DisconnectGoogle_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, "Google bağlantısı kesilsin ve Google'dan gelen kişiler LumoraGo'dan silinsin mi? Google Rehber'in etkilenmez.",
+                "Google Rehber", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        _secrets.Save(_secrets.Current with { Google = null });
+        _contacts.RemoveGoogle();
+        GoogleClientSecretBox.Password = "";
+        ShowGoogleStatus();
+        ShowContactsStatus();
     }
 
     private void ClearContacts_OnClick(object sender, RoutedEventArgs e)
@@ -223,7 +294,7 @@ internal partial class SettingsWindow : Window
 
         if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail)
         {
-            _secrets.Save(new AccountSecrets { CalendarUrls = calendarUrls, Mail = mail });
+            _secrets.Save(_secrets.Current with { CalendarUrls = calendarUrls, Mail = mail });
         }
 
         _store.Save(current with

@@ -5,7 +5,7 @@ using LumoraGo.Core.Search;
 namespace LumoraGo.Core.Contacts;
 
 /// <summary>Rehberdeki bir kişi. Telefonlar dosyada yazıldığı gibi tutulur, aranırken <see cref="PhoneNumber"/> ile çevrilir.</summary>
-public sealed record Contact(string Name, IReadOnlyList<string> Phones, IReadOnlyList<string> Emails, string? Organization = null)
+public sealed record Contact(string Name, IReadOnlyList<string> Phones, IReadOnlyList<string> Emails, string? Organization = null, bool FromGoogle = false)
 {
     public string Summary()
     {
@@ -408,9 +408,21 @@ public sealed class ContactBook
             throw new InvalidDataException("Dosyada kişi bulunamadı. Google Kişiler'den vCard ya da Google CSV olarak dışa aktar.");
         }
 
-        Save(contacts);
+        // Google'dan gelenler dosyayı yeniden okuyunca kaybolmasın.
+        Save([.. contacts, .. All.Where(c => c.FromGoogle)]);
         return contacts.Count;
     }
+
+    /// <summary>Google'dan gelen kişileri yenileriyle değiştirir; dosyadan aktarılanlar kalır.</summary>
+    /// <remarks>Önceden Google'dan dışa aktarılıp dosyayla gelen aynı adlı kişiler iki kez görünmesin diye atılır.</remarks>
+    public void ReplaceGoogle(IReadOnlyList<Contact> google)
+    {
+        var names = google.Select(c => FuzzyMatcher.Fold(c.Name)).ToHashSet(StringComparer.Ordinal);
+        Save([.. All.Where(c => !c.FromGoogle && !names.Contains(FuzzyMatcher.Fold(c.Name))), .. google.Select(c => c with { FromGoogle = true })]);
+    }
+
+    /// <summary>Yalnızca Google'dan gelenleri siler (bağlantı kesilince).</summary>
+    public void RemoveGoogle() => Save(All.Where(c => !c.FromGoogle).ToList());
 
     public void Save(IReadOnlyList<Contact> contacts)
     {

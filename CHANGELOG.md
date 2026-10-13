@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.22.0
+- Google Rehber: Ayarlar → Kişiler → "Google ile bağlan" ile Google Kişiler'deki herkes (ad, telefonlar, mailler, şirket) LumoraGo'ya gelir ve 3 saatte bir kendiliğinden yenilenir. Google'da eklediğin, değiştirdiğin ya da sildiğin kişi burada da güncellenir
+- Yalnızca okuma izni istenir, Google Rehber'inde hiçbir şey değişmez. Bağlantı bilgisi Windows hesabına bağlı şifreli dosyada tutulur; "Bağlantıyı kes" Google'dan gelen kişileri LumoraGo'dan siler
+- Google ilk bağlantı için bir kerelik Google Cloud kurulumu istiyor (adımlar Ayarlar'da yazıyor). Dosyadan aktarılan kişiler de kalır; Google'da aynı adla olan kişi iki kez görünmez
+
 ## 0.21.2
 - LumoraGo'nun kendi logosu: uygulama, görev çubuğu, tepsi, Ayarlar penceresi ve kurulum dosyası artık mor "L" ve yıldız simgesini kullanır
 - "/rehber" (ya da "/kisi", "/kişi") boş yazılınca artık tüm kişiler listelenir; önceden ilk 20 kişide kalıyordu

@@ -13,7 +13,14 @@ public sealed record AccountSecrets
     public IReadOnlyList<string> CalendarUrls { get; init; } = [];
 
     public MailAccount? Mail { get; init; }
+
+    /// <summary>Google Rehber bağlantısı; "Google ile bağlan" yapılmadıysa null.</summary>
+    public GoogleAccount? Google { get; init; }
 }
+
+/// <summary>Kullanıcının Google Cloud'da oluşturduğu masaüstü OAuth istemcisi ve girişten sonra alınan yenileme anahtarı.</summary>
+/// <param name="RefreshToken">Boşsa istemci kayıtlı ama giriş yapılmamış.</param>
+public sealed record GoogleAccount(string ClientId, string ClientSecret, string RefreshToken = "", string Email = "");
 
 /// <summary>
 /// Gizli bilgileri korumalı dosyada tutar. Koruma (Windows'ta DPAPI) dışarıdan verilir, böylece Core platformdan bağımsız kalır.

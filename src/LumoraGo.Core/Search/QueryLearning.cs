@@ -20,6 +20,8 @@ public sealed class QueryLearning
     private readonly TimeSpan _halfLife;
     private readonly object _gate = new();
     private readonly object _saveGate = new();
+    private long _version;
+    private long _savedVersion;
     private Dictionary<string, Entry> _entries = new(StringComparer.Ordinal);
 
     /// <param name="Query">Katlanmış (küçük harf, Türkçe harfler sadeleşmiş) yazı.</param>
@@ -60,6 +62,7 @@ public sealed class QueryLearning
         var key = KeyOf(result);
         var now = _utcNow();
         List<Entry> snapshot;
+        long version;
         lock (_gate)
         {
             var id = query + "\u001e" + key;
@@ -74,9 +77,10 @@ public sealed class QueryLearning
             }
 
             snapshot = [.. _entries.Values];
+            version = ++_version;
         }
 
-        _ = Task.Run(() => Save(snapshot));
+        _ = Task.Run(() => Save(version, snapshot));
     }
 
     /// <summary>Yazılan metin için sonuçların puanlarına eklenecek değerler. Kayıtlı yazı bununla başlıyorsa ya da bunun başıysa sayılır.</summary>
@@ -118,12 +122,14 @@ public sealed class QueryLearning
 
     public void Clear()
     {
+        long version;
         lock (_gate)
         {
             _entries.Clear();
+            version = ++_version;
         }
 
-        _ = Task.Run(() => Save([]));
+        _ = Task.Run(() => Save(version, []));
     }
 
     internal static string Normalize(string rawText) => FuzzyMatcher.Fold(rawText.Trim());
@@ -152,27 +158,44 @@ public sealed class QueryLearning
         }
     }
 
-    private void Save(List<Entry> snapshot)
+    private void Save(long version, List<Entry> snapshot)
     {
         if (_path is null)
         {
             return;
         }
 
-        try
+        // Kayıtlar arka planda sırasız bitebilir; daha yenisi yazıldıysa eskisi atlanır.
+        lock (_saveGate)
         {
-            // Aynı anda iki kayıt yazılmasın; sonuncunun içeriği kazanır.
-            lock (_saveGate)
+            if (version <= _savedVersion)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-                var temp = _path + ".tmp";
-                File.WriteAllText(temp, JsonSerializer.Serialize(snapshot));
-                File.Move(temp, _path, overwrite: true);
+                return;
             }
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            _log.Warn($"Öğrenilen sıralama yazılamadı: {ex.Message}");
+
+            for (var attempt = 1; ; attempt++)
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
+                    var temp = _path + ".tmp";
+                    File.WriteAllText(temp, JsonSerializer.Serialize(snapshot));
+                    File.Move(temp, _path, overwrite: true);
+                    _savedVersion = version;
+                    return;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // Windows'ta dosya o an okunuyorsa üzerine yazılamaz; kısa bir süre sonra yeniden dene.
+                    if (attempt == 5)
+                    {
+                        _log.Warn($"Öğrenilen sıralama yazılamadı: {ex.Message}");
+                        return;
+                    }
+
+                    Thread.Sleep(50 * attempt);
+                }
+            }
         }
     }
 }

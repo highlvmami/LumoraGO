@@ -103,6 +103,7 @@ public static class GoogleContacts
                 if (!query.ContainsKey("code") && !query.ContainsKey("error"))
                 {
                     await RespondAsync(stream, 404, "", ct);
+                    Finish(client);
                     continue;
                 }
 
@@ -119,6 +120,7 @@ public static class GoogleContacts
             }
 
             await RespondAsync(stream, 200, Page(error ?? "LumoraGo Google Rehber'e bağlandı. Bu sekmeyi kapatabilirsin."), ct);
+            Finish(client);
             return error is null ? code! : throw new GoogleException(error);
         }
     }
@@ -279,17 +281,26 @@ public static class GoogleContacts
         return result;
     }
 
+    /// <summary>
+    /// İsteğin ilk satırını döndürür ama başlıkların hepsini (boş satıra kadar) okur: okunmamış veri varken
+    /// soket kapatılırsa Windows bağlantıyı sıfırlar ve tarayıcı sayfa yerine hata gösterir.
+    /// </summary>
     private static async Task<string> ReadRequestLineAsync(Stream stream, CancellationToken ct)
     {
-        // Yalnızca ilk satır gerekli; başlıkların geri kalanı okunmadan yanıt verilir.
         var bytes = new List<byte>();
         var one = new byte[1];
-        while (bytes.Count < 8192 && await stream.ReadAsync(one, ct) == 1 && one[0] != '\n')
+        while (bytes.Count < 65536 && await stream.ReadAsync(one, ct) == 1)
         {
             bytes.Add(one[0]);
+            if (bytes.Count >= 4 && bytes[^1] == '\n' && bytes[^2] == '\r' && bytes[^3] == '\n' && bytes[^4] == '\r')
+            {
+                break;
+            }
         }
 
-        return Encoding.ASCII.GetString([.. bytes]).TrimEnd('\r');
+        var text = Encoding.ASCII.GetString([.. bytes]);
+        var end = text.IndexOf('\n');
+        return (end < 0 ? text : text[..end]).TrimEnd('\r');
     }
 
     private static async Task RespondAsync(Stream stream, int status, string html, CancellationToken ct)
@@ -300,6 +311,18 @@ public static class GoogleContacts
         await stream.WriteAsync(head, ct);
         await stream.WriteAsync(body, ct);
         await stream.FlushAsync(ct);
+    }
+
+    /// <summary>Yanıt gittikten sonra yazma yönünü kapatır, böylece tarayıcı sayfanın tamamını alır.</summary>
+    private static void Finish(TcpClient client)
+    {
+        try
+        {
+            client.Client.Shutdown(SocketShutdown.Send);
+        }
+        catch (SocketException)
+        {
+        }
     }
 
     private static string Page(string message) =>

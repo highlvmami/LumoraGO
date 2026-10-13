@@ -112,6 +112,16 @@
                          FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
                 <TextBlock Style="{StaticResource Note}" Text="Birkaç adımı tek isimde topla, launcher'da adını yazıp Enter'a bas. Her zincir [ad] satırıyla başlar, altına &quot;tür | değer&quot; adımları gelir. Türler: aç (dosya/klasör), uygulama, site, betik, ses (0-100), bekle (saniye), yaz (panoya), bildirim. Bir adım hata verirse zincir orada durur. Örnek: [çalışma] / uygulama | Visual Studio Code / site | https://github.com / ses | 30. Betikler için Ayarlar'a gerek yok: %LOCALAPPDATA%\LumoraGo\scripts klasörüne .ps1, .bat, .cmd ya da .py koyman yeter (&quot;betik&quot; yazınca klasör açılır)." />
 
+                <TextBlock Text="Kişiler (/kisi)" Style="{StaticResource Heading}" />
+                <TextBlock x:Name="ContactsStatus" Margin="0,0,0,6" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Dosya seç" Click="ImportContacts_OnClick" />
+                    <Button Content="Kişileri sil" Click="ClearContacts_OnClick" />
+                </StackPanel>
+                <CheckBox x:Name="ContactsWatchBox" Content="Dosya değişince yeniden oku" Margin="0,8,0,0" />
+                <CheckBox x:Name="ContactsGlobalBox" Content="Adı yazınca /kisi olmadan da göster" Margin="0,6,0,0" />
+                <TextBlock Style="{StaticResource Note}" Text="Google Kişiler: contacts.google.com → Dışa aktar → vCard ya da Google CSV. iPhone: iCloud.com → Kişiler → hepsini seç → vCard'ı dışa aktar. Outlook: Kişiler → Dışa aktar (CSV). Kişiler şifreli (Windows hesabına bağlı) saklanır ve hiçbir yere gönderilmez. Enter numarayı kopyalar, Ctrl+Enter WhatsApp'ı, Shift+Enter yeni maili açar; sağ ok ile arama ve diğer numaralar." />
+
                 <TextBlock Text="Takvim (/takvim)" Style="{StaticResource Heading}" />
                 <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"

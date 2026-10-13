@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using LumoraGo.App.Services;
 using LumoraGo.Core.Accounts;
+using LumoraGo.Core.Contacts;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Settings;
@@ -15,9 +16,11 @@ internal partial class SettingsWindow : Window
     private readonly SecretStore _secrets;
     private readonly Func<string, bool> _tryHotkey;
     private readonly Action _resetLearning;
+    private readonly ContactBook _contacts;
+    private string _contactsFile;
 
     /// <param name="tryHotkey">Kısayolu kaydetmeyi dener; başka uygulama kullanıyorsa false döner ve eskisi kalır.</param>
-    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning)
+    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning, ContactBook contacts)
     {
         InitializeComponent();
 
@@ -27,6 +30,7 @@ internal partial class SettingsWindow : Window
         _secrets = secrets;
         _tryHotkey = tryHotkey;
         _resetLearning = resetLearning;
+        _contacts = contacts;
 
         var s = store.Current;
         HotkeyBox.Text = s.Hotkey;
@@ -42,6 +46,10 @@ internal partial class SettingsWindow : Window
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
         CustomShortcutsBox.Text = CustomShortcutText.Format(s.CustomShortcuts);
         ScriptChainsBox.Text = s.ScriptChains;
+        _contactsFile = s.ContactsFile;
+        ContactsWatchBox.IsChecked = s.ContactsWatch;
+        ContactsGlobalBox.IsChecked = s.ContactsInGlobalSearch;
+        ShowContactsStatus();
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
         {
@@ -91,6 +99,50 @@ internal partial class SettingsWindow : Window
     {
         _resetLearning();
         ResetLearningNote.Text = "Öğrenilen sıralama sıfırlandı.";
+    }
+
+    private void ShowContactsStatus() =>
+        ContactsStatus.Text = _contacts.All.Count == 0
+            ? "Rehber boş."
+            : $"{_contacts.All.Count} kişi" + (_contactsFile.Length > 0 ? $" · {System.IO.Path.GetFileName(_contactsFile)}" : "");
+
+    private void ImportContacts_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Kişi dosyası seç",
+            Filter = "Kişi dosyaları (*.vcf;*.csv)|*.vcf;*.csv|Tüm dosyalar|*.*",
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            var count = _contacts.Import(dialog.FileName);
+            _contactsFile = dialog.FileName;
+            ShowContactsStatus();
+            ContactsStatus.Text += $" (az önce {count} kişi aktarıldı)";
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.IO.InvalidDataException)
+        {
+            MessageBox.Show(this, ex.Message, "Kişiler", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void ClearContacts_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, "İçe aktarılan tüm kişiler LumoraGo'dan silinsin mi? Asıl dosyan etkilenmez.", "Kişiler",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        _contacts.Clear();
+        _contactsFile = "";
+        ContactsWatchBox.IsChecked = false;
+        ShowContactsStatus();
     }
 
     private void AddDeepFolder_OnClick(object sender, RoutedEventArgs e) => AddFolder(DeepFoldersList);
@@ -191,6 +243,9 @@ internal partial class SettingsWindow : Window
             FileSearchFolders = Items(FileFoldersList),
             CustomShortcuts = shortcuts,
             ScriptChains = ScriptChainsBox.Text.Trim(),
+            ContactsFile = _contactsFile,
+            ContactsWatch = ContactsWatchBox.IsChecked == true && _contactsFile.Length > 0,
+            ContactsInGlobalSearch = ContactsGlobalBox.IsChecked == true,
         });
         Close();
     }

@@ -47,6 +47,15 @@ public sealed record LauncherSettings
 
     /// <summary>Eylem zincirleri, "[ad]" başlığı ve "tür | değer" satırlarıyla (bkz. ChainText).</summary>
     public string ScriptChains { get; init; } = "";
+
+    /// <summary>Kişiler "/kisi" yazmadan da, adı yazınca çıksın.</summary>
+    public bool ContactsInGlobalSearch { get; init; } = true;
+
+    /// <summary>Son içe aktarılan kişi dosyası (.vcf/.csv).</summary>
+    public string ContactsFile { get; init; } = "";
+
+    /// <summary>Kişi dosyası değişince yeniden içe aktar.</summary>
+    public bool ContactsWatch { get; init; }
 }
 
 /// <summary>Ayarları JSON dosyasında tutar. Dosya bozuksa varsayılanlarla açılır.</summary>

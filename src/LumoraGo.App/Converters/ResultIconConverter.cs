@@ -65,6 +65,9 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.quote"] = "\uE9D2",
         ["lumorago.weather"] = "\uE753",
         ["lumorago.football"] = "\uE7FC",
+        ["lumorago.scripts"] = "\uE756",
+        ["lumorago.scripts.run"] = "\uE756",
+        ["lumorago.scripts.run.calistir"] = "\uE756",
         ["lumorago.keywordhints"] = "",
     };
 

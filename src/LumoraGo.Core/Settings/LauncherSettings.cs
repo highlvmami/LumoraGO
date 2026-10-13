@@ -44,6 +44,9 @@ public sealed record LauncherSettings
 
     /// <summary>Kullanıcının eklediği kelime → site/dosya/uygulama kısayolları.</summary>
     public IReadOnlyList<CustomShortcut> CustomShortcuts { get; init; } = [];
+
+    /// <summary>Eylem zincirleri, "[ad]" başlığı ve "tür | değer" satırlarıyla (bkz. ChainText).</summary>
+    public string ScriptChains { get; init; } = "";
 }
 
 /// <summary>Ayarları JSON dosyasında tutar. Dosya bozuksa varsayılanlarla açılır.</summary>

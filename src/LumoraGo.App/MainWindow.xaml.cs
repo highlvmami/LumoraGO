@@ -31,6 +31,12 @@ public partial class MainWindow : Window
     /// <summary>Ayarlardan: launcher her açıldığında önizleme de açık gelsin.</summary>
     public bool PreviewAlwaysOpen { get; set; }
 
+    /// <summary>Marka yazısının altında küçük harflerle görünen sürüm.</summary>
+    public string VersionText
+    {
+        set => BrandVersion.Text = value.Length > 0 ? "v" + value : "";
+    }
+
     public bool IsPreviewOpen => PreviewColumn.Visibility == Visibility.Visible;
 
     internal MainWindow(MainViewModel viewModel, ILog log, ThemeService theme)

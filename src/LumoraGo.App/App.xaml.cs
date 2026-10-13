@@ -134,6 +134,7 @@ public partial class App : Application
 
         _updates = new UpdateService(_log);
         var updates = _updates;
+        _window.VersionText = updates.CurrentVersion;
         var releaseNotes = ReadEmbeddedChangelog();
 
         var host = new LauncherHost(_window, _tray, _log);

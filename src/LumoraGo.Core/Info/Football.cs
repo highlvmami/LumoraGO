@@ -16,7 +16,7 @@ public sealed record Match(string League, string Home, string Away, int? HomeSco
 /// <summary>
 /// Maç skorları için ESPN'in herkese açık (resmi olmayan) skor tablosu. Süper Lig, büyük Avrupa ligleri ve UEFA kupaları taranır.
 /// </summary>
-public sealed class FootballService(HttpClient http)
+public sealed class FootballService(HttpClient http, Func<DateTime>? now = null)
 {
     public static readonly (string Code, string Name)[] Leagues =
     [
@@ -31,29 +31,60 @@ public sealed class FootballService(HttpClient http)
         ("fra.1", "Ligue 1"),
     ];
 
-    /// <summary>Takım adı boşsa yalnızca Süper Lig'in güncel haftası; doluysa tüm liglerde o takımın maçları.</summary>
+    /// <summary>Takım aranırken bugünden bu kadar geriye ve ileriye bakılır.</summary>
+    public static readonly TimeSpan LookBack = TimeSpan.FromDays(21);
+
+    public static readonly TimeSpan LookAhead = TimeSpan.FromDays(28);
+
+    private static readonly Dictionary<string, string> Aliases = new()
+    {
+        ["fb"] = "fenerbahce",
+        ["gs"] = "galatasaray",
+        ["bjk"] = "besiktas",
+        ["ts"] = "trabzonspor",
+    };
+
+    /// <summary>
+    /// Takım adı boşsa yalnızca Süper Lig'in güncel haftası. Doluysa tüm liglerde o takımın son haftalardaki ve
+    /// önümüzdeki haftalardaki maçları: önce canlı, sonra son oynanan, sonra sıradaki.
+    /// </summary>
     public async Task<IReadOnlyList<Match>> FindAsync(string team, CancellationToken ct)
     {
         var folded = FuzzyMatcher.Fold(team.Trim());
-        var leagues = folded.Length == 0 ? Leagues.Take(1) : Leagues;
-        var boards = await Task.WhenAll(leagues.Select(async l =>
+        folded = Aliases.GetValueOrDefault(folded, folded);
+        if (folded.Length == 0)
         {
-            try
-            {
-                using var json = await InfoHttp.GetJsonAsync(http, $"https://site.api.espn.com/apis/site/v2/sports/soccer/{l.Code}/scoreboard", ct);
-                return json is null ? [] : Parse(l.Name, json.RootElement);
-            }
-            catch (Exception ex) when (ex is HttpRequestException or JsonException)
-            {
-                return [];
-            }
-        }));
+            return (await BoardAsync(Leagues[0], "", ct)).OrderBy(m => m.State == MatchState.Live ? 0 : 1).ThenBy(m => m.StartUtc).ToList();
+        }
 
-        return boards.SelectMany(b => b)
-            .Where(m => folded.Length == 0 || Matches(folded, m.Home) || Matches(folded, m.Away))
-            .OrderBy(m => m.State == MatchState.Live ? 0 : 1)
-            .ThenBy(m => m.StartUtc)
+        // Tarihsiz skor tablosu yalnızca içinde bulunulan haftayı verir; takımın o hafta maçı yoksa hiçbir şey çıkmaz.
+        var today = (now ?? (() => DateTime.UtcNow))().Date;
+        var range = $"?dates={(today - LookBack):yyyyMMdd}-{(today + LookAhead):yyyyMMdd}&limit=500";
+        var boards = await Task.WhenAll(Leagues.Select(l => BoardAsync(l, range, ct)));
+        var mine = boards.SelectMany(b => b)
+            .Where(m => Matches(folded, m.Home) || Matches(folded, m.Away))
+            .DistinctBy(m => (m.Home, m.Away, m.StartUtc))
             .ToList();
+
+        var live = mine.Where(m => m.State == MatchState.Live).OrderBy(m => m.StartUtc);
+        var past = mine.Where(m => m.State == MatchState.Finished).OrderByDescending(m => m.StartUtc).Take(4).ToList();
+        var next = mine.Where(m => m.State == MatchState.Upcoming).OrderBy(m => m.StartUtc).Take(4).ToList();
+        return [.. live, .. past.Take(1), .. next.Take(1), .. next.Skip(1), .. past.Skip(1)];
+    }
+
+    private async Task<List<Match>> BoardAsync((string Code, string Name) league, string query, CancellationToken ct)
+    {
+        try
+        {
+            using var json = await InfoHttp.GetJsonAsync(http, $"https://site.api.espn.com/apis/site/v2/sports/soccer/{league.Code}/scoreboard{query}", ct);
+            return json is null ? [] : Parse(league.Name, json.RootElement);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException
+            || (ex is TaskCanceledException && !ct.IsCancellationRequested))
+        {
+            // Bir lig yanıt vermezse diğerlerinin sonuçları yine gösterilir.
+            return [];
+        }
     }
 
     private static bool Matches(string folded, string team) =>

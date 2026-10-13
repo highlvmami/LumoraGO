@@ -21,6 +21,9 @@ public sealed record Result(
     /// </summary>
     public string? AutoComplete { get; init; }
 
+    /// <summary>Doluysa sonuç düz satır yerine büyük bilgi kartı olarak çizilir (hava, hisse, maç).</summary>
+    public ResultCard? Card { get; init; }
+
     /// <summary>Hızlı önizlemede (Shift+Boşluk) gösterilecek dosya ya da klasör.</summary>
     public string? PreviewPath { get; init; }
 
@@ -30,6 +33,19 @@ public sealed record Result(
     /// <summary>Sonucu üreten eklentinin kimliği. Çekirdek tarafından doldurulur.</summary>
     public string PluginId { get; init; } = "";
 }
+
+/// <summary>Bilgi kartı: büyük başlık değeri, altında açıklama ve satırlar, isteğe bağlı küçük eğri.</summary>
+/// <param name="Headline">Büyük yazılan değer, örn. "18°" ya da "312,50 ₺".</param>
+/// <param name="Caption">Değerin hemen altındaki satır, örn. "Parçalı bulutlu" ya da "+%2,35".</param>
+/// <param name="Lines">Ek bilgi satırları.</param>
+/// <param name="Trend">Sağda çizilecek küçük eğrinin değerleri (soldan sağa).</param>
+/// <param name="Positive">true yeşil, false kırmızı, null nötr renk (değişim yönü).</param>
+public sealed record ResultCard(
+    string Headline,
+    string? Caption = null,
+    IReadOnlyList<string>? Lines = null,
+    IReadOnlyList<double>? Trend = null,
+    bool? Positive = null);
 
 public sealed record ContextAction(string Title, Func<ActionContext, bool> Action);
 

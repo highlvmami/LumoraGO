@@ -24,6 +24,9 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <conv:ResultIconConverter x:Key="ResultIcon" />
+        <conv:NullToVisibilityConverter x:Key="NullToVisibility" />
+        <conv:TrendPointsConverter x:Key="TrendPoints" />
+        <conv:TrendBrushConverter x:Key="TrendBrush" />
         <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
         <Style x:Key="KeyCap" TargetType="Border">
@@ -142,7 +145,44 @@
                          PreviewMouseLeftButtonUp="ResultsList_OnPreviewMouseLeftButtonUp">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid Height="48" Margin="10,0,10,0">
+                            <Grid>
+                            <!-- Bilgi kartı (hava, hisse, maç): Card doluysa düz satırın yerine çizilir -->
+                            <Grid Margin="10,8,10,8" Visibility="{Binding Card, Converter={StaticResource NullToVisibility}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="52" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <ContentControl Width="36" Height="36" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0" Focusable="False"
+                                                Content="{Binding Converter={StaticResource ResultIcon}}">
+                                    <ContentControl.LayoutTransform>
+                                        <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+                                    </ContentControl.LayoutTransform>
+                                </ContentControl>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{DynamicResource SecondaryText}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Card.Headline}" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Card.Caption}" FontSize="13" Foreground="{Binding Card.Positive, Converter={StaticResource TrendBrush}}" TextTrimming="CharacterEllipsis"
+                                               Visibility="{Binding Card.Caption, Converter={StaticResource NullToVisibility}}" />
+                                    <ItemsControl ItemsSource="{Binding Card.Lines}" Margin="0,2,0,0" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SecondaryText}" TextTrimming="CharacterEllipsis" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <Polyline Grid.Column="2" Width="140" Height="44" Margin="12,0,0,0" VerticalAlignment="Center"
+                                          Points="{Binding Card.Trend, Converter={StaticResource TrendPoints}}"
+                                          Stroke="{Binding Card.Positive, Converter={StaticResource TrendBrush}}"
+                                          StrokeThickness="2" StrokeLineJoin="Round"
+                                          Visibility="{Binding Card.Trend, Converter={StaticResource NullToVisibility}}" />
+                            </Grid>
+
+                            <Grid Height="48" Margin="10,0,10,0" Visibility="{Binding Card, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="40" />
                                     <ColumnDefinition Width="*" />
@@ -168,6 +208,7 @@
                                 <Border x:Name="EnterHint" Grid.Column="2" Style="{StaticResource KeyCap}" VerticalAlignment="Center" Visibility="Collapsed">
                                     <TextBlock Text="Enter ↵" FontSize="11" Foreground="{DynamicResource SecondaryText}" />
                                 </Border>
+                            </Grid>
                             </Grid>
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">

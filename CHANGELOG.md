@@ -2,6 +2,14 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.17.0
+- Sözlük: "/tanım kalem" (ya da "/tanim") TDK'dan anlamları, örnek cümleleri, atasözü ve deyimleri gösterir; "/tanım en serendipity" İngilizce anlam, okunuş ve eş anlamlılar. Enter anlamı kopyalar, Shift+Boşluk maddenin tamamını önizler
+- Bilgi kartları: sonuçlar büyük kart olarak görünür
+- "/hava", "/hava izmir", "/hava yarın", "/hava hafta": hava durumu, hissedilen sıcaklık, yağış olasılığı ve sonraki 12 saatin eğrisi (Open-Meteo). Varsayılan şehir Ayarlar'dan; boşsa bağlantının konumu
+- "/hisse THYAO", "/hisse AAPL", "/hisse btc eth": fiyat, günlük değişim ve gün içi eğri (Yahoo Finance, 15 dk gecikmeli; kripto CoinGecko)
+- "/mac fenerbahçe": takımın canlı, biten ve sıradaki maçları; "/mac" Süper Lig haftası (ESPN)
+- "TK1980" gibi bir uçuş kodu yazınca Flightradar24'te takip satırı çıkar (Ctrl+Enter FlightAware)
+
 ## 0.16.0
 - Hızlı önizleme: bir sonuç seçiliyken Shift+Boşluk sağda önizleme panelini açar. Resimler, metin ve kod dosyaları (ilk 300 satır), klasör içeriği, video ve ses küçük resmi gösterilir; PDF, Word, Excel ve PowerPoint için Windows Gezgini'nin önizleyicisi kullanılır. Pano kayıtları, notlar ve yer imleri de önizlenir. ↑↓ ile gezince önizleme de değişir, Esc önce paneli kapatır
 - Ayarlar'da "Önizlemeyi her zaman açık tut" seçeneği

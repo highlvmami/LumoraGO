@@ -119,6 +119,11 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         }
 
         var result = Results[SelectedIndex];
+        if (!IsMenuOpen)
+        {
+            search.Learn(QueryText, result);
+        }
+
         try
         {
             return result.Action(new ActionContext(modifiers));

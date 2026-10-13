@@ -57,6 +57,12 @@
                 </ComboBox>
                 <CheckBox x:Name="StartupBox" Content="Windows açılışında başlat" Margin="0,10,0,0" />
 
+                <TextBlock Text="Sıralama" Style="{StaticResource Heading}" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Öğrenilen sıralamayı sıfırla" Click="ResetLearning_OnClick" />
+                </StackPanel>
+                <TextBlock x:Name="ResetLearningNote" Style="{StaticResource Note}" Text="LumoraGo hangi yazıda hangi sonucu seçtiğini öğrenir ve onu öne alır (&quot;ch&quot; yazıp hep Chrome'u seçiyorsan Chrome üstte çıkar). Eski seçimlerin etkisi zamanla azalır." />
+
                 <TextBlock Text="Pano geçmişi (/c)" Style="{StaticResource Heading}" />
                 <CheckBox x:Name="ClipboardBox" Content="Kopyaladıklarımı hatırla" />
                 <CheckBox x:Name="ClipboardPersistBox" Content="Kapatınca da hatırla (diske kaydet)" Margin="0,6,0,0"

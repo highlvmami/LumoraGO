@@ -13,9 +13,10 @@ internal partial class SettingsWindow : Window
     private readonly SettingsStore _store;
     private readonly SecretStore _secrets;
     private readonly Func<string, bool> _tryHotkey;
+    private readonly Action _resetLearning;
 
     /// <param name="tryHotkey">Kısayolu kaydetmeyi dener; başka uygulama kullanıyorsa false döner ve eskisi kalır.</param>
-    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey)
+    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning)
     {
         InitializeComponent();
 
@@ -24,6 +25,7 @@ internal partial class SettingsWindow : Window
         _store = store;
         _secrets = secrets;
         _tryHotkey = tryHotkey;
+        _resetLearning = resetLearning;
 
         var s = store.Current;
         HotkeyBox.Text = s.Hotkey;
@@ -79,6 +81,12 @@ internal partial class SettingsWindow : Window
         {
             HotkeyBox.Text = HotkeyText.Format(modifiers, key.ToString());
         }
+    }
+
+    private void ResetLearning_OnClick(object sender, RoutedEventArgs e)
+    {
+        _resetLearning();
+        ResetLearningNote.Text = "Öğrenilen sıralama sıfırlandı.";
     }
 
     private void AddDeepFolder_OnClick(object sender, RoutedEventArgs e) => AddFolder(DeepFoldersList);

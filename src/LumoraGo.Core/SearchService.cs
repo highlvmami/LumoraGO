@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LumoraGo.Core.Search;
 using LumoraGo.Plugin;
 
 namespace LumoraGo.Core;
@@ -30,9 +31,11 @@ public sealed class SearchService
     private readonly PluginManager _plugins;
     private readonly ILog _log;
     private readonly TimeSpan _pluginTimeout;
+    private readonly QueryLearning? _learning;
 
-    public SearchService(PluginManager plugins, ILog? log = null, TimeSpan? pluginTimeout = null)
+    public SearchService(PluginManager plugins, ILog? log = null, TimeSpan? pluginTimeout = null, QueryLearning? learning = null)
     {
+        _learning = learning;
         _plugins = plugins;
         _log = log ?? NullLog.Instance;
         _pluginTimeout = pluginTimeout ?? DefaultPluginTimeout;
@@ -49,9 +52,11 @@ public sealed class SearchService
         var outcomes = await Task.WhenAll(runs).ConfigureAwait(false);
         ct.ThrowIfCancellationRequested();
 
-        // Eklenti sırasına göre kararlı sıralama: eşit puanda önce kaydedilen eklenti üstte.
+        // Öğrenilen seçimler puana eklenir; eşit puanda önce kaydedilen eklenti üstte kalır (kararlı sıralama).
+        var boosts = _learning?.Boosts(query.RawText);
         var results = outcomes
             .SelectMany(o => o.Results)
+            .Select(r => boosts is not null && boosts.TryGetValue(QueryLearning.KeyOf(r), out var boost) ? r with { Score = r.Score + boost } : r)
             .Select((r, i) => (r, i))
             .OrderByDescending(x => x.r.Score)
             .ThenBy(x => x.i)
@@ -61,6 +66,9 @@ public sealed class SearchService
         stopwatch.Stop();
         return new SearchResponse(query, results, stopwatch.Elapsed, outcomes.Select(o => o.Timing).ToList());
     }
+
+    /// <summary>Kullanıcının bu yazıda bu sonucu seçtiğini kaydeder; sonraki aramalarda öne çıkar.</summary>
+    public void Learn(string rawText, Result result) => _learning?.Record(rawText, result);
 
     private IEnumerable<PluginEntry> SelectPlugins(Query query)
     {

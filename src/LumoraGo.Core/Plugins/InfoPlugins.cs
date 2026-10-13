@@ -34,6 +34,8 @@ public static partial class InfoPlugins
                 (arg, host, ct) => QuotesAsync(quotes, arg, host, open, ct), cacheFor: TimeSpan.FromMinutes(2)),
             new LiveLookupPlugin(new PluginMetadata("lumorago.football", "Maç skoru", "/mac"), "Örnek: /mac fenerbahçe; boş bırakırsan Süper Lig haftası",
                 (arg, _, ct) => MatchesAsync(football, arg, open, ct), needsArgument: false, cacheFor: TimeSpan.FromMinutes(1)),
+            new LiveLookupPlugin(new PluginMetadata("lumorago.league", "Puan tablosu", "/lig"), "Örnek: /lig, /lig premier, /lig la liga",
+                (arg, _, ct) => TableAsync(football, arg, open, ct), needsArgument: false, cacheFor: TimeSpan.FromMinutes(10)),
         ];
         return [.. live.Select(p => new PluginEntry(p.Metadata, p)), new PluginEntry(FlightPlugin.Metadata, new FlightPlugin(open))];
     }
@@ -245,7 +247,7 @@ public static partial class InfoPlugins
     internal static async Task<IReadOnlyList<Result>> MatchesAsync(FootballService football, string team, Action<string> open, CancellationToken ct)
     {
         var matches = await football.FindAsync(team, ct);
-        var asCards = team.Trim().Length > 0;
+        var forTeam = team.Trim().Length > 0;
         return matches.Take(12).Select((m, i) =>
         {
             var score = m.HomeScore is { } h && m.AwayScore is { } a ? $"{h} – {a}" : "–";
@@ -256,12 +258,37 @@ public static partial class InfoPlugins
                 return true;
             }
 
-            return asCards && i < 3
+            // Takım aranınca en üstteki (canlı ya da son oynanan) maç büyük kart, altındakiler satır.
+            return forTeam && i == 0
                 ? new Result(m.League, null, EmojiPrefix + "⚽", 1000 - i, Open)
                 {
                     Card = new ResultCard($"{m.Home}  {score}  {m.Away}", m.Status, null, null, m.State == MatchState.Live ? true : null),
                 }
                 : new Result($"{m.Home}  {score}  {m.Away}", $"{m.Status} · {m.League}", EmojiPrefix + "⚽", 1000 - i, Open);
+        }).ToList();
+    }
+
+    internal static async Task<IReadOnlyList<Result>> TableAsync(FootballService football, string league, Action<string> open, CancellationToken ct)
+    {
+        if (FootballService.FindLeague(league) is not { } found)
+        {
+            return [new Result($"\"{league.Trim()}\" ligi bilinmiyor", "Olanlar: süper lig, premier, la liga, serie a, bundesliga, ligue 1", null, 1, _ => false)];
+        }
+
+        var table = await football.TableAsync(found.Code, ct);
+        var url = $"https://www.espn.com/soccer/standings/_/league/{found.Code}";
+        return table.Select(s => new Result(
+            $"{s.Rank}. {s.Team}",
+            $"{s.Points} puan · {s.Played} maç · {s.Won}G {s.Drawn}B {s.Lost}M · averaj {s.Difference} · {found.Name}",
+            EmojiPrefix + "🏆",
+            1000 - s.Rank,
+            _ =>
+            {
+                open(url);
+                return true;
+            })
+        {
+            DragData = DragPayload.Text($"{s.Rank}. {s.Team} {s.Points} puan"),
         }).ToList();
     }
 

@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.21.1
+- "/mac" düzeldi: "/mac fenerbahçe", "/mac fb", "/mac galatasaray", "/mac arsenal" artık takımın maçlarını getiriyor. En üstte son oynanan maç büyük kart olarak, altında sıradaki maçlar, en altta önceki maçlar. Sorun, maç kaynağının (ESPN) tarih aralığıyla yapılan isteği reddetmesiydi; artık takımın fikstürü doğrudan okunuyor
+- "/lig": Süper Lig puan tablosu (sıra, puan, maç, galibiyet/beraberlik/mağlubiyet, averaj). "/lig premier", "/lig la liga", "/lig serie a", "/lig bundesliga", "/lig ligue 1" diğer ligler
+- Takım adları Türkçe harfleriyle görünür (Fenerbahçe, Beşiktaş, İstanbul Başakşehir…)
+
 ## 0.21.0
 - Sürükle-bırak: bir sonucu fareyle tutup başka bir pencereye bırak. Dosyalar (/f, /ds, /son, betikler) gerçek dosya olarak gider: Gezgin'e kopyalanır, WhatsApp, Teams ya da Gmail'e ek olur. Yer imleri ve toplantılar bağlantı olarak, pano kayıtları, notlar, hesap sonucu, emoji, sözlük maddesi ve kişi numarası düz metin olarak gider. Uygulamayı masaüstüne bırakınca kısayolu kopyalanır
 - Sürüklerken launcher kapanmaz, bırakınca kapanır; Esc sürüklemeyi iptal eder

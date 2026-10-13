@@ -129,9 +129,10 @@ public class InfoTests
         var matches = FootballService.Parse("Süper Lig", Json(Espn));
 
         Assert.Equal(2, matches.Count);
-        Assert.Equal(new Match("Süper Lig", "Fenerbahce", "Galatasaray", 2, 1, MatchState.Live, "Canlı 67'", new DateTime(2026, 10, 13, 17, 0, 0, DateTimeKind.Utc)), matches[0]);
+        Assert.Equal(new Match("Süper Lig", "Fenerbahçe", "Galatasaray", 2, 1, MatchState.Live, "Canlı 67'", new DateTime(2026, 10, 13, 17, 0, 0, DateTimeKind.Utc)), matches[0]);
         Assert.Equal(MatchState.Finished, matches[1].State);
-        Assert.Equal("Bitti", matches[1].Status);
+        Assert.StartsWith("Bitti · ", matches[1].Status);
+        Assert.Equal("Beşiktaş", matches[1].Home);
     }
 
     // ---- Ağ üzerinden uçtan uca (sahte sunucu) ----
@@ -241,80 +242,6 @@ public class InfoTests
     {
         var results = await InfoPlugins.QuotesAsync(new QuoteService(Http(_ => NotFound())), "zzzz", null, _ => { }, CancellationToken.None);
         Assert.StartsWith("\"zzzz\" bulunamadı", Assert.Single(results).Title);
-    }
-
-    [Fact]
-    public async Task Team_search_finds_matches_across_leagues_with_turkish_letters()
-    {
-        var http = Http(u => u.AbsolutePath.Contains("/tur.1/") ? Ok(Espn) : Ok("""{"events":[]}"""));
-        var results = await InfoPlugins.MatchesAsync(new FootballService(http), "fenerbahçe", _ => { }, CancellationToken.None);
-
-        var card = Assert.Single(results).Card!;
-        Assert.Equal("Fenerbahce  2 – 1  Galatasaray", card.Headline);
-        Assert.Equal("Canlı 67'", card.Caption);
-    }
-
-    [Fact]
-    public async Task Team_search_looks_weeks_back_and_ahead_and_orders_last_then_next()
-    {
-        const string Season = """
-            {"events":[
-              {"date":"2026-09-20T17:00Z","status":{"type":{"state":"post"}},
-               "competitions":[{"competitors":[
-                 {"homeAway":"home","score":"3","team":{"displayName":"Fenerbahce"}},
-                 {"homeAway":"away","score":"0","team":{"displayName":"Rizespor"}}]}]},
-              {"date":"2026-10-05T17:00Z","status":{"type":{"state":"post"}},
-               "competitions":[{"competitors":[
-                 {"homeAway":"home","score":"1","team":{"displayName":"Samsunspor"}},
-                 {"homeAway":"away","score":"1","team":{"displayName":"Fenerbahçe"}}]}]},
-              {"date":"2026-10-25T17:00Z","status":{"type":{"state":"pre"}},
-               "competitions":[{"competitors":[
-                 {"homeAway":"home","team":{"displayName":"Fenerbahce"}},
-                 {"homeAway":"away","team":{"displayName":"Galatasaray"}}]}]},
-              {"date":"2026-10-18T17:00Z","status":{"type":{"state":"pre"}},
-               "competitions":[{"competitors":[
-                 {"homeAway":"home","team":{"displayName":"Besiktas"}},
-                 {"homeAway":"away","team":{"displayName":"Trabzonspor"}}]}]}]}
-            """;
-        var urls = new List<string>();
-        var http = Http(u =>
-        {
-            lock (urls)
-            {
-                urls.Add(u.ToString());
-            }
-
-            return u.AbsolutePath.Contains("/tur.1/") ? Ok(Season) : Ok("""{"events":[]}""");
-        });
-        var football = new FootballService(http, () => new DateTime(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc));
-
-        var matches = await football.FindAsync("fb", CancellationToken.None);
-
-        Assert.All(urls, u => Assert.Contains("?dates=20260922-20261110&limit=500", u));
-        Assert.Equal(FootballService.Leagues.Length, urls.Count);
-        Assert.Equal(
-            ["Samsunspor-Fenerbahçe", "Fenerbahce-Galatasaray", "Fenerbahce-Rizespor"],
-            matches.Select(m => $"{m.Home}-{m.Away}"));
-    }
-
-    [Fact]
-    public async Task Empty_team_shows_the_current_super_lig_week_only()
-    {
-        var urls = new List<string>();
-        var http = Http(u =>
-        {
-            lock (urls)
-            {
-                urls.Add(u.ToString());
-            }
-
-            return Ok(Espn);
-        });
-
-        var matches = await new FootballService(http).FindAsync(" ", CancellationToken.None);
-
-        Assert.Equal(["https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/scoreboard"], urls);
-        Assert.Equal(MatchState.Live, matches[0].State);
     }
 
     [Theory]

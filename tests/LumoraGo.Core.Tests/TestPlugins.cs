@@ -43,6 +43,16 @@ internal sealed class NullHost : IPluginHost
     {
     }
 
+    public void RefreshResults(string keyword)
+    {
+        lock (Refreshes)
+        {
+            Refreshes.Add(keyword);
+        }
+    }
+
+    public List<string> Refreshes { get; } = [];
+
     public void ShowMessage(string title, string message)
     {
     }

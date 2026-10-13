@@ -108,6 +108,9 @@ public partial class MainWindow : Window
         QueryBox.CaretIndex = text.Length;
     }
 
+    /// <summary>Kutudaki metin <paramref name="keyword"/> ile başlıyorsa sonuçları yeniden getirir.</summary>
+    public void RefreshResults(string keyword) => _viewModel.Refresh(keyword);
+
     internal void AllowClose()
     {
         _allowClose = true;

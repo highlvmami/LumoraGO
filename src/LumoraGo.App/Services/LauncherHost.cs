@@ -10,6 +10,8 @@ internal sealed class LauncherHost(MainWindow window, TrayIcon tray, ILog log) :
 {
     public void ChangeQuery(string text) => window.Dispatcher.BeginInvoke(() => window.SetQuery(text));
 
+    public void RefreshResults(string keyword) => window.Dispatcher.BeginInvoke(() => window.RefreshResults(keyword));
+
     public void HideLauncher() => window.Dispatcher.BeginInvoke(window.HideLauncher);
 
     public void CopyToClipboard(string text) => window.Dispatcher.BeginInvoke(() =>

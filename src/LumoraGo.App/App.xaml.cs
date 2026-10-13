@@ -7,6 +7,8 @@ using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
 using LumoraGo.Core.Apps;
+using LumoraGo.Core.DeepSearch;
+using LumoraGo.Core.Files;
 using LumoraGo.Core.Plugins;
 using LumoraGo.Plugin;
 
@@ -29,6 +31,11 @@ public partial class App : Application
     private MainWindow? _window;
     private UpdateService? _updates;
     private DispatcherTimer? _updateTimer;
+    private FileIndex? _files;
+    private Timer? _fileIndexTimer;
+
+    private static readonly TimeSpan FileIndexFirstBuild = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan FileIndexInterval = TimeSpan.FromMinutes(30);
     private bool _applyScheduled;
 
     // Açık kalan launcher da yeni sürümü bulsun; GitHub'ın kimliksiz istek sınırının çok altında.
@@ -64,6 +71,9 @@ public partial class App : Application
         apps.Start();
         var usage = new UsageStore(Path.Combine(DataRoot, "usage.json"), _log);
 
+        _files = new FileIndex(UserFolders, DeepSearchOptions.DefaultSkipDirectoryNames, _log);
+        _fileIndexTimer = new Timer(_ => _files.Rebuild(), null, FileIndexFirstBuild, FileIndexInterval);
+
         var plugins = new PluginManager(_log);
         var search = new SearchService(plugins, _log);
         _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
@@ -84,6 +94,9 @@ public partial class App : Application
                 LinkEntry(LinkPlugin.GitHub(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl, misspelled: true)),
+                new PluginEntry(FileSearchPlugin.Metadata, new FileSearchPlugin(_files, OpenPath, RevealPath)),
+                new PluginEntry(DeepSearchPlugin.Metadata, new DeepSearchPlugin(
+                    () => new DeepSearchOptions { Roots = FixedDrives() }, OpenPath, RevealPath)),
                 .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
@@ -256,6 +269,34 @@ public partial class App : Application
             host.ShowMessage("IP adresi kopyalandı", ip);
         }),
     ];
+
+    /// <summary>"/f" için: masaüstü, belgeler, indirilenler, resimler, videolar, müzik ve OneDrive.</summary>
+    private static IReadOnlyList<string> UserFolders()
+    {
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string?[] folders =
+        [
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            Path.Combine(profile, "Downloads"),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
+            Environment.GetEnvironmentVariable("OneDrive"),
+        ];
+
+        // OneDrive belgeleri de içeriyorsa aynı dosyalar iki kez listelenmesin.
+        var existing = folders.OfType<string>().Where(f => f.Length > 0 && Directory.Exists(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        return existing.Where(f => !existing.Any(other => other != f && f.StartsWith(other + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))).ToList();
+    }
+
+    /// <summary>"/ds" için: tüm sabit diskler (C:\, D:\...).</summary>
+    private static IReadOnlyList<string> FixedDrives() =>
+        DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed && d.IsReady).Select(d => d.RootDirectory.FullName).ToList();
+
+    private void OpenPath(string path) => Run(path, "");
+
+    private void RevealPath(string path) => Run("explorer.exe", $"/select,\"{path}\"");
 
     private void Run(string file, string arguments)
     {

@@ -11,6 +11,7 @@ using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Extensions;
+using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
 using LumoraGo.Core.Plugins;
@@ -33,6 +34,9 @@ public partial class App : Application
     private static readonly string ExtensionsRoot = Path.Combine(DataRoot, "extensions");
 
     private static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
+
+    /// <summary>Hız testi 10 sn'den uzun sürebilir; iptal belirteciyle yönetilir, HttpClient zaman aşımı yok.</summary>
+    private static readonly System.Net.Http.HttpClient LongHttp = new() { Timeout = Timeout.InfiniteTimeSpan };
 
     private Mutex? _mutex;
     private EventWaitHandle? _showEvent;
@@ -140,6 +144,9 @@ public partial class App : Application
                 .. ToolPlugin.All().Select(t => new PluginEntry(t.Metadata, t)),
                 new PluginEntry(ProcessKillPlugin.Metadata, new ProcessKillPlugin(ProcessService.List, ProcessService.Kill)),
                 new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(new MediaControl(_log))),
+                .. NetworkToolPlugins.Create(
+                    new NetworkTools(Http, SystemNetwork.PingAsync, SystemNetwork.WhoisAsync),
+                    new SpeedTest(LongHttp)).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(BookmarksPlugin.Metadata, new BookmarksPlugin(
                     new BookmarkSource(BrowserProfiles.BookmarkFiles, _log).All, OpenUrl)),
                 new PluginEntry(WindowsSettingsPlugin.Metadata, new WindowsSettingsPlugin(OpenUrl)),

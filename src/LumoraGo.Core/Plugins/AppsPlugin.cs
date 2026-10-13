@@ -51,10 +51,35 @@ public sealed class AppsPlugin : IPlugin
         var results = matches
             .OrderByDescending(m => m.Score)
             .Take(MaxResults)
-            .Select(m => new Result(m.App.Name, m.App.Subtitle, m.App.LaunchPath, m.Score, ctx => Launch(m.App, ctx)))
+            .Select(m => new Result(m.App.Name, m.App.Subtitle, m.App.LaunchPath, m.Score, ctx => Launch(m.App, ctx), Menu(m.App)))
             .ToList();
 
         return Task.FromResult<IReadOnlyList<Result>>(results);
+    }
+
+    private IReadOnlyList<ContextAction> Menu(AppEntry app)
+    {
+        var menu = new List<ContextAction>
+        {
+            new("Aç", _ => Launch(app, new ActionContext(ActionModifiers.None))),
+            new("Dosya konumunu aç", _ => Launch(app, new ActionContext(ActionModifiers.Ctrl))),
+        };
+
+        if (app.Kind == AppKind.Shortcut)
+        {
+            menu.Insert(1, new("Yönetici olarak çalıştır", _ => Launch(app, new ActionContext(ActionModifiers.Shift))));
+        }
+
+        if (app.TargetPath is { Length: > 0 } target)
+        {
+            menu.Add(new("Yolu kopyala", _ =>
+            {
+                _host?.CopyToClipboard(target);
+                return true;
+            }));
+        }
+
+        return menu;
     }
 
     private bool Launch(AppEntry app, ActionContext context)

@@ -192,8 +192,8 @@
                         <TextBlock Text="tamamla" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="Ctrl+Enter" /></Border>
                         <TextBlock Text="klasör" />
-                        <Border Style="{StaticResource KeyCap}"><TextBlock Text="Shift+Enter" /></Border>
-                        <TextBlock Text="yönetici" />
+                        <Border Style="{StaticResource KeyCap}"><TextBlock Text="→" /></Border>
+                        <TextBlock Text="eylemler" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="Esc" /></Border>
                         <TextBlock Text="kapat" />
                     </StackPanel>

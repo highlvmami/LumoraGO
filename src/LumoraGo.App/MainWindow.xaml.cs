@@ -90,7 +90,11 @@ public partial class MainWindow : Window
         }
     }
 
-    public void HideLauncher() => Hide();
+    public void HideLauncher()
+    {
+        _viewModel.CloseMenu();
+        Hide();
+    }
 
     /// <summary>Hafif bir aşağı kayma ve belirme. Girdiyi bekletmez; yazı ilk karede kutuya gider.</summary>
     private void PlayShowAnimation()
@@ -143,6 +147,14 @@ public partial class MainWindow : Window
     {
         switch (e.Key)
         {
+            case Key.Escape when _viewModel.CloseMenu():
+            case Key.Left when _viewModel.IsMenuOpen && _viewModel.CloseMenu():
+                e.Handled = true;
+                break;
+            case Key.K when Keyboard.Modifiers == ModifierKeys.Control:
+                _viewModel.OpenMenu();
+                e.Handled = true;
+                break;
             case Key.Escape:
                 HideLauncher();
                 e.Handled = true;
@@ -173,6 +185,11 @@ public partial class MainWindow : Window
                 // Satır sonunda sağ ok, soluk öneriyi kabul eder (terminallerdeki gibi).
                 _viewModel.TryComplete();
                 QueryBox.CaretIndex = QueryBox.Text.Length;
+                e.Handled = true;
+                break;
+            case Key.Right when QueryBox.CaretIndex == QueryBox.Text.Length && QueryBox.SelectionLength == 0
+                                && _viewModel.OpenMenu():
+                // Öneri yoksa satır sonunda sağ ok, seçili sonucun eylem menüsünü açar.
                 e.Handled = true;
                 break;
         }

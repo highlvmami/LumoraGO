@@ -79,6 +79,25 @@ public class AppsPluginTests
     }
 
     [Fact]
+    public async Task Action_menu_offers_admin_folder_and_copy_path()
+    {
+        var launcher = new FakeLauncher();
+        var host = new NullHost();
+        var plugin = new AppsPlugin(new FakeSource(App("Notepad", @"C:\Windows\notepad.exe")), launcher, new UsageStore(null));
+        plugin.Init(new PluginContext(AppsPlugin.Metadata, "", host));
+
+        var menu = (await Query(plugin, "note"))[0].ContextMenu!;
+        Assert.Equal(["Aç", "Yönetici olarak çalıştır", "Dosya konumunu aç", "Yolu kopyala"], menu.Select(a => a.Title));
+
+        menu[1].Action(new ActionContext(ActionModifiers.None));
+        menu[2].Action(new ActionContext(ActionModifiers.None));
+        menu[3].Action(new ActionContext(ActionModifiers.None));
+
+        Assert.Equal([LaunchMode.AsAdmin, LaunchMode.OpenFolder], launcher.Launched.Select(l => l.Mode));
+        Assert.Equal([@"C:\Windows\notepad.exe"], host.Copied);
+    }
+
+    [Fact]
     public void Usage_survives_restart()
     {
         var path = Path.Combine(Path.GetTempPath(), $"lumorago-usage-{Guid.NewGuid():N}.json");

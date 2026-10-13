@@ -7,6 +7,7 @@ using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
 using LumoraGo.Core.Apps;
+using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Extensions;
@@ -139,6 +140,11 @@ public partial class App : Application
                 .. ToolPlugin.All().Select(t => new PluginEntry(t.Metadata, t)),
                 new PluginEntry(ProcessKillPlugin.Metadata, new ProcessKillPlugin(ProcessService.List, ProcessService.Kill)),
                 new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(new MediaControl(_log))),
+                new PluginEntry(BookmarksPlugin.Metadata, new BookmarksPlugin(
+                    new BookmarkSource(BrowserProfiles.BookmarkFiles, _log).All, OpenUrl)),
+                new PluginEntry(WindowsSettingsPlugin.Metadata, new WindowsSettingsPlugin(OpenUrl)),
+                new PluginEntry(RecentFilesPlugin.Metadata, new RecentFilesPlugin(BrowserProfiles.RecentItems, OpenUrl)),
+                new PluginEntry(WorldClockPlugin.Metadata, new WorldClockPlugin()),
                 LinkEntry(LinkPlugin.GitHub(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl, misspelled: true)),

@@ -2,6 +2,12 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.12.0
+- Yer imleri: "/b jira" Chrome, Edge, Brave, Vivaldi ve Opera yer imlerinde ad, adres ve klasöre göre arar; Enter açar
+- Windows ayarları: "bluetooth", "ekran", "varsayılan uygulamalar", "duvar kağıdı" gibi yazınca ilgili Ayarlar sayfası çıkar
+- Son dosyalar: "/son" Windows'ta son açtığın dosya ve klasörleri gösterir, yazınca süzülür
+- Dünya saati: "/saat tokyo" şehirdeki saati ve seninle farkını gösterir; "/saat" tüm şehirleri listeler
+
 ## 0.11.0
 - Özel kısayollar: Ayarlar'da "kelime | hedef" yazarak kendi kısayollarını ekle (site, dosya, klasör veya uygulama). Hedefte {0} varsa kelimeden sonra yazılan metinle arar
 - Yeni web aramaları: "/tr" Türkçeye çevirir, "/wiki" Vikipedi, "/harita" Google Haritalar, "/gh" GitHub

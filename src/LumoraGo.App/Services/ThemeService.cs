@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using LumoraGo.Core.Settings;
 using Microsoft.Win32;
 
 namespace LumoraGo.App.Services;
@@ -13,15 +14,15 @@ internal sealed class ThemeService : IDisposable
     private readonly bool _translucent;
     private ResourceDictionary? _current;
 
-    private readonly bool _followSystem;
+    private ThemeChoice _choice;
 
     /// <param name="translucent">Akrilik arka plan destekleniyorsa yarı saydam renkler kullanılır.</param>
-    /// <param name="followSystem">false ise Windows ayarı ne olursa olsun koyu tema kullanılır.</param>
-    public ThemeService(Application app, bool translucent, bool followSystem)
+    /// <param name="choice">Koyu, açık veya Windows ayarını takip et.</param>
+    public ThemeService(Application app, bool translucent, ThemeChoice choice)
     {
         _app = app;
         _translucent = translucent;
-        _followSystem = followSystem;
+        _choice = choice;
         Apply();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
     }
@@ -38,9 +39,20 @@ internal sealed class ThemeService : IDisposable
         }
     }
 
+    public void SetChoice(ThemeChoice choice)
+    {
+        _choice = choice;
+        Apply();
+    }
+
     private void Apply()
     {
-        var dark = !_followSystem || ReadIsDark();
+        var dark = _choice switch
+        {
+            ThemeChoice.Light => false,
+            ThemeChoice.System => ReadIsDark(),
+            _ => true,
+        };
         if (_current is not null && dark == IsDark)
         {
             return;

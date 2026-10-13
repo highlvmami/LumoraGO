@@ -13,7 +13,7 @@ public class WebSearchPluginTests
         var manager = new PluginManager();
         manager.Initialize([new PluginEntry(youtube.Metadata, youtube)], new NullHost(), Path.GetTempPath());
 
-        var response = await new SearchService(manager).SearchAsync("/yt barış manço & arkadaşları", CancellationToken.None);
+        var response = await new SearchService(manager, pluginTimeout: TestPlugins.Timeout).SearchAsync("/yt barış manço & arkadaşları", CancellationToken.None);
 
         var result = Assert.Single(response.Results);
         Assert.Equal("YouTube'da ara: barış manço & arkadaşları", result.Title);

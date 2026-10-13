@@ -42,7 +42,7 @@ public class CommandListPluginTests
             [new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => Commands))],
             new NullHost(),
             Path.GetTempPath());
-        var service = new SearchService(manager);
+        var service = new SearchService(manager, pluginTimeout: TestPlugins.Timeout);
 
         var response = await service.SearchAsync("/liste", CancellationToken.None);
 

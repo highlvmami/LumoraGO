@@ -16,7 +16,7 @@ public class LinkPluginTests
         var manager = new PluginManager();
         manager.Initialize(plugins.Select(p => new PluginEntry(p.Metadata, p)).ToList(), new NullHost(), Path.GetTempPath());
 
-        var response = await new SearchService(manager).SearchAsync(text, CancellationToken.None);
+        var response = await new SearchService(manager, pluginTimeout: TestPlugins.Timeout).SearchAsync(text, CancellationToken.None);
 
         var result = Assert.Single(response.Results);
         Assert.True(result.Action(new ActionContext(ActionModifiers.None)));

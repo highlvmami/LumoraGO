@@ -18,7 +18,7 @@ public class ShortcutPluginTests
             new NullHost(),
             Path.GetTempPath());
 
-        var response = await new SearchService(manager).SearchAsync("/kilit", CancellationToken.None);
+        var response = await new SearchService(manager, pluginTimeout: TestPlugins.Timeout).SearchAsync("/kilit", CancellationToken.None);
 
         var result = Assert.Single(response.Results);
         Assert.Equal("Bilgisayarı kilitle", result.Title);
@@ -34,7 +34,7 @@ public class ShortcutPluginTests
         var manager = new PluginManager();
         manager.Initialize([Entry(plugin)], new NullHost(), Path.GetTempPath());
 
-        var response = await new SearchService(manager).SearchAsync("/ka", CancellationToken.None);
+        var response = await new SearchService(manager, pluginTimeout: TestPlugins.Timeout).SearchAsync("/ka", CancellationToken.None);
 
         Assert.Empty(response.Results);
     }

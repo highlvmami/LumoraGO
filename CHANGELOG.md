@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.13.0
+- Ağ araçları: "/ping google.com" dört kez ping atıp ortalama ve kayıp gösterir, "/dns google.com" (veya "/dns google.com mx") DNS kayıtlarını, "/whois google.com" kayıt kuruluşu ve tarihleri gösterir; IP yazınca ters DNS ve ağ sahibi gelir. Sorgular Enter ile başlar, sonuçlar geldikçe liste dolar
+- "/hiz": indirme, yükleme ve gecikme ölçen internet hız testi (Cloudflare uçları, yaklaşık 33 MB veri kullanır)
+- "/disip": dış IP adresin, yaklaşık konumun ve servis sağlayıcın; Enter kopyalar
+
 ## 0.12.0
 - Yer imleri: "/b jira" Chrome, Edge, Brave, Vivaldi ve Opera yer imlerinde ad, adres ve klasöre göre arar; Enter açar
 - Windows ayarları: "bluetooth", "ekran", "varsayılan uygulamalar", "duvar kağıdı" gibi yazınca ilgili Ayarlar sayfası çıkar

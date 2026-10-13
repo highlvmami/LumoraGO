@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.10.0
+- Eklenti klasörü: kendi yazdığın veya indirdiğin eklentiler `%LOCALAPPDATA%\LumoraGo\extensions` altına klasörüyle kopyalanınca LumoraGo açılışta yükler. Klasörü açmak için launcher'da "eklenti" yaz
+- Örnek eklenti ve nasıl yazılacağı README'de; hatalı eklenti atlanır, launcher çökmez
+
 ## 0.9.0
 - Pencere geçişi: "/w chrome" açık pencereler arasında başlık veya uygulama adıyla arar; Enter öne getirir, sağ ok ile pencereyi kapat
 - Zamanlayıcı: "/t 10dk çay", "/t 1sa 30dk", "/t 90sn", "/t 14:30 ilaç"; süre dolunca ses ve bildirim gelir. "/t" çalışanları ve kalan süreyi gösterir, Enter iptal eder

@@ -4,6 +4,9 @@
     <Project Path="src/LumoraGo.Core/LumoraGo.Core.csproj" />
     <Project Path="src/LumoraGo.Plugin.Abstractions/LumoraGo.Plugin.Abstractions.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/LumoraGo.SamplePlugin/LumoraGo.SamplePlugin.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/LumoraGo.Core.Tests/LumoraGo.Core.Tests.csproj" />
   </Folder>

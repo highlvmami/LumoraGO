@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.19.0
+- Kişiler: Ayarlar → Kişiler'den Google Kişiler, iPhone (iCloud) ya da Outlook'tan aldığın .vcf veya .csv dosyasını seç. "/kisi ahmet" ya da doğrudan "ahmet" yazınca kişi çıkar (Türkçe harfsiz de bulur, numaranın bir parçasını yazınca da). Enter numarayı kopyalar, Ctrl+Enter WhatsApp sohbetini, Shift+Enter yeni maili açar; sağ ok menüsünde telefonla arama (Telefon Bağlantısı) ve diğer numaralar var. 0532…, +90 532… ve 532… aynı numara sayılır
+- Kişiler şifreli (Windows hesabına bağlı) saklanır, hiçbir yere gönderilmez. "Dosya değişince yeniden oku" seçilirse dosya güncellenince rehber de güncellenir
+
 ## 0.18.1
 - "/mac fenerbahçe" artık takımın maçlarını buluyor: önceden yalnızca içinde bulunulan haftaya bakılıyordu, takımın o hafta maçı yoksa hiçbir şey çıkmıyordu. Şimdi son 3 hafta ve önümüzdeki 4 hafta taranır; önce canlı maç, sonra son oynanan, sonra sıradaki maç gelir. "fb", "gs", "bjk", "ts" kısaltmaları da çalışır
 - Launcher'daki LumoraGo yazısının altında küçük harflerle çalışan sürüm görünür

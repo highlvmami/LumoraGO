@@ -9,6 +9,7 @@ using LumoraGo.Core;
 using LumoraGo.Core.Apps;
 using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
+using LumoraGo.Core.Contacts;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Desktop;
 using LumoraGo.Core.Extensions;
@@ -59,6 +60,8 @@ public partial class App : Application
     private FileIndex? _files;
     private SettingsStore? _settings;
     private SecretStore? _secrets;
+    private ContactBook? _contacts;
+    private ContactsWatcher? _contactsWatcher;
     private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
     private ClipboardHistory? _clipboard;
@@ -103,6 +106,10 @@ public partial class App : Application
         _settings = new SettingsStore(Path.Combine(DataRoot, "settings.json"), _log);
         _secrets = new SecretStore(Path.Combine(DataRoot, "accounts.dat"), SecretProtection.Protect, SecretProtection.Unprotect, _log);
         var secrets = _secrets;
+        _contacts = new ContactBook(Path.Combine(DataRoot, "contacts.dat"), SecretProtection.Protect, SecretProtection.Unprotect, _log);
+        var contacts = _contacts;
+        _contactsWatcher = new ContactsWatcher(contacts, _log);
+        _contactsWatcher.Watch(_settings.Current.ContactsFile, _settings.Current.ContactsWatch);
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
@@ -174,6 +181,9 @@ public partial class App : Application
                 WebSearchEntry(WebSearchPlugin.GitHubSearch(OpenUrl)),
                 new PluginEntry(CustomShortcutsPlugin.Metadata, new CustomShortcutsPlugin(
                     () => _settings.Current.CustomShortcuts, OpenUrl)),
+                ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => _settings.Current.ContactsInGlobalSearch)),
+                ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), ContactsPlugin.Keyword)),
+                ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/kişi")),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, ScriptsPlugin.RunKeyword)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, "/çalıştır")),
@@ -363,6 +373,8 @@ public partial class App : Application
         return reader.ReadToEnd();
     }
 
+    private static PluginEntry ContactsEntry(ContactsPlugin plugin) => new(plugin.Metadata, plugin);
+
     private static PluginEntry ScriptsEntry(ScriptsPlugin plugin) => new(plugin.Metadata, plugin);
 
     private (string Text, IReadOnlyList<ActionChain> Chains) _chainCache = ("", []);
@@ -462,7 +474,7 @@ public partial class App : Application
         }
 
         _window?.HideLauncher();
-        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear());
+        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear(), _contacts!);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
         _settingsWindow.Activate();
@@ -488,6 +500,7 @@ public partial class App : Application
         }
 
         ApplyClipboardPersistence(settings);
+        _contactsWatcher?.Watch(settings.ContactsFile, settings.ContactsWatch);
 
         // Klasörler değişmiş olabilir; dosya listesini arka planda yeniden kur.
         _ = Task.Run(() => _files?.Rebuild());
@@ -689,6 +702,7 @@ public partial class App : Application
         _showWait?.Unregister(null);
         _showEvent?.Dispose();
         _clipboardMonitor?.Dispose();
+        _contactsWatcher?.Dispose();
         _clipboardPersistence?.Dispose();
         _timers?.Dispose();
         _fileIndexTimer?.Dispose();

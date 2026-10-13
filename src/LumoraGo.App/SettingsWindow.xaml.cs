@@ -27,6 +27,7 @@ internal partial class SettingsWindow : Window
         ThemeBox.SelectedIndex = (int)s.Theme;
         StartupBox.IsChecked = StartupRegistration.IsEnabled;
         ClipboardBox.IsChecked = s.ClipboardHistory;
+        ClipboardPersistBox.IsChecked = s.ClipboardPersist;
         Fill(DeepFoldersList, s.DeepSearchFolders);
         Fill(FileFoldersList, s.FileSearchFolders);
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
@@ -120,6 +121,7 @@ internal partial class SettingsWindow : Window
             Hotkey = HotkeyBox.Text,
             Theme = (ThemeChoice)Math.Max(0, ThemeBox.SelectedIndex),
             ClipboardHistory = ClipboardBox.IsChecked == true,
+            ClipboardPersist = ClipboardBox.IsChecked == true && ClipboardPersistBox.IsChecked == true,
             DeepSearchFolders = Items(DeepFoldersList),
             DeepSearchSkipNames = SkipNamesBox.Text
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

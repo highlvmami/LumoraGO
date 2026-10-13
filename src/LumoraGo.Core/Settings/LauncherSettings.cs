@@ -20,6 +20,9 @@ public sealed record LauncherSettings
     /// <summary>Kopyalanan metinler "/c" için hatırlansın mı.</summary>
     public bool ClipboardHistory { get; init; } = true;
 
+    /// <summary>Pano geçmişi LumoraGo kapanınca da kalsın mı (diske yazılır).</summary>
+    public bool ClipboardPersist { get; init; }
+
     /// <summary>"/ds"nin arayacağı klasörler. Boşsa tüm sabit diskler.</summary>
     public IReadOnlyList<string> DeepSearchFolders { get; init; } = [];
 

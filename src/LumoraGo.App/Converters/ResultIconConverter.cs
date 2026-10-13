@@ -34,6 +34,8 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.notes"] = "\uE70B",
         ["lumorago.emoji"] = "\uE76E",
         ["lumorago.color"] = "\uE790",
+        ["lumorago.windows"] = "\uE737",
+        ["lumorago.timer"] = "\uE916",
         ["lumorago.keywordhints"] = "",
     };
 

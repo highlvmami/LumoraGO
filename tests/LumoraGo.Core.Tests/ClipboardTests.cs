@@ -79,3 +79,62 @@ public class ClipboardTests
         Assert.False(ActionMenu.HasActions(new Result("x", null, null, 0, _ => true)));
     }
 }
+
+public class ClipboardPersistenceTests
+{
+    [Fact]
+    public void Saves_on_dispose_and_restores_after_restart()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"lumorago-clip-{Guid.NewGuid():N}.json");
+        try
+        {
+            var history = new ClipboardHistory();
+            using (new ClipboardPersistence(history, path, saveDelay: TimeSpan.FromHours(1)))
+            {
+                history.Add("ilk", new DateTime(2026, 10, 13, 9, 0, 0));
+                history.Add("ikinci", new DateTime(2026, 10, 13, 10, 0, 0));
+            }
+
+            var restored = new ClipboardHistory();
+            restored.Add("yeni");
+            using (new ClipboardPersistence(restored, path))
+            {
+                Assert.Equal(["yeni", "ikinci", "ilk"], restored.Entries.Select(e => e.Text));
+                Assert.Equal(new DateTime(2026, 10, 13, 10, 0, 0), restored.Entries[1].CopiedAt);
+            }
+
+            ClipboardPersistence.Delete(path);
+            Assert.False(File.Exists(path));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task Saves_after_delay_and_survives_corrupt_file()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"lumorago-clip-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(path, "{bozuk");
+            var history = new ClipboardHistory();
+            using var persistence = new ClipboardPersistence(history, path, saveDelay: TimeSpan.FromMilliseconds(20));
+            Assert.Empty(history.Entries);
+
+            history.Add("merhaba");
+            var deadline = DateTime.UtcNow + TestPlugins.Timeout;
+            while (!File.ReadAllText(path).Contains("merhaba") && DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(20);
+            }
+
+            Assert.Contains("merhaba", File.ReadAllText(path));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+}

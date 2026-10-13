@@ -35,7 +35,7 @@ public sealed class ClipboardPlugin : IPlugin
         if (entries.Count == 0)
         {
             return Task.FromResult<IReadOnlyList<Result>>(
-                [new Result("Pano geçmişi boş", "Bir şey kopyaladığında burada görünür (sadece bellekte tutulur)", null, 1, _ => false)]);
+                [new Result("Pano geçmişi boş", "Bir şey kopyaladığında burada görünür", null, 1, _ => false)]);
         }
 
         var folded = FuzzyMatcher.Fold(query.Search);

@@ -59,7 +59,9 @@
 
                 <TextBlock Text="Pano geçmişi (/c)" Style="{StaticResource Heading}" />
                 <CheckBox x:Name="ClipboardBox" Content="Kopyaladıklarımı hatırla" />
-                <TextBlock Style="{StaticResource Note}" Text="Sadece bellekte tutulur, LumoraGo kapanınca silinir. Kapatınca mevcut geçmiş de temizlenir." />
+                <CheckBox x:Name="ClipboardPersistBox" Content="Kapatınca da hatırla (diske kaydet)" Margin="0,6,0,0"
+                          IsEnabled="{Binding IsChecked, ElementName=ClipboardBox}" />
+                <TextBlock Style="{StaticResource Note}" Text="İkinci kutu kapalıyken geçmiş sadece bellekte tutulur, LumoraGo kapanınca silinir. Açıkken son 200 kopya %LOCALAPPDATA%\LumoraGo\clipboard.json dosyasına yazılır. Kutuyu kapatınca dosya silinir; geçmişi tamamen kapatınca mevcut geçmiş de temizlenir." />
 
                 <TextBlock Text="Derin arama (/ds) klasörleri" Style="{StaticResource Heading}" />
                 <ListBox x:Name="DeepFoldersList" />

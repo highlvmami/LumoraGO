@@ -3,8 +3,8 @@ namespace LumoraGo.Core.Clipboard;
 public sealed record ClipboardEntry(string Text, DateTime CopiedAt);
 
 /// <summary>
-/// Kopyalanan metinlerin listesi, en yenisi başta. Sadece bellekte tutulur; LumoraGo kapanınca silinir.
-/// Aynı metin tekrar kopyalanınca başa taşınır.
+/// Kopyalanan metinlerin listesi, en yenisi başta. Bellekte tutulur; ayarlardan istenirse
+/// <see cref="ClipboardPersistence"/> diske de yazar. Aynı metin tekrar kopyalanınca başa taşınır.
 /// </summary>
 public sealed class ClipboardHistory(int capacity = 200)
 {
@@ -13,6 +13,9 @@ public sealed class ClipboardHistory(int capacity = 200)
 
     private readonly object _gate = new();
     private readonly LinkedList<ClipboardEntry> _entries = new();
+
+    /// <summary>Liste değişince (kilit dışında) çağrılır.</summary>
+    public event Action? Changed;
 
     public IReadOnlyList<ClipboardEntry> Entries
     {
@@ -41,6 +44,29 @@ public sealed class ClipboardHistory(int capacity = 200)
                 _entries.RemoveLast();
             }
         }
+
+        Changed?.Invoke();
+    }
+
+    /// <summary>Diskten okunan eski kayıtları listenin sonuna ekler; zaten olan metinler atlanır.</summary>
+    public void AddOlder(IEnumerable<ClipboardEntry> entries)
+    {
+        lock (_gate)
+        {
+            var known = _entries.Select(e => e.Text).ToHashSet(StringComparer.Ordinal);
+            foreach (var entry in entries)
+            {
+                if (_entries.Count >= capacity)
+                {
+                    break;
+                }
+
+                if (!string.IsNullOrWhiteSpace(entry.Text) && entry.Text.Length <= MaxTextLength && known.Add(entry.Text))
+                {
+                    _entries.AddLast(entry);
+                }
+            }
+        }
     }
 
     public void Remove(string text)
@@ -49,6 +75,8 @@ public sealed class ClipboardHistory(int capacity = 200)
         {
             RemoveText(text);
         }
+
+        Changed?.Invoke();
     }
 
     public void Clear()
@@ -57,6 +85,8 @@ public sealed class ClipboardHistory(int capacity = 200)
         {
             _entries.Clear();
         }
+
+        Changed?.Invoke();
     }
 
     private void RemoveText(string text)

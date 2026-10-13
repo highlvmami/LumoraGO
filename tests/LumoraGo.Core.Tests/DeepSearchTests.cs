@@ -18,7 +18,7 @@ public sealed class DeepSearchTests : IDisposable
 
     private string Write(string relative, string content, Encoding? encoding = null)
     {
-        var path = Path.Combine(_root, relative);
+        var path = Path.Combine(_root, relative.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, content, encoding ?? new UTF8Encoding(false));
         return path;

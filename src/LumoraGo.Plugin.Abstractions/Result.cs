@@ -21,6 +21,12 @@ public sealed record Result(
     /// </summary>
     public string? AutoComplete { get; init; }
 
+    /// <summary>Hızlı önizlemede (Shift+Boşluk) gösterilecek dosya ya da klasör.</summary>
+    public string? PreviewPath { get; init; }
+
+    /// <summary>Dosya değilse hızlı önizlemede gösterilecek metin (pano kaydının tamamı, not, yer imi adresi).</summary>
+    public string? PreviewText { get; init; }
+
     /// <summary>Sonucu üreten eklentinin kimliği. Çekirdek tarafından doldurulur.</summary>
     public string PluginId { get; init; } = "";
 }

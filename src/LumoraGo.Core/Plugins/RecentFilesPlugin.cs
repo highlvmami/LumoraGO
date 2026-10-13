@@ -29,7 +29,10 @@ public sealed class RecentFilesPlugin(Func<IReadOnlyList<RecentItem>> recent, Ac
             {
                 open(r.Path);
                 return true;
-            }))
+            })
+            {
+                PreviewPath = r.Path,
+            })
             .ToList();
 
         if (results.Count == 0)

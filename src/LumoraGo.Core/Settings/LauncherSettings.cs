@@ -18,6 +18,9 @@ public sealed record LauncherSettings
 
     public ThemeChoice Theme { get; init; } = ThemeChoice.Dark;
 
+    /// <summary>Launcher her açıldığında hızlı önizleme paneli de açık gelsin.</summary>
+    public bool PreviewAlwaysOpen { get; init; }
+
     /// <summary>Kopyalanan metinler "/c" için hatırlansın mı.</summary>
     public bool ClipboardHistory { get; init; } = true;
 

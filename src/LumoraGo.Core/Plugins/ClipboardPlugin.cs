@@ -58,7 +58,10 @@ public sealed class ClipboardPlugin : IPlugin
     {
         var lines = entry.Text.Count(c => c == '\n') + 1;
         var subtitle = $"{entry.CopiedAt:HH:mm}{(lines > 1 ? $" · {lines} satır" : "")} · Enter: yapıştır, Ctrl+Enter: kopyala";
-        return new Result(OneLine(entry.Text), subtitle, null, score, ctx => Use(entry.Text, ctx), Menu(entry.Text));
+        return new Result(OneLine(entry.Text), subtitle, null, score, ctx => Use(entry.Text, ctx), Menu(entry.Text))
+        {
+            PreviewText = entry.Text,
+        };
     }
 
     private bool Use(string text, ActionContext ctx)

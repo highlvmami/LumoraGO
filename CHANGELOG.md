@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.16.0
+- Hızlı önizleme: bir sonuç seçiliyken Shift+Boşluk sağda önizleme panelini açar. Resimler, metin ve kod dosyaları (ilk 300 satır), klasör içeriği, video ve ses küçük resmi gösterilir; PDF, Word, Excel ve PowerPoint için Windows Gezgini'nin önizleyicisi kullanılır. Pano kayıtları, notlar ve yer imleri de önizlenir. ↑↓ ile gezince önizleme de değişir, Esc önce paneli kapatır
+- Ayarlar'da "Önizlemeyi her zaman açık tut" seçeneği
+
 ## 0.15.0
 - Kullanıma göre sıralama: LumoraGo hangi yazıda hangi sonucu seçtiğini öğrenir. "ch" yazıp hep Chrome'u seçiyorsan bir süre sonra "c" ve "ch" yazınca Chrome en üstte çıkar. Uygulamalar, dosyalar, yer imleri, ayarlar ve komutların hepsinde çalışır; eski seçimlerin etkisi yaklaşık 30 günde yarıya iner. Ayarlar'da "Öğrenilen sıralamayı sıfırla" düğmesi var
 

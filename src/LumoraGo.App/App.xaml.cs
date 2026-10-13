@@ -123,7 +123,7 @@ public partial class App : Application
         var plugins = new PluginManager(_log);
         _learning = new QueryLearning(Path.Combine(DataRoot, "learned.json"), _log);
         var search = new SearchService(plugins, _log, learning: _learning);
-        _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
+        _window = new MainWindow(new MainViewModel(search, _log), _log, _theme) { PreviewAlwaysOpen = _settings.Current.PreviewAlwaysOpen };
         _tray = new TrayIcon(() => _window.ShowLauncher(), OpenSettings, OpenLogFolder, ExitApplication);
 
         _updates = new UpdateService(_log);
@@ -385,6 +385,10 @@ public partial class App : Application
     private void ApplySettings(LauncherSettings settings)
     {
         _theme?.SetChoice(settings.Theme);
+        if (_window is not null)
+        {
+            _window.PreviewAlwaysOpen = settings.PreviewAlwaysOpen;
+        }
 
         if (settings.ClipboardHistory && _clipboardMonitor is null && _clipboard is not null)
         {

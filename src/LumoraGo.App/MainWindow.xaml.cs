@@ -7,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using LumoraGo.App.Controls;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
@@ -23,6 +24,14 @@ public partial class MainWindow : Window
     private readonly ILog _log;
     private readonly IntPtr _hwnd;
     private bool _allowClose;
+    private readonly PreviewPane _preview;
+    private readonly DispatcherTimer _previewDelay;
+    private const double PreviewWidth = 420;
+
+    /// <summary>Ayarlardan: launcher her açıldığında önizleme de açık gelsin.</summary>
+    public bool PreviewAlwaysOpen { get; set; }
+
+    public bool IsPreviewOpen => PreviewColumn.Visibility == Visibility.Visible;
 
     internal MainWindow(MainViewModel viewModel, ILog log, ThemeService theme)
     {
@@ -43,11 +52,31 @@ public partial class MainWindow : Window
         WindowEffects.Apply(_hwnd, theme.IsDark);
         theme.Changed += (_, _) => WindowEffects.SetDarkMode(_hwnd, theme.IsDark);
 
+        _preview = new PreviewPane(log);
+        _preview.DocumentShown += (_, _) => QueryBox.Focus();
+        PreviewColumn.Child = _preview;
+        // Seçim hızla değişirken (↑↓ basılı) her satır için dosya okunmasın.
+        _previewDelay = new DispatcherTimer(TimeSpan.FromMilliseconds(120), DispatcherPriority.Background, (_, _) =>
+        {
+            _previewDelay!.Stop();
+            if (IsPreviewOpen)
+            {
+                _preview.Show(_viewModel.SelectedResult);
+            }
+        }, Dispatcher);
+        _previewDelay.Stop();
+
         viewModel.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.SelectedIndex) && viewModel.SelectedIndex >= 0)
             {
                 ResultsList.ScrollIntoView(ResultsList.Items[viewModel.SelectedIndex]);
+            }
+
+            if (e.PropertyName is nameof(MainViewModel.SelectedIndex) or nameof(MainViewModel.Results) && IsPreviewOpen)
+            {
+                _previewDelay.Stop();
+                _previewDelay.Start();
             }
         };
     }
@@ -80,6 +109,11 @@ public partial class MainWindow : Window
         Keyboard.Focus(QueryBox);
         // Önceki aramayı seçili bırak: yazmaya başlayınca yerine geçer.
         QueryBox.SelectAll();
+        if (PreviewAlwaysOpen && !IsPreviewOpen)
+        {
+            SetPreview(true);
+        }
+
         PlayShowAnimation();
 
         if (sinceHotkey is not null)
@@ -93,7 +127,36 @@ public partial class MainWindow : Window
     public void HideLauncher()
     {
         _viewModel.CloseMenu();
+        if (IsPreviewOpen)
+        {
+            SetPreview(false);
+        }
+
         Hide();
+    }
+
+    /// <summary>Önizleme panelini açar/kapatır; pencere sağa doğru genişler ama ortası yerinde kalır.</summary>
+    private void SetPreview(bool open)
+    {
+        if (open == IsPreviewOpen)
+        {
+            return;
+        }
+
+        PreviewColumn.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        Width += open ? PreviewWidth : -PreviewWidth;
+        Left -= open ? PreviewWidth / 2 : -PreviewWidth / 2;
+        if (open)
+        {
+            _preview.Show(_viewModel.SelectedResult);
+        }
+        else
+        {
+            _previewDelay.Stop();
+            _preview.Clear();
+        }
+
+        QueryBox.Focus();
     }
 
     /// <summary>Hafif bir aşağı kayma ve belirme. Girdiyi bekletmez; yazı ilk karede kutuya gider.</summary>
@@ -147,6 +210,14 @@ public partial class MainWindow : Window
     {
         switch (e.Key)
         {
+            case Key.Space when Keyboard.Modifiers == ModifierKeys.Shift:
+                SetPreview(!IsPreviewOpen);
+                e.Handled = true;
+                break;
+            case Key.Escape when IsPreviewOpen && !PreviewAlwaysOpen:
+                SetPreview(false);
+                e.Handled = true;
+                break;
             case Key.Escape when _viewModel.CloseMenu():
             case Key.Left when _viewModel.IsMenuOpen && _viewModel.CloseMenu():
                 e.Handled = true;

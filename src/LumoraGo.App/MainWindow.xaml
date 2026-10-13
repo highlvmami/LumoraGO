@@ -71,7 +71,13 @@
             <TranslateTransform x:Name="RootOffset" />
         </Border.RenderTransform>
 
-        <StackPanel>
+        <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel x:Name="MainColumn" Width="718" VerticalAlignment="Top">
             <!-- Arama satırı -->
             <Grid Margin="16,10,16,10">
                 <Grid.ColumnDefinitions>
@@ -194,11 +200,18 @@
                         <TextBlock Text="klasör" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="→" /></Border>
                         <TextBlock Text="eylemler" />
+                        <Border Style="{StaticResource KeyCap}"><TextBlock Text="Shift+Boşluk" /></Border>
+                        <TextBlock Text="önizle" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="Esc" /></Border>
                         <TextBlock Text="kapat" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
         </StackPanel>
+
+        <!-- Hızlı önizleme (Shift+Boşluk); içerik koddan PreviewPane ile gelir -->
+        <Border x:Name="PreviewColumn" Grid.Column="1" Width="420" Visibility="Collapsed"
+                BorderThickness="1,0,0,0" BorderBrush="{DynamicResource Divider}" VerticalAlignment="Top" />
+        </Grid>
     </Border>
 </Window>

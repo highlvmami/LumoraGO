@@ -51,7 +51,10 @@ public sealed class AppsPlugin : IPlugin
         var results = matches
             .OrderByDescending(m => m.Score)
             .Take(MaxResults)
-            .Select(m => new Result(m.App.Name, m.App.Subtitle, m.App.LaunchPath, m.Score, ctx => Launch(m.App, ctx), Menu(m.App)))
+            .Select(m => new Result(m.App.Name, m.App.Subtitle, m.App.LaunchPath, m.Score, ctx => Launch(m.App, ctx), Menu(m.App))
+            {
+                PreviewPath = m.App.TargetPath is { Length: > 0 } target ? target : null,
+            })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<Result>>(results);

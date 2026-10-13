@@ -67,6 +67,7 @@ public sealed class BookmarksPlugin(Func<IReadOnlyList<Bookmark>> bookmarks, Act
             return true;
         })
         {
+            PreviewText = $"{bookmark.Title}\n\n{bookmark.Url}\n\n{where}",
             ContextMenu =
             [
                 new ContextAction("Aç", _ =>

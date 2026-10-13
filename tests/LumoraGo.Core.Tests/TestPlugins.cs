@@ -2,6 +2,12 @@ using LumoraGo.Plugin;
 
 namespace LumoraGo.Core.Tests;
 
+internal static class TestPlugins
+{
+    /// <summary>CI'da iş parçacığı havuzu ısınırken 200 ms yetmeyebiliyor; zaman aşımını sınamayan testler bunu kullanır.</summary>
+    public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
+}
+
 internal sealed class FakePlugin(Func<Query, CancellationToken, Task<IReadOnlyList<Result>>> query) : IPlugin
 {
     public List<Query> Received { get; } = [];

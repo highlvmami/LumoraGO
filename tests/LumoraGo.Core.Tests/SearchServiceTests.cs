@@ -9,7 +9,7 @@ public class SearchServiceTests
         var log = new ListLog();
         var manager = new PluginManager(log);
         manager.Initialize(plugins.Select(p => new PluginEntry(p.Meta, p.Plugin)), new NullHost(), Path.GetTempPath());
-        return (new SearchService(manager, log, timeout), log);
+        return (new SearchService(manager, log, timeout ?? TestPlugins.Timeout), log);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class SearchServiceTests
             await Task.Delay(Timeout.Infinite, ct);
             return [];
         });
-        var (service, _) = Create(TimeSpan.FromMilliseconds(50),
+        var (service, _) = Create(TimeSpan.FromSeconds(1),
             (new PluginMetadata("slow", "Slow"), slow),
             (new PluginMetadata("fast", "Fast"), FakePlugin.Returning(("fast", 10))));
 

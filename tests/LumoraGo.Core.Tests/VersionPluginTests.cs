@@ -13,7 +13,7 @@ public class VersionPluginTests
             [new PluginEntry(VersionPlugin.Metadata, new VersionPlugin(() => new VersionInfo("0.2.0", ["Bir", "İki"], "Güncel")))],
             new NullHost(),
             Path.GetTempPath());
-        var service = new SearchService(manager);
+        var service = new SearchService(manager, pluginTimeout: TestPlugins.Timeout);
 
         var response = await service.SearchAsync("/v", CancellationToken.None);
 

@@ -2,6 +2,13 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.11.0
+- Özel kısayollar: Ayarlar'da "kelime | hedef" yazarak kendi kısayollarını ekle (site, dosya, klasör veya uygulama). Hedefte {0} varsa kelimeden sonra yazılan metinle arar
+- Yeni web aramaları: "/tr" Türkçeye çevirir, "/wiki" Vikipedi, "/harita" Google Haritalar, "/gh" GitHub
+- Araçlar: "/uuid", "/sifre 24" güçlü şifre, "/b64" Base64, "/url" URL kodlama, "/hash" SHA-256/SHA-1/MD5, "/say" karakter ve kelime sayısı; Enter kopyalar
+- "/kill chrome": donan uygulamayı zorla kapatır (aynı addaki tüm işlemler)
+- "/ses": "/ses 40" sesi %40 yapar; oynat/duraklat, sonraki, önceki, sessiz, artır, azalt
+
 ## 0.10.0
 - Eklenti klasörü: kendi yazdığın veya indirdiğin eklentiler `%LOCALAPPDATA%\LumoraGo\extensions` altına klasörüyle kopyalanınca LumoraGo açılışta yükler. Klasörü açmak için launcher'da "eklenti" yaz
 - Örnek eklenti ve nasıl yazılacağı README'de; hatalı eklenti atlanır, launcher çökmez

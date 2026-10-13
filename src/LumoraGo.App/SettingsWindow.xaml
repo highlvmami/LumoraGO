@@ -82,6 +82,12 @@
                     <Button Content="Kaldır" Click="RemoveFileFolder_OnClick" />
                 </StackPanel>
                 <TextBlock Style="{StaticResource Note}" Text="Masaüstü, Belgeler, İndirilenler, Resimler, Videolar, Müzik ve OneDrive her zaman taranır." />
+
+                <TextBlock Text="Özel kısayollar" Style="{StaticResource Heading}" />
+                <TextBox x:Name="CustomShortcutsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
+                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kısayol: &quot;kelime | hedef&quot; veya &quot;kelime | ad | hedef&quot;. Hedef bir site, dosya, klasör ya da uygulama olabilir. Hedefte {0} varsa kelimeden sonra yazılan metin oraya konur. Örnek: /okul | Okul portalı | https://okul.example.com, ekşi | https://eksisozluk.com/?q={0}" />
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

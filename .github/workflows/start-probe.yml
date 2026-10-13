@@ -1,0 +1,32 @@
+name: start-probe
+on:
+  push:
+    branches: [start-probe]
+jobs:
+  probe:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: [v0.21.1, v0.21.2, v0.22.0]
+    steps:
+      - name: Run portable build
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download ${{ matrix.tag }} -R ${{ github.repository }} -p "LumoraGo-win-Portable.zip" -D dl
+          Expand-Archive dl/LumoraGo-win-Portable.zip -DestinationPath app
+          Get-ChildItem app -Recurse -Filter *.exe | Select-Object FullName
+          $exe = Get-ChildItem app -Recurse -Filter LumoraGo.App.exe | Select-Object -First 1
+          if (-not $exe) { $exe = Get-ChildItem app -Recurse -Filter LumoraGo*.exe | Where-Object Name -ne 'Update.exe' | Select-Object -First 1 }
+          Write-Host "Starting $($exe.FullName)"
+          $p = Start-Process $exe.FullName -PassThru
+          Start-Sleep 25
+          Get-Process | Where-Object { $_.ProcessName -like 'LumoraGo*' } | Format-Table Id,ProcessName,StartTime -AutoSize
+          Write-Host "Exited: $($p.HasExited) ExitCode: $(if ($p.HasExited) { $p.ExitCode })"
+          Write-Host "==== logs"
+          Get-ChildItem "$env:LOCALAPPDATA\LumoraGo" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName,Length
+          Get-ChildItem "$env:LOCALAPPDATA\LumoraGo\logs" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "--- $($_.Name)"; Get-Content $_.FullName -Tail 80 }
+          Write-Host "==== event log"
+          Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddMinutes(-3)} -ErrorAction SilentlyContinue | Where-Object { $_.LevelDisplayName -in 'Error','Warning' } | Select-Object -First 6 | ForEach-Object { Write-Host "[$($_.ProviderName)] $($_.Message)" }

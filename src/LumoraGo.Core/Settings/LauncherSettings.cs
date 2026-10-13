@@ -18,6 +18,9 @@ public sealed record LauncherSettings
 
     public ThemeChoice Theme { get; init; } = ThemeChoice.Dark;
 
+    /// <summary>"/hava" yalnız yazılınca gösterilecek şehir. Boşsa IP'den bulunan konum.</summary>
+    public string WeatherCity { get; init; } = "";
+
     /// <summary>Launcher her açıldığında hızlı önizleme paneli de açık gelsin.</summary>
     public bool PreviewAlwaysOpen { get; init; }
 

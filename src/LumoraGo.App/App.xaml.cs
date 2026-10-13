@@ -13,6 +13,7 @@ using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Extensions;
 using LumoraGo.Core.Accounts;
 using LumoraGo.Core.Calendar;
+using LumoraGo.Core.Info;
 using LumoraGo.Core.Mail;
 using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
@@ -159,6 +160,9 @@ public partial class App : Application
                     new CalendarSource(Http, () => secrets.Current.CalendarUrls), OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 new PluginEntry(MailPlugin.Metadata, new MailPlugin(
                     () => secrets.Current.Mail, ImapClient.ConnectTlsAsync, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                .. InfoPlugins.Create(
+                    new DictionaryLookup(Http), new WeatherService(Http), new QuoteService(Http), new FootballService(Http),
+                    () => _settings.Current.WeatherCity, OpenUrl),
                 new PluginEntry(BookmarksPlugin.Metadata, new BookmarksPlugin(
                     new BookmarkSource(BrowserProfiles.BookmarkFiles, _log).All, OpenUrl)),
                 new PluginEntry(WindowsSettingsPlugin.Metadata, new WindowsSettingsPlugin(OpenUrl)),

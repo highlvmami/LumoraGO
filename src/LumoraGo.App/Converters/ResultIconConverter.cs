@@ -60,6 +60,11 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.winsettings"] = "\uE713",
         ["lumorago.recent"] = "\uE81C",
         ["lumorago.clock"] = "\uE12B",
+        ["lumorago.dictionary"] = "\uE82D",
+        ["lumorago.dictionary.ascii"] = "\uE82D",
+        ["lumorago.quote"] = "\uE9D2",
+        ["lumorago.weather"] = "\uE753",
+        ["lumorago.football"] = "\uE7FC",
         ["lumorago.keywordhints"] = "",
     };
 

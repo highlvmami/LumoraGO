@@ -55,7 +55,7 @@ public sealed class ContactsPlugin : IPlugin
 
         if (IsKeyword && _book.All.Count == 0)
         {
-            return Task.FromResult<IReadOnlyList<Result>>([new Result("Rehber boş", "Ayarlar → Kişiler'den Google Kişiler ya da iPhone'dan aldığın .vcf/.csv dosyasını seç", null, 1, _ =>
+            return Task.FromResult<IReadOnlyList<Result>>([new Result("Rehber boş", "Ayarlar → Kişiler'den Google ile bağlan ya da .vcf/.csv dosyası seç", null, 1, _ =>
             {
                 _openSettings?.Invoke();
                 return true;

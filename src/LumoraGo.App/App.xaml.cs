@@ -64,8 +64,12 @@ public partial class App : Application
     private ContactBook? _contacts;
     private ReminderStore? _reminders;
     private Timer? _reminderTimer;
+    private GoogleContactSync? _googleContacts;
+    private Timer? _googleContactsTimer;
     private static readonly TimeSpan ReminderFirstCheck = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan ReminderInterval = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan GoogleContactsFirstSync = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan GoogleContactsInterval = TimeSpan.FromHours(3);
     private ContactsWatcher? _contactsWatcher;
     private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
@@ -115,6 +119,8 @@ public partial class App : Application
         var contacts = _contacts;
         _contactsWatcher = new ContactsWatcher(contacts, _log);
         _contactsWatcher.Watch(_settings.Current.ContactsFile, _settings.Current.ContactsWatch);
+        _googleContacts = new GoogleContactSync(Http, secrets, contacts, _log);
+        _googleContactsTimer = new Timer(_ => _ = SyncGoogleContactsAsync(), null, GoogleContactsFirstSync, GoogleContactsInterval);
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
@@ -390,6 +396,43 @@ public partial class App : Application
     private static PluginEntry RemindersEntry(RemindersPlugin plugin) => new(plugin.Metadata, plugin);
 
     /// <summary>Vakti gelen hatırlatıcıları tepside gösterir; LumoraGo kapalıyken kaçanlar açılıştan hemen sonra gelir.</summary>
+    /// <returns>Ayarlar penceresinde gösterilecek sonuç.</returns>
+    private async Task<string> SyncGoogleContactsAsync()
+    {
+        try
+        {
+            return await _googleContacts!.SyncAsync(CancellationToken.None) switch
+            {
+                null => "Google'a bağlı değil.",
+                var n => $"{n} kişi alındı",
+            };
+        }
+        catch (GoogleException ex)
+        {
+            _log?.Warn($"Google Rehber alınamadı: {ex.Message}");
+            return ex.Message;
+        }
+    }
+
+    private async Task<string> ConnectGoogleAsync(string clientId, string clientSecret)
+    {
+        try
+        {
+            var account = await GoogleContacts.SignInAsync(Http, clientId, clientSecret, OpenUrl, CancellationToken.None);
+            _secrets!.Save(_secrets.Current with { Google = account });
+        }
+        catch (GoogleException ex)
+        {
+            return ex.Message;
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            return $"Google'a bağlanılamadı ({ex.Message})";
+        }
+
+        return await SyncGoogleContactsAsync();
+    }
+
     private void CheckReminders()
     {
         if (_reminders is null)
@@ -512,7 +555,8 @@ public partial class App : Application
         }
 
         _window?.HideLauncher();
-        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear(), _contacts!);
+        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear(), _contacts!,
+            ConnectGoogleAsync, SyncGoogleContactsAsync);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
         _settingsWindow.Activate();
@@ -742,6 +786,7 @@ public partial class App : Application
         _clipboardMonitor?.Dispose();
         _contactsWatcher?.Dispose();
         _reminderTimer?.Dispose();
+        _googleContactsTimer?.Dispose();
         _clipboardPersistence?.Dispose();
         _timers?.Dispose();
         _fileIndexTimer?.Dispose();

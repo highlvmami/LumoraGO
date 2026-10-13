@@ -89,6 +89,8 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         }
     }
 
+    public Result? SelectedResult => Selected;
+
     private Result? Selected => SelectedIndex >= 0 && SelectedIndex < Results.Count ? Results[SelectedIndex] : null;
 
     /// <summary>Kutuda yazılanın devamı olarak soluk görünen öneri ("vis" → "ual Studio Code").</summary>

@@ -57,6 +57,10 @@
                 </ComboBox>
                 <CheckBox x:Name="StartupBox" Content="Windows açılışında başlat" Margin="0,10,0,0" />
 
+                <TextBlock Text="Hızlı önizleme" Style="{StaticResource Heading}" />
+                <CheckBox x:Name="PreviewAlwaysOpenBox" Content="Önizlemeyi her zaman açık tut" />
+                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken önizleme Shift+Boşluk ile açılır ve kapanır. Dosya, klasör, resim, metin ve (Windows'ta önizleyicisi kuruluysa) PDF ve Office belgeleri ile pano, not ve yer imleri önizlenir." />
+
                 <TextBlock Text="Sıralama" Style="{StaticResource Heading}" />
                 <StackPanel Orientation="Horizontal">
                     <Button Content="Öğrenilen sıralamayı sıfırla" Click="ResetLearning_OnClick" />

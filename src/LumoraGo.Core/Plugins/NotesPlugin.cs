@@ -73,7 +73,10 @@ public sealed class NotesPlugin(NotesStore store) : IPlugin
                 _host?.ChangeQuery(Keyword + " ");
                 return false;
             }),
-        ]);
+        ])
+        {
+            PreviewText = note.Text,
+        };
     }
 
     private bool Toggle(Note note)

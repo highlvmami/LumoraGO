@@ -31,6 +31,7 @@ internal partial class SettingsWindow : Window
         HotkeyBox.Text = s.Hotkey;
         ThemeBox.SelectedIndex = (int)s.Theme;
         StartupBox.IsChecked = StartupRegistration.IsEnabled;
+        PreviewAlwaysOpenBox.IsChecked = s.PreviewAlwaysOpen;
         ClipboardBox.IsChecked = s.ClipboardHistory;
         ClipboardPersistBox.IsChecked = s.ClipboardPersist;
         Fill(DeepFoldersList, s.DeepSearchFolders);
@@ -167,6 +168,7 @@ internal partial class SettingsWindow : Window
         {
             Hotkey = HotkeyBox.Text,
             Theme = (ThemeChoice)Math.Max(0, ThemeBox.SelectedIndex),
+            PreviewAlwaysOpen = PreviewAlwaysOpenBox.IsChecked == true,
             ClipboardHistory = ClipboardBox.IsChecked == true,
             ClipboardPersist = ClipboardBox.IsChecked == true && ClipboardPersistBox.IsChecked == true,
             DeepSearchFolders = Items(DeepFoldersList),

@@ -39,5 +39,8 @@ public sealed class FileResults(Action<string> open, Action<string> reveal)
                 _host?.CopyToClipboard(path);
                 return true;
             }),
-        ]);
+        ])
+        {
+            PreviewPath = path,
+        };
 }

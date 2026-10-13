@@ -11,6 +11,7 @@ using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Plugins;
+using LumoraGo.Core.Settings;
 using LumoraGo.Plugin;
 
 namespace LumoraGo.App;
@@ -33,6 +34,8 @@ public partial class App : Application
     private UpdateService? _updates;
     private DispatcherTimer? _updateTimer;
     private FileIndex? _files;
+    private SettingsStore? _settings;
+    private SettingsWindow? _settingsWindow;
     private ClipboardHistory? _clipboard;
     private ClipboardMonitor? _clipboardMonitor;
 
@@ -70,23 +73,29 @@ public partial class App : Application
         HookUnhandledExceptions(_log);
 
         // Varsayılan görünüm koyu; Windows açık temada olsa da değişmez.
-        _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, followSystem: false);
+        _settings = new SettingsStore(Path.Combine(DataRoot, "settings.json"), _log);
+        _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
         var apps = new WindowsAppSource(Path.Combine(DataRoot, "cache", "apps.json"), _shellWorker, _log);
         apps.Start();
         var usage = new UsageStore(Path.Combine(DataRoot, "usage.json"), _log);
 
-        _files = new FileIndex(UserFolders, DeepSearchOptions.DefaultSkipDirectoryNames, _log);
+        _files = new FileIndex(FileSearchFolders, DeepSearchOptions.DefaultSkipDirectoryNames, _log);
         _fileIndexTimer = new Timer(_ => _files.Rebuild(), null, FileIndexFirstBuild, FileIndexInterval);
 
         _clipboard = new ClipboardHistory();
-        _clipboardMonitor = new ClipboardMonitor(_clipboard, _log);
+        if (_settings.Current.ClipboardHistory)
+        {
+            _clipboardMonitor = new ClipboardMonitor(_clipboard, _log);
+        }
+
+        _settings.Changed += (_, settings) => ApplySettings(settings);
 
         var plugins = new PluginManager(_log);
         var search = new SearchService(plugins, _log);
         _window = new MainWindow(new MainViewModel(search, _log), _log, _theme);
-        _tray = new TrayIcon(() => _window.ShowLauncher(), OpenLogFolder, ExitApplication);
+        _tray = new TrayIcon(() => _window.ShowLauncher(), OpenSettings, OpenLogFolder, ExitApplication);
 
         _updates = new UpdateService(_log);
         var updates = _updates;
@@ -106,7 +115,7 @@ public partial class App : Application
                 new PluginEntry(ClipboardPlugin.Metadata, new ClipboardPlugin(_clipboard, PasteText)),
                 new PluginEntry(FileSearchPlugin.Metadata, new FileSearchPlugin(_files, OpenPath, RevealPath)),
                 new PluginEntry(DeepSearchPlugin.Metadata, new DeepSearchPlugin(
-                    () => new DeepSearchOptions { Roots = FixedDrives() }, OpenPath, RevealPath)),
+                    DeepSearchSettings, OpenPath, RevealPath)),
                 .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
@@ -121,12 +130,13 @@ public partial class App : Application
 
         _hotkey = new HotkeyService();
         _hotkey.Pressed += (_, _) => _window.ToggleLauncher(Stopwatch.StartNew());
-        if (!_hotkey.Register(ModifierKeys.Alt, Key.Space))
+        var hotkey = _settings.Current.Hotkey;
+        if (!RegisterHotkey(hotkey))
         {
-            _log.Warn("Alt+Space kaydedilemedi; başka bir uygulama kullanıyor olabilir.");
+            _log.Warn($"{hotkey} kaydedilemedi; başka bir uygulama kullanıyor olabilir.");
             _tray.ShowBalloon(
                 "Kısayol alınamadı",
-                "Alt+Space başka bir uygulama tarafından kullanılıyor. Şimdilik tepsi simgesine tıklayarak açabilirsin.",
+                $"{hotkey} başka bir uygulama tarafından kullanılıyor. Tepsi simgesine sağ tıklayıp Ayarlar'dan başka bir kısayol seçebilirsin.",
                 System.Windows.Forms.ToolTipIcon.Warning);
         }
 
@@ -186,6 +196,11 @@ public partial class App : Application
         {
             host.ChangeQuery(CommandListPlugin.Keyword);
             return false;
+        }),
+        new("LumoraGo ayarları", "Kısayol, tema, pano geçmişi ve arama klasörleri", _ =>
+        {
+            Dispatcher.BeginInvoke(OpenSettings);
+            return true;
         }),
         new("LumoraGo'dan çık", "Launcher'ı tamamen kapatır", _ =>
         {
@@ -279,6 +294,90 @@ public partial class App : Application
             host.ShowMessage("IP adresi kopyalandı", ip);
         }),
     ];
+
+    private void OpenSettings()
+    {
+        if (_settings is null)
+        {
+            return;
+        }
+
+        if (_settingsWindow is { IsLoaded: true })
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+
+        _window?.HideLauncher();
+        _settingsWindow = new SettingsWindow(_settings, TryChangeHotkey);
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        _settingsWindow.Show();
+        _settingsWindow.Activate();
+    }
+
+    private void ApplySettings(LauncherSettings settings)
+    {
+        _theme?.SetChoice(settings.Theme);
+
+        if (settings.ClipboardHistory && _clipboardMonitor is null && _clipboard is not null)
+        {
+            _clipboardMonitor = new ClipboardMonitor(_clipboard, _log!);
+        }
+        else if (!settings.ClipboardHistory && _clipboardMonitor is not null)
+        {
+            _clipboardMonitor.Dispose();
+            _clipboardMonitor = null;
+            _clipboard?.Clear();
+        }
+
+        // Klasörler değişmiş olabilir; dosya listesini arka planda yeniden kur.
+        _ = Task.Run(() => _files?.Rebuild());
+    }
+
+    /// <summary>"Ctrl+Shift+Space" gibi metinden kısayolu kaydeder.</summary>
+    private bool RegisterHotkey(string text)
+    {
+        if (_hotkey is null
+            || !HotkeyText.TryParse(text, out var modifiers, out var keyName)
+            || !Enum.TryParse<Key>(keyName, ignoreCase: true, out var key))
+        {
+            return false;
+        }
+
+        var wpf = ModifierKeys.None;
+        if (modifiers.HasFlag(HotkeyModifiers.Alt)) wpf |= ModifierKeys.Alt;
+        if (modifiers.HasFlag(HotkeyModifiers.Ctrl)) wpf |= ModifierKeys.Control;
+        if (modifiers.HasFlag(HotkeyModifiers.Shift)) wpf |= ModifierKeys.Shift;
+        if (modifiers.HasFlag(HotkeyModifiers.Win)) wpf |= ModifierKeys.Windows;
+        return _hotkey.Register(wpf, key);
+    }
+
+    /// <summary>Yeni kısayolu dener; alınamazsa eskisini geri kaydeder.</summary>
+    private bool TryChangeHotkey(string text)
+    {
+        if (RegisterHotkey(text))
+        {
+            return true;
+        }
+
+        RegisterHotkey(_settings?.Current.Hotkey ?? "Alt+Space");
+        return false;
+    }
+
+    private IReadOnlyList<string> FileSearchFolders() =>
+        UserFolders().Concat(_settings?.Current.FileSearchFolders ?? []).Where(Directory.Exists).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+    private DeepSearchOptions DeepSearchSettings()
+    {
+        var settings = _settings?.Current ?? new LauncherSettings();
+        var skip = new HashSet<string>(DeepSearchOptions.DefaultSkipDirectoryNames, StringComparer.OrdinalIgnoreCase);
+        skip.UnionWith(settings.DeepSearchSkipNames);
+        return new DeepSearchOptions
+        {
+            Roots = settings.DeepSearchFolders.Count > 0 ? settings.DeepSearchFolders : FixedDrives(),
+            SkipDirectoryNames = skip,
+        };
+    }
 
     /// <summary>"/f" için: masaüstü, belgeler, indirilenler, resimler, videolar, müzik ve OneDrive.</summary>
     private static IReadOnlyList<string> UserFolders()

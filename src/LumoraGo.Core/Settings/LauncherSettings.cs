@@ -1,0 +1,80 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace LumoraGo.Core.Settings;
+
+public enum ThemeChoice
+{
+    Dark,
+    Light,
+    System,
+}
+
+/// <summary>Ayarlar penceresinden değişen kullanıcı ayarları.</summary>
+public sealed record LauncherSettings
+{
+    public string Hotkey { get; init; } = "Alt+Space";
+
+    public ThemeChoice Theme { get; init; } = ThemeChoice.Dark;
+
+    /// <summary>Kopyalanan metinler "/c" için hatırlansın mı.</summary>
+    public bool ClipboardHistory { get; init; } = true;
+
+    /// <summary>"/ds"nin arayacağı klasörler. Boşsa tüm sabit diskler.</summary>
+    public IReadOnlyList<string> DeepSearchFolders { get; init; } = [];
+
+    /// <summary>Varsayılanlara ek olarak derin aramada girilmeyecek klasör adları.</summary>
+    public IReadOnlyList<string> DeepSearchSkipNames { get; init; } = [];
+
+    /// <summary>"/f"nin varsayılan kullanıcı klasörlerine ek olarak tarayacağı klasörler.</summary>
+    public IReadOnlyList<string> FileSearchFolders { get; init; } = [];
+}
+
+/// <summary>Ayarları JSON dosyasında tutar. Dosya bozuksa varsayılanlarla açılır.</summary>
+public sealed class SettingsStore
+{
+    private static readonly JsonSerializerOptions Json = new()
+    {
+        WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
+    };
+
+    private readonly string _path;
+    private readonly ILog _log;
+
+    public SettingsStore(string path, ILog? log = null)
+    {
+        _path = path;
+        _log = log ?? NullLog.Instance;
+        Current = Load();
+    }
+
+    public LauncherSettings Current { get; private set; }
+
+    public event EventHandler<LauncherSettings>? Changed;
+
+    public void Save(LauncherSettings settings)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
+        var temp = _path + ".tmp";
+        File.WriteAllText(temp, JsonSerializer.Serialize(settings, Json));
+        File.Move(temp, _path, overwrite: true);
+        Current = settings;
+        Changed?.Invoke(this, settings);
+    }
+
+    private LauncherSettings Load()
+    {
+        try
+        {
+            return File.Exists(_path)
+                ? JsonSerializer.Deserialize<LauncherSettings>(File.ReadAllText(_path), Json) ?? new LauncherSettings()
+                : new LauncherSettings();
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        {
+            _log.Warn($"Ayarlar okunamadı, varsayılanlar kullanılıyor: {ex.Message}");
+            return new LauncherSettings();
+        }
+    }
+}

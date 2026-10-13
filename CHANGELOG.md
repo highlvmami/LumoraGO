@@ -2,6 +2,13 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.7.0
+- Ayarlar penceresi: tepsi simgesine sağ tık → Ayarlar, veya launcher'da "ayar" yaz
+- Kısayol değiştirilebilir (örn. Ctrl+Shift+Space); başka uygulama kullanıyorsa eskisi kalır
+- Tema seçimi: koyu, açık veya Windows'u takip et
+- Pano geçmişi açılıp kapatılabilir
+- Derin aramanın klasörleri ve atlanacak klasör adları, dosya aramanın ek klasörleri seçilebilir
+
 ## 0.6.0
 - Pano geçmişi: "/c" son kopyaladıklarını listeler, yazarak süzülür; Enter önceki pencereye yapıştırır, Ctrl+Enter sadece kopyalar. Geçmiş yalnızca bellekte tutulur, şifre yöneticilerinin gizli işaretlediği kopyalar alınmaz
 - Eylem menüsü: seçili sonuçta sağ ok (veya Ctrl+K) ek eylemleri açar; uygulamalarda yönetici olarak çalıştır, dosya konumunu aç, yolu kopyala; dosyalarda klasöründe göster, yolu kopyala. Esc veya sol ok geri döner

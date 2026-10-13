@@ -38,7 +38,9 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 
 `/v` yazınca sürüm ve sürüm notları görünür. `/yt kedi` YouTube'da, `/gg kedi` Google'da arar. `/git` GitHub profilini, `/linkedin` LinkedIn'i açar. Windows kısayolları: `/kilit`, `/uyku`, `/kapat`, `/yeniden`, `/oturum`, `/cop`, `/ayarlar`, `/gorev`, `/cmd`, `/ip`. Hepsini görmek için `/liste`.
 
-`/f rapor` kullanıcı klasörlerinde dosyayı adıyla anında bulur. `/ds şifre` tüm bilgisayarda dosya adlarında ve metin dosyalarının içinde arar (deepsearch). Windows, Program Files, AppData ve node_modules gibi klasörler, resim/video/arşiv gibi ikili dosyalar ve 5 MB'tan büyük dosyaların içi atlanır. `/c` pano geçmişini açar (Enter yapıştırır). Seçili sonuçta sağ ok veya Ctrl+K ek eylemleri gösterir.
+`/f rapor` kullanıcı klasörlerinde dosyayı adıyla anında bulur. `/ds şifre` tüm bilgisayarda dosya adlarında ve metin dosyalarının içinde arar (deepsearch). Windows, Program Files, AppData ve node_modules gibi klasörler, resim/video/arşiv gibi ikili dosyalar ve 5 MB'tan büyük dosyaların içi atlanır. Ayarlar: tepsi simgesine sağ tıkla → Ayarlar, ya da launcher'da `ayar` yaz. Kısayol, tema, pano geçmişi ve arama klasörleri oradan değişir.
+
+`/c` pano geçmişini açar (Enter yapıştırır). Seçili sonuçta sağ ok veya Ctrl+K ek eylemleri gösterir.
 
 Arama tamamen bilgisayarında yapılır; hiçbir şey diske kaydedilmez veya bir yere gönderilmez.
 

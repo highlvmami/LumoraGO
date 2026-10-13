@@ -9,13 +9,14 @@ internal sealed class TrayIcon : IDisposable
     private readonly NotifyIcon _icon;
     private readonly ToolStripMenuItem _startupItem;
 
-    public TrayIcon(Action show, Action openLogs, Action exit)
+    public TrayIcon(Action show, Action openSettings, Action openLogs, Action exit)
     {
         _startupItem = new ToolStripMenuItem("Windows açılışında başlat") { CheckOnClick = true };
         _startupItem.CheckedChanged += (_, _) => StartupRegistration.SetEnabled(_startupItem.Checked);
 
         var menu = new ContextMenuStrip();
         menu.Items.Add("Göster", null, (_, _) => show());
+        menu.Items.Add("Ayarlar", null, (_, _) => openSettings());
         menu.Items.Add(_startupItem);
         menu.Items.Add("Günlük klasörünü aç", null, (_, _) => openLogs());
         menu.Items.Add(new ToolStripSeparator());

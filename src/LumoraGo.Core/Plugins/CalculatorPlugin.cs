@@ -36,7 +36,11 @@ public sealed class CalculatorPlugin : IPlugin
             {
                 _host?.CopyToClipboard(copyText);
                 return true;
-            });
+            })
+        {
+            // Tab sonucu kutuya yazar; hesaba oradan devam edilebilir.
+            AutoComplete = copyText,
+        };
 
         return Task.FromResult<IReadOnlyList<Result>>([result]);
     }

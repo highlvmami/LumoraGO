@@ -50,7 +50,8 @@ public partial class App : Application
         _log.Info($"LumoraGo {typeof(App).Assembly.GetName().Version} başlıyor");
         HookUnhandledExceptions(_log);
 
-        _theme = new ThemeService(this, WindowEffects.SupportsBackdrop);
+        // Varsayılan görünüm koyu; Windows açık temada olsa da değişmez.
+        _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, followSystem: false);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
         var apps = new WindowsAppSource(Path.Combine(DataRoot, "cache", "apps.json"), _shellWorker, _log);
@@ -72,6 +73,7 @@ public partial class App : Application
             [
                 new PluginEntry(CalculatorPlugin.Metadata, new CalculatorPlugin()),
                 new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, new ShellAppLauncher(), usage)),
+                new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
                 new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
                 new PluginEntry(VersionPlugin.Metadata, new VersionPlugin(() => new VersionInfo(
@@ -135,7 +137,7 @@ public partial class App : Application
                 {
                     host.ChangeQuery(keyword + " ");
                     return false;
-                });
+                }, keyword + " ");
             }
         }
     }

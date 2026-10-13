@@ -2,7 +2,7 @@
 
 Alt+Space ile açılan, her özelliği bir eklenti olan Windows launcher'ı (Raycast / PowerToys Run tarzı).
 
-> Durum: **Faz 2 – MVP** (sürüm 0.3.0). Yazdıkça Başlat menüsü ve Store uygulamaları bulanık aramayla listelenir ("vsc" → Visual Studio Code), "2+3*4" gibi hesaplar anında sonuçlanır.
+> Durum: **Faz 2 – MVP** (sürüm 0.4.0). Yazdıkça Başlat menüsü ve Store uygulamaları bulanık aramayla listelenir ("vsc" → Visual Studio Code), "2+3*4" gibi hesaplar anında sonuçlanır.
 
 ## Çalıştırma
 
@@ -31,6 +31,7 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 | Alt+Space | Aç / gizle |
 | ↑ / ↓ | Sonuçlarda gez |
 | Enter | Seçili sonucu çalıştır |
+| Tab | Seçili sonucu kutuya tamamla (soluk öneriyi sağ ok da kabul eder) |
 | Ctrl+Enter | Uygulamanın klasörünü aç |
 | Shift+Enter | Yönetici olarak çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |

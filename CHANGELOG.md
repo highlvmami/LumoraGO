@@ -2,6 +2,12 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/version` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.4.0
+- Daha koyu yeni tema: derin siyah arka plan, mor vurgu rengi; Windows açık temada olsa da koyu kalır
+- Tab ile tamamlama: seçili sonucun adı kutuya yazılır, hesap sonucunda sayı yazılır
+- Yazdıkça soluk renkte öneri: "vis" yazınca "ual Studio Code" görünür, Tab veya sağ ok ile kabul edilir
+- "/" ile başlayınca komut önerileri: "/v" yazınca "/version" çıkar
+
 ## 0.3.0
 - Uygulama arama: Başlat menüsü ve Microsoft Store uygulamaları, simgeleriyle birlikte listelenir
 - Bulanık eşleşme: "vsc" yazınca Visual Studio Code, "chr" yazınca Chrome bulunur; Türkçe harfler fark etmez

@@ -7,6 +7,7 @@
     <SolidColorBrush x:Key="WindowBorder" Color="#1A000000" />
     <SolidColorBrush x:Key="PrimaryText" Color="#FF1A1A1A" />
     <SolidColorBrush x:Key="SecondaryText" Color="#FF5F5F5F" />
+    <SolidColorBrush x:Key="GhostText" Color="#FFA0A0A8" />
     <SolidColorBrush x:Key="SelectedBackground" Color="#0F000000" />
     <SolidColorBrush x:Key="AccentBrush" Color="#FF3D5AFE" />
     <SolidColorBrush x:Key="Divider" Color="#14000000" />

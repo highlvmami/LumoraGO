@@ -59,3 +59,23 @@ public sealed class FileSearchTests : IDisposable
         Assert.Equal([expected], host.Copied);
     }
 }
+
+public class DeepSearchSkipSetTests
+{
+    [Fact]
+    public void Default_skips_system_folders_and_include_system_keeps_only_unreadable_ones()
+    {
+        var normal = DeepSearchOptions.BuildSkipSet(false, ["Yedek"]);
+        Assert.Contains("Windows", normal);
+        Assert.Contains("AppData", normal);
+        Assert.Contains("Yedek", normal);
+
+        var everything = DeepSearchOptions.BuildSkipSet(true, ["Yedek"]);
+        Assert.DoesNotContain("Windows", everything);
+        Assert.DoesNotContain("Program Files", everything);
+        Assert.DoesNotContain("node_modules", everything);
+        Assert.Contains("$Recycle.Bin", everything);
+        Assert.Contains("System Volume Information", everything);
+        Assert.Contains("yedek", everything);
+    }
+}

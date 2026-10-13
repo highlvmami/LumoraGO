@@ -30,6 +30,9 @@ public sealed record LauncherSettings
     /// <summary>Varsayılanlara ek olarak derin aramada girilmeyecek klasör adları.</summary>
     public IReadOnlyList<string> DeepSearchSkipNames { get; init; } = [];
 
+    /// <summary>"/ds" Windows, Program Files, AppData, node_modules ve .git gibi klasörlere de girsin (yavaş ama eksiksiz).</summary>
+    public bool DeepSearchIncludeSystem { get; init; }
+
     /// <summary>"/f"nin varsayılan kullanıcı klasörlerine ek olarak tarayacağı klasörler.</summary>
     public IReadOnlyList<string> FileSearchFolders { get; init; } = [];
 

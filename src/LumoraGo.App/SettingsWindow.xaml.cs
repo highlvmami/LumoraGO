@@ -33,6 +33,7 @@ internal partial class SettingsWindow : Window
         ClipboardPersistBox.IsChecked = s.ClipboardPersist;
         Fill(DeepFoldersList, s.DeepSearchFolders);
         Fill(FileFoldersList, s.FileSearchFolders);
+        DeepIncludeSystemBox.IsChecked = s.DeepSearchIncludeSystem;
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
         CustomShortcutsBox.Text = CustomShortcutText.Format(s.CustomShortcuts);
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
@@ -161,6 +162,7 @@ internal partial class SettingsWindow : Window
             ClipboardHistory = ClipboardBox.IsChecked == true,
             ClipboardPersist = ClipboardBox.IsChecked == true && ClipboardPersistBox.IsChecked == true,
             DeepSearchFolders = Items(DeepFoldersList),
+            DeepSearchIncludeSystem = DeepIncludeSystemBox.IsChecked == true,
             DeepSearchSkipNames = SkipNamesBox.Text
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase)

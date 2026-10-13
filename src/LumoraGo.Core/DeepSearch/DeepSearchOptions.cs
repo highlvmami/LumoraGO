@@ -27,6 +27,20 @@ public sealed record DeepSearchOptions
         "$WinREAgent", "Recovery", "AppData", "node_modules", ".git", ".vs", "__pycache__",
     };
 
+    /// <summary>"Sistem klasörlerini de ara" açıkken bile girilmeyenler: erişilemeyen ya da anlamsız yerler.</summary>
+    public static readonly IReadOnlySet<string> AlwaysSkipDirectoryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "$Recycle.Bin", "System Volume Information", "$WinREAgent",
+    };
+
+    /// <summary>Atlanacak klasör adları: varsayılan liste (ya da sistem klasörleri dahilse yalnızca zorunlular) ve kullanıcının eklediği adlar.</summary>
+    public static IReadOnlySet<string> BuildSkipSet(bool includeSystem, IEnumerable<string> extra)
+    {
+        var skip = new HashSet<string>(includeSystem ? AlwaysSkipDirectoryNames : DefaultSkipDirectoryNames, StringComparer.OrdinalIgnoreCase);
+        skip.UnionWith(extra);
+        return skip;
+    }
+
     public static readonly IReadOnlySet<string> DefaultBinaryExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         ".exe", ".dll", ".sys", ".msi", ".cab", ".iso", ".img", ".vhd", ".vhdx", ".bin", ".dat", ".db", ".sqlite", ".pdb", ".obj", ".lib",

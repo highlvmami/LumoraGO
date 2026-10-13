@@ -469,8 +469,7 @@ public partial class App : Application
     private DeepSearchOptions DeepSearchSettings()
     {
         var settings = _settings?.Current ?? new LauncherSettings();
-        var skip = new HashSet<string>(DeepSearchOptions.DefaultSkipDirectoryNames, StringComparer.OrdinalIgnoreCase);
-        skip.UnionWith(settings.DeepSearchSkipNames);
+        var skip = DeepSearchOptions.BuildSkipSet(settings.DeepSearchIncludeSystem, settings.DeepSearchSkipNames);
         return new DeepSearchOptions
         {
             Roots = settings.DeepSearchFolders.Count > 0 ? settings.DeepSearchFolders : FixedDrives(),

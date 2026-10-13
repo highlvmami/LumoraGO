@@ -2,7 +2,7 @@ using LumoraGo.Plugin;
 
 namespace LumoraGo.Core.Plugins;
 
-/// <summary>"/v" yazılınca "/version" gibi tetik kelimelerini önerir; Tab veya Enter kelimeyi tamamlar.</summary>
+/// <summary>"/li" yazılınca "/liste" gibi tetik kelimelerini önerir; Tab veya Enter kelimeyi tamamlar.</summary>
 public sealed class KeywordHintsPlugin : IPlugin
 {
     public static readonly PluginMetadata Metadata = new("lumorago.keywordhints", "Komut önerileri");

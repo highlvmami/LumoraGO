@@ -7,10 +7,10 @@ namespace LumoraGo.Core.Plugins;
 /// <param name="UpdateStatus">Otomatik güncellemenin durumu ("Güncel", "0.3.0 indiriliyor"...).</param>
 public sealed record VersionInfo(string Version, IReadOnlyList<string> Notes, string UpdateStatus);
 
-/// <summary>"/version" yazılınca çalışan sürümü, güncelleme durumunu ve sürüm notlarını gösterir.</summary>
+/// <summary>"/v" yazılınca çalışan sürümü, güncelleme durumunu ve sürüm notlarını gösterir.</summary>
 public sealed class VersionPlugin : IPlugin
 {
-    public const string Keyword = "/version";
+    public const string Keyword = "/v";
     public static readonly PluginMetadata Metadata = new("lumorago.version", "Sürüm bilgisi", Keyword);
 
     private readonly Func<VersionInfo> _source;

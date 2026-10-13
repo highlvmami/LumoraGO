@@ -6,7 +6,7 @@ namespace LumoraGo.Core.Plugins;
 /// <param name="Title">Listede görünen ad.</param>
 /// <param name="Subtitle">Ne yaptığı veya nasıl yazıldığı.</param>
 /// <param name="Action">Seçilince çalışır. true dönerse pencere gizlenir.</param>
-/// <param name="AutoComplete">Tab ile kutuya yazılacak metin (örn. "/version").</param>
+/// <param name="AutoComplete">Tab ile kutuya yazılacak metin (örn. "/liste").</param>
 public sealed record CommandInfo(string Title, string Subtitle, Func<ActionContext, bool> Action, string? AutoComplete = null);
 
 /// <summary>

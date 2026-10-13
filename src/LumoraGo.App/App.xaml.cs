@@ -78,6 +78,7 @@ public partial class App : Application
                 LinkEntry(LinkPlugin.GitHub(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl)),
                 LinkEntry(LinkPlugin.LinkedIn(OpenUrl, misspelled: true)),
+                .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
                 new PluginEntry(CommandListPlugin.Metadata, new CommandListPlugin(() => ListCommands(commands, plugins, host))),
@@ -112,7 +113,7 @@ public partial class App : Application
 
         if (Program.RestartedAfterUpdate is { } updatedTo)
         {
-            _tray.ShowBalloon("LumoraGo güncellendi", $"Sürüm {updatedTo}. Neler değişti: /version");
+            _tray.ShowBalloon("LumoraGo güncellendi", $"Sürüm {updatedTo}. Neler değişti: /v");
         }
 
         _ = CheckForUpdatesAsync();
@@ -217,6 +218,44 @@ public partial class App : Application
     private static PluginEntry WebSearchEntry(WebSearchPlugin plugin) => new(plugin.Metadata, plugin);
 
     private static PluginEntry LinkEntry(LinkPlugin plugin) => new(plugin.Metadata, plugin);
+
+    /// <summary>Windows denetim kısayolları: "/kilit", "/kapat" gibi.</summary>
+    private IEnumerable<ShortcutPlugin> SystemShortcuts(IPluginHost host) =>
+    [
+        new("/kilit", "Bilgisayarı kilitle", "Oturum açık kalır, şifreyle geri dönülür", () => SystemActions.Lock()),
+        new("/uyku", "Uyku moduna al", "Bilgisayar uyur, tuşa basınca kaldığı yerden devam eder", () => SystemActions.Sleep()),
+        new("/kapat", "Bilgisayarı kapat", "Açık uygulamalar kapanır", () => Run("shutdown", "/s /t 0")),
+        new("/yeniden", "Bilgisayarı yeniden başlat", "Açık uygulamalar kapanır", () => Run("shutdown", "/r /t 0")),
+        new("/oturum", "Oturumu kapat", "Kullanıcı oturumundan çıkar", () => Run("shutdown", "/l")),
+        new("/cop", "Geri dönüşüm kutusunu boşalt", "Windows önce onay sorar", () => SystemActions.EmptyRecycleBin()),
+        new("/ayarlar", "Windows Ayarları'nı aç", "Ayarlar uygulaması", () => OpenUrl("ms-settings:")),
+        new("/gorev", "Görev Yöneticisi'ni aç", "Çalışan uygulamalar ve performans", () => Run("taskmgr", "")),
+        new("/cmd", "Komut istemini aç", "cmd.exe", () => Run("cmd", "")),
+        new("/ip", "IP adresini kopyala", "Yerel ağdaki IPv4 adresini panoya alır", () =>
+        {
+            var ip = SystemActions.LocalIPv4();
+            if (ip is null)
+            {
+                host.ShowMessage("IP adresi", "Bağlı bir ağ bulunamadı.");
+                return;
+            }
+
+            host.CopyToClipboard(ip);
+            host.ShowMessage("IP adresi kopyalandı", ip);
+        }),
+    ];
+
+    private void Run(string file, string arguments)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(file, arguments) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _log?.Warn($"Çalıştırılamadı: {file} {arguments}: {ex.Message}");
+        }
+    }
 
     /// <summary>Adresi varsayılan tarayıcıda açar.</summary>
     private void OpenUrl(string url)

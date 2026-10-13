@@ -18,7 +18,7 @@ public class CompletionTests
     [Fact]
     public void Tab_prefers_auto_complete_text()
     {
-        Assert.Equal("/version", Completion.Complete("/v", R("/version", "/version")));
+        Assert.Equal("/liste", Completion.Complete("/li", R("/liste", "/liste")));
         Assert.Equal("14", Completion.Complete("2+3*4", R("= 14", "14")));
     }
 
@@ -45,17 +45,17 @@ public class CompletionTests
     {
         var plugin = new KeywordHintsPlugin(() =>
         [
-            new PluginMetadata("a", "Sürüm bilgisi", "/version"),
+            new PluginMetadata("a", "YouTube'da ara", "/yt"),
             new PluginMetadata("b", "Komut listesi", "/liste"),
             new PluginMetadata("c", "Uygulamalar"),
         ]);
 
-        var results = await plugin.QueryAsync(new Query("/v", null, "/v"), CancellationToken.None);
+        var results = await plugin.QueryAsync(new Query("/li", null, "/li"), CancellationToken.None);
 
         var hint = Assert.Single(results);
-        Assert.Equal("/version", hint.Title);
-        Assert.Equal("/version", Completion.Complete("/v", hint));
+        Assert.Equal("/liste", hint.Title);
+        Assert.Equal("/liste", Completion.Complete("/li", hint));
         Assert.Empty(await plugin.QueryAsync(new Query("v", null, "v"), CancellationToken.None));
-        Assert.Empty(await plugin.QueryAsync(new Query("/version", null, "/version"), CancellationToken.None));
+        Assert.Empty(await plugin.QueryAsync(new Query("/liste", null, "/liste"), CancellationToken.None));
     }
 }

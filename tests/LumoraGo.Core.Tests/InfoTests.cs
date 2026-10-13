@@ -254,6 +254,69 @@ public class InfoTests
         Assert.Equal("Canlı 67'", card.Caption);
     }
 
+    [Fact]
+    public async Task Team_search_looks_weeks_back_and_ahead_and_orders_last_then_next()
+    {
+        const string Season = """
+            {"events":[
+              {"date":"2026-09-20T17:00Z","status":{"type":{"state":"post"}},
+               "competitions":[{"competitors":[
+                 {"homeAway":"home","score":"3","team":{"displayName":"Fenerbahce"}},
+                 {"homeAway":"away","score":"0","team":{"displayName":"Rizespor"}}]}]},
+              {"date":"2026-10-05T17:00Z","status":{"type":{"state":"post"}},
+               "competitions":[{"competitors":[
+                 {"homeAway":"home","score":"1","team":{"displayName":"Samsunspor"}},
+                 {"homeAway":"away","score":"1","team":{"displayName":"Fenerbahçe"}}]}]},
+              {"date":"2026-10-25T17:00Z","status":{"type":{"state":"pre"}},
+               "competitions":[{"competitors":[
+                 {"homeAway":"home","team":{"displayName":"Fenerbahce"}},
+                 {"homeAway":"away","team":{"displayName":"Galatasaray"}}]}]},
+              {"date":"2026-10-18T17:00Z","status":{"type":{"state":"pre"}},
+               "competitions":[{"competitors":[
+                 {"homeAway":"home","team":{"displayName":"Besiktas"}},
+                 {"homeAway":"away","team":{"displayName":"Trabzonspor"}}]}]}]}
+            """;
+        var urls = new List<string>();
+        var http = Http(u =>
+        {
+            lock (urls)
+            {
+                urls.Add(u.ToString());
+            }
+
+            return u.AbsolutePath.Contains("/tur.1/") ? Ok(Season) : Ok("""{"events":[]}""");
+        });
+        var football = new FootballService(http, () => new DateTime(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc));
+
+        var matches = await football.FindAsync("fb", CancellationToken.None);
+
+        Assert.All(urls, u => Assert.Contains("?dates=20260922-20261110&limit=500", u));
+        Assert.Equal(FootballService.Leagues.Length, urls.Count);
+        Assert.Equal(
+            ["Samsunspor-Fenerbahçe", "Fenerbahce-Galatasaray", "Fenerbahce-Rizespor"],
+            matches.Select(m => $"{m.Home}-{m.Away}"));
+    }
+
+    [Fact]
+    public async Task Empty_team_shows_the_current_super_lig_week_only()
+    {
+        var urls = new List<string>();
+        var http = Http(u =>
+        {
+            lock (urls)
+            {
+                urls.Add(u.ToString());
+            }
+
+            return Ok(Espn);
+        });
+
+        var matches = await new FootballService(http).FindAsync(" ", CancellationToken.None);
+
+        Assert.Equal(["https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/scoreboard"], urls);
+        Assert.Equal(MatchState.Live, matches[0].State);
+    }
+
     [Theory]
     [InlineData("TK1980", "TK1980")]
     [InlineData("tk 1980", "TK1980")]

@@ -59,11 +59,27 @@ src/
   LumoraGo.Plugin.Abstractions   Eklenti API'si (IPlugin, Query, Result). Küçük ve kararlı kalır.
   LumoraGo.Core                  Sorgu ayrıştırma, eklenti yönetimi, paralel arama. UI'dan bağımsız.
   LumoraGo.App                   WPF arayüzü: pencere, kısayol, tepsi, Windows entegrasyonu.
+samples/
+  LumoraGo.SamplePlugin          Örnek dış eklenti ("/merhaba"); kendi eklentin için başlangıç
 tests/
   LumoraGo.Core.Tests            xUnit testleri
 ```
 
 Arayüz sadece çekirdekle konuşur; çekirdek eklentileri yalnızca `IPlugin` üzerinden tanır. Arama her tuşta öncekini iptal eder, her eklenti paralel çalışır, 200 ms'yi aşan eklenti atlanır, hata veren eklenti launcher'ı çökertmez.
+
+## Eklenti yazma
+
+Dış eklentiler `%LOCALAPPDATA%\LumoraGo\extensions` altında, her biri kendi klasöründe durur. Launcher'da "eklenti" yazıp "LumoraGo eklenti klasörünü aç" ile açılır. Yeni eklenti LumoraGo yeniden başlatılınca yüklenir.
+
+1. `samples/LumoraGo.SamplePlugin` projesini kopyala. `LumoraGo.Plugin.Abstractions`'a başvurur ve `IPlugin`'i uygular.
+2. `plugin.json` içinde kimliği, görünen adı ve tetik kelimesini yaz:
+   ```json
+   { "id": "benim.eklentim", "name": "Benim eklentim", "keyword": "/benim" }
+   ```
+   `keyword` boşsa eklenti her aramaya katılır. `lumorago.` ile başlayan kimlikler yerleşik eklentilere ayrılmıştır. Klasörde birden fazla DLL varsa `"assembly": "Benim.dll"` ile hangisinin yükleneceği yazılır.
+3. `dotnet build -c Release` çıktısını (`bin/Release/net10.0`) `extensions\benim` klasörüne kopyala.
+
+Her eklenti kendi yükleme bağlamında çalışır, bağımlılıkları LumoraGo ile çakışmaz. Yüklenemeyen veya hata veren eklenti günlüğe yazılır ve atlanır. Eklentiler bilgisayarında LumoraGo'nun yetkileriyle çalışır; sadece güvendiğin eklentileri kur.
 
 ## Testler
 
@@ -79,8 +95,8 @@ Fazlar:
 
 - [x] Faz 0: Hazırlık (depo, solution, CI)
 - [x] Faz 1: İskelet (kısayol, tepsi, göster/gizle, sonuç listesi)
-- [x] Faz 2: Uygulama başlatma ve bulanık arama → MVP ← burada
-- [ ] Faz 3: Eklenti sistemi
-- [ ] Faz 4: Yerleşik eklentiler
-- [ ] Faz 5: Kısayollar, tema, ayarlar
-- [ ] Faz 6: Performans ve yayın → 1.0
+- [x] Faz 2: Uygulama başlatma ve bulanık arama → MVP
+- [x] Faz 3: Eklenti sistemi (dış eklenti klasörü dahil)
+- [x] Faz 4: Yerleşik eklentiler
+- [x] Faz 5: Kısayollar, tema, ayarlar
+- [ ] Faz 6: Performans ve yayın → 1.0 ← burada

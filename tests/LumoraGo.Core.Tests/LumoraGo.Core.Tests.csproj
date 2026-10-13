@@ -20,6 +20,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LumoraGo.Core\LumoraGo.Core.csproj" />
+    <!-- Örnek eklenti sadece önce derlensin diye; testler onu dış eklenti gibi klasörden yükler. -->
+    <ProjectReference Include="..\..\samples\LumoraGo.SamplePlugin\LumoraGo.SamplePlugin.csproj" ReferenceOutputAssembly="false" Private="false" />
   </ItemGroup>
+
+  <!-- Örnek eklentinin çıktısını test çıktısında extensions/merhaba klasörüne kopyala. -->
+  <Target Name="CopySamplePlugin" AfterTargets="Build">
+    <MSBuild Projects="..\..\samples\LumoraGo.SamplePlugin\LumoraGo.SamplePlugin.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration)">
+      <Output TaskParameter="TargetOutputs" ItemName="SamplePluginPath" />
+    </MSBuild>
+    <ItemGroup>
+      <SamplePluginFiles Include="%(SamplePluginPath.RootDir)%(SamplePluginPath.Directory)**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SamplePluginFiles)" DestinationFiles="@(SamplePluginFiles->'$(OutDir)extensions\merhaba\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

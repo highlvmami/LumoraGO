@@ -9,6 +9,7 @@ using LumoraGo.Core;
 using LumoraGo.Core.Apps;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
+using LumoraGo.Core.Extensions;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
 using LumoraGo.Core.Plugins;
@@ -26,6 +27,9 @@ public partial class App : Application
 
     private static readonly string DataRoot =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumoraGo");
+
+    /// <summary>Kullanıcının kurduğu dış eklentiler; her biri kendi alt klasöründe plugin.json ile.</summary>
+    private static readonly string ExtensionsRoot = Path.Combine(DataRoot, "extensions");
 
     private static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
@@ -146,6 +150,7 @@ public partial class App : Application
                     updates.CurrentVersion,
                     Changelog.GetNotes(releaseNotes, updates.CurrentVersion),
                     updates.Status))),
+                .. ExternalPlugins.Load(ExtensionsRoot, _log),
             ],
             host,
             Path.Combine(DataRoot, "plugins"));
@@ -227,6 +232,12 @@ public partial class App : Application
         new("LumoraGo'dan çık", "Launcher'ı tamamen kapatır", _ =>
         {
             Dispatcher.BeginInvoke(ExitApplication);
+            return true;
+        }),
+        new("LumoraGo eklenti klasörünü aç", "Eklentiyi buraya kendi klasörüyle kopyala, sonra LumoraGo'yu yeniden başlat", _ =>
+        {
+            Directory.CreateDirectory(ExtensionsRoot);
+            OpenPath(ExtensionsRoot);
             return true;
         }),
         new("LumoraGo günlük klasörünü aç", "Hata ve performans kayıtları", _ =>

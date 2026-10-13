@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <PackageReference Include="Velopack" Version="1.2.161" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
   </ItemGroup>
 
 </Project>

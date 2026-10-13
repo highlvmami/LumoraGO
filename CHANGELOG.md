@@ -2,6 +2,12 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.8.0
+- Birim ve döviz çevirme: "5 km mil", "100 usd tl", "30 c f", "2 gb mb" yazınca sonuç en üstte çıkar; Enter sayıyı kopyalar. Kurlar günde birkaç kez internetten alınır ve önbellekte tutulur
+- Notlar: "/not ekmek al" not ekler, "/not" listeler; Enter tamamlandı işaretler, sağ ok ile kopyala, sil, tamamlananları temizle
+- Emoji arama: "/e kalp" veya "/e heart"; Enter önceki pencereye yapıştırır, Ctrl+Enter kopyalar
+- Renk kodları: "#1e90ff", "rgb(30, 144, 255)" veya "hsl(210, 100%, 56%)" yazınca renk örneği ve HEX, RGB, HSL karşılıkları çıkar; Enter kopyalar
+
 ## 0.7.0
 - Ayarlar penceresi: tepsi simgesine sağ tık → Ayarlar, veya launcher'da "ayar" yaz
 - Kısayol değiştirilebilir (örn. Ctrl+Shift+Space); başka uygulama kullanıyorsa eskisi kalır

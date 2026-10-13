@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.4.1
+- Güncelleme kontrolü "kontrol ediliyor"da takılı kalmıyor; 30 saniyede yanıt gelmezse tekrar denenir
+- Launcher açık kalsa da 15 dakikada bir yeni sürüm arar, bulunca indirip pencere gizlenince kurar
+- /v son kontrol saatini gösterir
+
 ## 0.4.0
 - Daha koyu yeni tema: derin siyah arka plan, mor vurgu rengi; Windows açık temada olsa da koyu kalır
 - Tab ile tamamlama: seçili sonucun adı kutuya yazılır, hesap sonucunda sayı yazılır

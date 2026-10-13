@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
@@ -27,6 +28,11 @@ public partial class App : Application
     private TrayIcon? _tray;
     private MainWindow? _window;
     private UpdateService? _updates;
+    private DispatcherTimer? _updateTimer;
+    private bool _applyScheduled;
+
+    // Açık kalan launcher da yeni sürümü bulsun; GitHub'ın kimliksiz istek sınırının çok altında.
+    private static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(15);
     private ThemeService? _theme;
     private StaWorker? _shellWorker;
 
@@ -117,6 +123,9 @@ public partial class App : Application
         }
 
         _ = CheckForUpdatesAsync();
+        _updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+        _updateTimer.Tick += (_, _) => _ = CheckForUpdatesAsync();
+        _updateTimer.Start();
 
         // Windows açılışında --background ile başlar ve sessizce tepside bekler.
         if (!e.Args.Contains(StartupRegistration.BackgroundArg))
@@ -176,7 +185,7 @@ public partial class App : Application
 
     private async Task CheckForUpdatesAsync()
     {
-        if (_updates is null || _window is null)
+        if (_updates is null || _window is null || _applyScheduled)
         {
             return;
         }
@@ -186,6 +195,9 @@ public partial class App : Application
         {
             return;
         }
+
+        _applyScheduled = true;
+        _updateTimer?.Stop();
 
         // Kullanıcı yazarken yeniden başlama; pencere gizliyse hemen, değilse gizlendiği an kur.
         if (!_window.IsVisible)

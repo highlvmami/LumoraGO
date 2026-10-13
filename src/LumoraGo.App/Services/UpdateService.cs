@@ -6,7 +6,7 @@ using Velopack.Sources;
 namespace LumoraGo.App.Services;
 
 /// <summary>
-/// Açılışta GitHub Releases'tan yeni sürüm arar ve arka planda indirir. İndirme bitince launcher gizliyse
+/// Açılışta ve sonra düzenli aralıklarla GitHub Releases'tan yeni sürüm arar ve arka planda indirir. İndirme bitince launcher gizliyse
 /// hemen, açıksa gizlendiği an kurup sessizce yeniden başlar.
 /// </summary>
 internal sealed class UpdateService(ILog log)
@@ -24,6 +24,11 @@ internal sealed class UpdateService(ILog log)
             ? installed.ToString()
             : AssemblyVersion();
 
+    // GitHub yanıt vermezse durum "kontrol ediliyor"da kalmasın.
+    private static readonly TimeSpan CheckTimeout = TimeSpan.FromSeconds(30);
+
+    private bool _busy;
+
     public async Task CheckAndDownloadAsync()
     {
         if (!_manager.IsInstalled)
@@ -32,12 +37,22 @@ internal sealed class UpdateService(ILog log)
             return;
         }
 
+        if (_busy || _ready is not null)
+        {
+            return;
+        }
+
+        _busy = true;
         try
         {
-            var update = await _manager.CheckForUpdatesAsync();
+            log.Info("Güncelleme kontrol ediliyor");
+
+            // Velopack çağrıları arayüz iş parçacığının bağlamına takılmasın diye arka planda çalışır.
+            var update = await Task.Run(() => _manager.CheckForUpdatesAsync()).WaitAsync(CheckTimeout);
             if (update is null)
             {
-                Status = "Güncel";
+                Status = $"Güncel (son kontrol {DateTime.Now:HH:mm})";
+                log.Info("Güncel");
                 return;
             }
 
@@ -45,15 +60,24 @@ internal sealed class UpdateService(ILog log)
             Status = $"{version} indiriliyor…";
             log.Info($"Yeni sürüm bulundu: {version}");
 
-            await _manager.DownloadUpdatesAsync(update);
+            await Task.Run(() => _manager.DownloadUpdatesAsync(update));
             _ready = update;
             Status = $"{version} hazır, launcher kapanınca yüklenecek";
             log.Info($"Güncelleme indirildi: {version}");
         }
+        catch (TimeoutException)
+        {
+            Status = "Güncelleme sunucusu yanıt vermedi, birazdan tekrar denenecek";
+            log.Warn($"Güncelleme kontrolü {CheckTimeout.TotalSeconds} saniyede bitmedi");
+        }
         catch (Exception ex)
         {
-            Status = "Güncelleme kontrol edilemedi (internet bağlantısını kontrol et)";
+            Status = "Güncelleme kontrol edilemedi (internet bağlantısını kontrol et), birazdan tekrar denenecek";
             log.Warn($"Güncelleme hatası: {ex}");
+        }
+        finally
+        {
+            _busy = false;
         }
     }
 

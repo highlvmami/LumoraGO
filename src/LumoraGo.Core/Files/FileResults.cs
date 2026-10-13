@@ -42,5 +42,6 @@ public sealed class FileResults(Action<string> open, Action<string> reveal)
         ])
         {
             PreviewPath = path,
+            DragData = DragPayload.File(path),
         };
 }

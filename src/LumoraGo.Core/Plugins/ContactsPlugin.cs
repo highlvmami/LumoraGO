@@ -85,6 +85,7 @@ public sealed class ContactsPlugin : IPlugin
         return new Result(contact.Name, contact.Summary(), null, score, ctx => Act(contact, ctx.Modifiers), menu)
         {
             PreviewText = contact.FullText(),
+            DragData = DragPayload.Text(contact.Phones.FirstOrDefault() ?? contact.Emails.FirstOrDefault() ?? contact.Name),
         };
     }
 

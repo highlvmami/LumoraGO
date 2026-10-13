@@ -192,7 +192,10 @@ public sealed class CalendarPlugin : IPlugin
                 }
 
                 return true;
-            }));
+            })
+            {
+                DragData = item.MeetingUrl is { } meeting ? DragPayload.Url(meeting) : DragPayload.Text(item.Title),
+            });
         }
 
         if (results.Count == 0)

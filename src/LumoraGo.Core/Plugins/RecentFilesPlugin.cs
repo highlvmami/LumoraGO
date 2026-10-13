@@ -32,6 +32,7 @@ public sealed class RecentFilesPlugin(Func<IReadOnlyList<RecentItem>> recent, Ac
             })
             {
                 PreviewPath = r.Path,
+                DragData = DragPayload.File(r.Path),
             })
             .ToList();
 

@@ -28,6 +28,11 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _previewDelay;
     private const double PreviewWidth = 420;
 
+    // Sürükle-bırak: farenin basıldığı yer ve satır; sürükleme sürerken pencere odak kaybedince kapanmaz.
+    private Point? _dragStart;
+    private Result? _dragResult;
+    private bool _dragging;
+
     /// <summary>Ayarlardan: launcher her açıldığında önizleme de açık gelsin.</summary>
     public bool PreviewAlwaysOpen { get; set; }
 
@@ -209,7 +214,10 @@ public partial class MainWindow : Window
     protected override void OnDeactivated(EventArgs e)
     {
         base.OnDeactivated(e);
-        HideLauncher();
+        if (!_dragging)
+        {
+            HideLauncher();
+        }
     }
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -274,8 +282,73 @@ public partial class MainWindow : Window
         base.OnPreviewKeyDown(e);
     }
 
+    private void ResultsList_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _dragStart = null;
+        _dragResult = null;
+        if (e.OriginalSource is DependencyObject source
+            && ItemsControl.ContainerFromElement(ResultsList, source) is ListBoxItem { DataContext: Result result })
+        {
+            _dragStart = e.GetPosition(ResultsList);
+            _dragResult = result;
+        }
+    }
+
+    private void ResultsList_OnPreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed || _dragStart is not { } start || _dragResult is not { } result)
+        {
+            return;
+        }
+
+        var moved = e.GetPosition(ResultsList) - start;
+        if (Math.Abs(moved.X) < SystemParameters.MinimumHorizontalDragDistance
+            && Math.Abs(moved.Y) < SystemParameters.MinimumVerticalDragDistance)
+        {
+            return;
+        }
+
+        _dragStart = null;
+        _dragResult = null;
+        if (DragPayload.For(result) is not { } payload || Services.DragDataObject.Build(payload) is not { } drag)
+        {
+            return;
+        }
+
+        DragDropEffects effect;
+        _dragging = true;
+        try
+        {
+            effect = DragDrop.DoDragDrop(ResultsList, drag.Data, drag.Effects);
+        }
+        catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or InvalidOperationException)
+        {
+            _log.Warn($"Sürükle-bırak başarısız: {ex.Message}");
+            effect = DragDropEffects.None;
+        }
+        finally
+        {
+            _dragging = false;
+        }
+
+        e.Handled = true;
+        if (effect != DragDropEffects.None)
+        {
+            // Bırakıldı: iş bitti, launcher kapanır.
+            HideLauncher();
+        }
+        else
+        {
+            // Esc ya da geçersiz yere bırakma: launcher açık kalır ve odağı geri alır.
+            Activate();
+            QueryBox.Focus();
+        }
+    }
+
     private void ResultsList_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        _dragStart = null;
+        _dragResult = null;
         // Sadece bir sonuca tıklanınca çalıştır, kaydırma çubuğuna değil.
         if (e.OriginalSource is DependencyObject source
             && ItemsControl.ContainerFromElement(ResultsList, source) is ListBoxItem)

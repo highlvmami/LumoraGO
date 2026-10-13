@@ -15,7 +15,7 @@ public class VersionPluginTests
             Path.GetTempPath());
         var service = new SearchService(manager);
 
-        var response = await service.SearchAsync("/version", CancellationToken.None);
+        var response = await service.SearchAsync("/v", CancellationToken.None);
 
         Assert.Equal(["LumoraGo 0.2.0", "Bir", "İki"], response.Results.Select(r => r.Title));
         Assert.Equal("Güncel", response.Results[0].Subtitle);
@@ -26,7 +26,7 @@ public class VersionPluginTests
     {
         var plugin = new VersionPlugin(() => new VersionInfo("0.2.0", [], "Güncel"));
 
-        var results = await plugin.QueryAsync(new Query("/version", "/version", ""), CancellationToken.None);
+        var results = await plugin.QueryAsync(new Query("/v", "/v", ""), CancellationToken.None);
 
         Assert.Equal("Bu sürüm için sürüm notu yok", results[1].Title);
     }

@@ -83,7 +83,17 @@
                            FontFamily="{StaticResource IconFont}"
                            FontSize="18"
                            VerticalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryText}" />
+                           Foreground="{DynamicResource AccentBrush}" />
+
+                <!-- Soluk tamamlama önerisi: yazılan kısım görünmez, devamı soluk. TextBox'ın iç boşluğuyla hizalı. -->
+                <TextBlock Grid.Column="1"
+                           Margin="12,6,110,6"
+                           VerticalAlignment="Center"
+                           FontSize="22"
+                           IsHitTestVisible="False"
+                           TextTrimming="None">
+                    <Run Text="{Binding QueryText, Mode=OneWay}" Foreground="Transparent" /><Run Text="{Binding GhostSuffix, Mode=OneWay}" Foreground="{DynamicResource GhostText}" />
+                </TextBlock>
 
                 <TextBox x:Name="QueryBox"
                          Grid.Column="1"
@@ -178,6 +188,8 @@
                         </StackPanel.Resources>
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="↑↓" /></Border>
                         <TextBlock Text="gez" />
+                        <Border Style="{StaticResource KeyCap}"><TextBlock Text="Tab" /></Border>
+                        <TextBlock Text="tamamla" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="Ctrl+Enter" /></Border>
                         <TextBlock Text="klasör" />
                         <Border Style="{StaticResource KeyCap}"><TextBlock Text="Shift+Enter" /></Border>

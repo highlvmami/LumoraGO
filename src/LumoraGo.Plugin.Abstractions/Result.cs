@@ -15,6 +15,12 @@ public sealed record Result(
     Func<ActionContext, bool> Action,
     IReadOnlyList<ContextAction>? ContextMenu = null)
 {
+    /// <summary>
+    /// Tab'a basınca kutuya yazılacak metin. Boşsa <see cref="Title"/> kullanılır. Kutudaki metin bununla başlıyorsa
+    /// kalan kısmı soluk renkte öneri olarak görünür.
+    /// </summary>
+    public string? AutoComplete { get; init; }
+
     /// <summary>Sonucu üreten eklentinin kimliği. Çekirdek tarafından doldurulur.</summary>
     public string PluginId { get; init; } = "";
 }

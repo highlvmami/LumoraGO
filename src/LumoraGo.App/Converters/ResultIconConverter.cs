@@ -20,6 +20,12 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.commandlist"] = "",
         ["lumorago.version"] = "",
         ["lumorago.apps"] = "",
+        ["lumorago.youtube"] = "",
+        ["lumorago.google"] = "",
+        ["lumorago.github"] = "",
+        ["lumorago.linkedin"] = "",
+        ["lumorago.linkedln"] = "",
+        ["lumorago.keywordhints"] = "",
     };
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

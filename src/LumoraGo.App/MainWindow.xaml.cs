@@ -156,6 +156,22 @@ public partial class MainWindow : Window
                 ExecuteSelected();
                 e.Handled = true;
                 break;
+            case Key.Tab when Keyboard.Modifiers == ModifierKeys.None:
+                // Odak başka yere geçmesin; Tab her zaman tamamlama içindir.
+                if (_viewModel.TryComplete())
+                {
+                    QueryBox.CaretIndex = QueryBox.Text.Length;
+                }
+
+                e.Handled = true;
+                break;
+            case Key.Right when QueryBox.CaretIndex == QueryBox.Text.Length && QueryBox.SelectionLength == 0
+                                && _viewModel.GhostSuffix.Length > 0:
+                // Satır sonunda sağ ok, soluk öneriyi kabul eder (terminallerdeki gibi).
+                _viewModel.TryComplete();
+                QueryBox.CaretIndex = QueryBox.Text.Length;
+                e.Handled = true;
+                break;
         }
 
         base.OnPreviewKeyDown(e);

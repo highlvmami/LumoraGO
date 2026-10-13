@@ -6,7 +6,8 @@ namespace LumoraGo.Core.Plugins;
 /// <param name="Title">Listede görünen ad.</param>
 /// <param name="Subtitle">Ne yaptığı veya nasıl yazıldığı.</param>
 /// <param name="Action">Seçilince çalışır. true dönerse pencere gizlenir.</param>
-public sealed record CommandInfo(string Title, string Subtitle, Func<ActionContext, bool> Action);
+/// <param name="AutoComplete">Tab ile kutuya yazılacak metin (örn. "/liste").</param>
+public sealed record CommandInfo(string Title, string Subtitle, Func<ActionContext, bool> Action, string? AutoComplete = null);
 
 /// <summary>
 /// "/liste" yazılınca yazılabilecek tüm komutları A'dan Z'ye listeler. "/liste çık" gibi devam edilirse listeyi süzer.
@@ -41,7 +42,7 @@ public sealed class CommandListPlugin : IPlugin
 
         // Arama servisi puana göre sıraladığı için alfabetik sırayı azalan puanla koru.
         var results = commands
-            .Select((c, i) => new Result(c.Title, c.Subtitle, null, commands.Count - i, c.Action))
+            .Select((c, i) => new Result(c.Title, c.Subtitle, null, commands.Count - i, c.Action) { AutoComplete = c.AutoComplete })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<Result>>(results);

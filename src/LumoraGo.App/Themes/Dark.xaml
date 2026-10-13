@@ -1,14 +1,15 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Akrilik arka plan varken yarı saydam, yokken (Windows 10) ThemeService opak sürümünü kullanır -->
-    <Color x:Key="WindowBackgroundColor">#99202020</Color>
-    <Color x:Key="WindowBackgroundOpaqueColor">#FF202020</Color>
-    <SolidColorBrush x:Key="WindowBackground" Color="#99202020" />
-    <SolidColorBrush x:Key="WindowBorder" Color="#33FFFFFF" />
-    <SolidColorBrush x:Key="PrimaryText" Color="#FFF3F3F3" />
-    <SolidColorBrush x:Key="SecondaryText" Color="#FF9E9E9E" />
-    <SolidColorBrush x:Key="SelectedBackground" Color="#1FFFFFFF" />
-    <SolidColorBrush x:Key="AccentBrush" Color="#FF7C9CFF" />
-    <SolidColorBrush x:Key="Divider" Color="#1AFFFFFF" />
-    <SolidColorBrush x:Key="KeyCapBackground" Color="#14FFFFFF" />
+    <!-- Derin koyu tema. Akrilik arka plan varken hafif saydam, yokken (Windows 10) ThemeService opak sürümünü kullanır -->
+    <Color x:Key="WindowBackgroundColor">#E00A0A0E</Color>
+    <Color x:Key="WindowBackgroundOpaqueColor">#FF0A0A0E</Color>
+    <SolidColorBrush x:Key="WindowBackground" Color="#E00A0A0E" />
+    <SolidColorBrush x:Key="WindowBorder" Color="#24FFFFFF" />
+    <SolidColorBrush x:Key="PrimaryText" Color="#FFF5F5F7" />
+    <SolidColorBrush x:Key="SecondaryText" Color="#FF85858F" />
+    <SolidColorBrush x:Key="GhostText" Color="#FF55555E" />
+    <SolidColorBrush x:Key="SelectedBackground" Color="#228B7CFF" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF8B7CFF" />
+    <SolidColorBrush x:Key="Divider" Color="#10FFFFFF" />
+    <SolidColorBrush x:Key="KeyCapBackground" Color="#12FFFFFF" />
 </ResourceDictionary>

@@ -2,7 +2,7 @@
 
 Alt+Space ile açılan, her özelliği bir eklenti olan Windows launcher'ı (Raycast / PowerToys Run tarzı).
 
-> Durum: **Faz 2 – MVP** (sürüm 0.3.0). Yazdıkça Başlat menüsü ve Store uygulamaları bulanık aramayla listelenir ("vsc" → Visual Studio Code), "2+3*4" gibi hesaplar anında sonuçlanır.
+> Durum: **Faz 2 – MVP** (sürüm 0.4.0). Yazdıkça Başlat menüsü ve Store uygulamaları bulanık aramayla listelenir ("vsc" → Visual Studio Code), "2+3*4" gibi hesaplar anında sonuçlanır.
 
 ## Çalıştırma
 
@@ -14,7 +14,7 @@ dotnet run --project src/LumoraGo.App
 
 ## Kurulum ve güncelleme
 
-[Releases](https://github.com/highlvmami/LumoraGO/releases) sayfasındaki `LumoraGo-win-Setup.exe` ile kur. Kurulan LumoraGo her açılışta yeni sürüm arar, bulursa arka planda indirir ve launcher gizlenince kurup sessizce yeniden başlar. `/version` yazınca çalışan sürümü, güncelleme durumunu ve sürüm notlarını gösterir.
+[Releases](https://github.com/highlvmami/LumoraGO/releases) sayfasındaki `LumoraGo-win-Setup.exe` ile kur. Kurulan LumoraGo her açılışta yeni sürüm arar, bulursa arka planda indirir ve launcher gizlenince kurup sessizce yeniden başlar. `/v` yazınca çalışan sürümü, güncelleme durumunu ve sürüm notlarını gösterir.
 
 `dotnet run` ile veya Actions'tan indirilen zip ile çalışan kopyalar kendini güncellemez.
 
@@ -31,11 +31,12 @@ Release iş akışı testleri çalıştırır, kurulum dosyasını ve güncellem
 | Alt+Space | Aç / gizle |
 | ↑ / ↓ | Sonuçlarda gez |
 | Enter | Seçili sonucu çalıştır |
+| Tab | Seçili sonucu kutuya tamamla (soluk öneriyi sağ ok da kabul eder) |
 | Ctrl+Enter | Uygulamanın klasörünü aç |
 | Shift+Enter | Yönetici olarak çalıştır |
 | Esc | Gizle (odak kaybında da gizlenir) |
 
-`/version` yazınca sürüm ve sürüm notları görünür.
+`/v` yazınca sürüm ve sürüm notları görünür. `/yt kedi` YouTube'da, `/gg kedi` Google'da arar. `/git` GitHub profilini, `/linkedin` LinkedIn'i açar. Windows kısayolları: `/kilit`, `/uyku`, `/kapat`, `/yeniden`, `/oturum`, `/cop`, `/ayarlar`, `/gorev`, `/cmd`, `/ip`. Hepsini görmek için `/liste`.
 
 `/liste` yazınca yazabileceğin tüm komutlar A'dan Z'ye listelenir; `/liste çık` gibi devam edersen liste süzülür.
 

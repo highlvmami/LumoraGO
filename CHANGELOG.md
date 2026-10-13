@@ -1,6 +1,16 @@
 # Sürüm notları
 
-Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/version` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
+Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
+
+## 0.4.0
+- Daha koyu yeni tema: derin siyah arka plan, mor vurgu rengi; Windows açık temada olsa da koyu kalır
+- Tab ile tamamlama: seçili sonucun adı kutuya yazılır, hesap sonucunda sayı yazılır
+- Yazdıkça soluk renkte öneri: "vis" yazınca "ual Studio Code" görünür, Tab veya sağ ok ile kabul edilir
+- "/" ile başlayınca komut önerileri: "/li" yazınca "/liste" çıkar
+- "/yt ..." YouTube'da, "/gg ..." Google'da arar (varsayılan tarayıcıda açılır)
+- "/git" GitHub profilini, "/linkedin" (veya "/linkedln") LinkedIn ana sayfasını açar
+- Sürüm bilgisi artık "/v" ile açılır ("/version" yerine)
+- Windows kısayolları: "/kilit", "/uyku", "/kapat", "/yeniden", "/oturum", "/cop" (geri dönüşüm kutusu), "/ayarlar", "/gorev" (Görev Yöneticisi), "/cmd", "/ip" (IP adresini kopyalar)
 
 ## 0.3.0
 - Uygulama arama: Başlat menüsü ve Microsoft Store uygulamaları, simgeleriyle birlikte listelenir

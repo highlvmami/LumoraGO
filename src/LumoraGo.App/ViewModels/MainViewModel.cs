@@ -1,4 +1,5 @@
 using LumoraGo.Core;
+using LumoraGo.Core.Search;
 using LumoraGo.Plugin;
 
 namespace LumoraGo.App.ViewModels;
@@ -17,6 +18,7 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
         {
             if (SetProperty(ref _queryText, value))
             {
+                OnPropertyChanged(nameof(GhostSuffix));
                 _ = RunSearchAsync(value);
             }
         }
@@ -30,6 +32,7 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
             if (SetProperty(ref _results, value))
             {
                 OnPropertyChanged(nameof(HasResults));
+                OnPropertyChanged(nameof(GhostSuffix));
             }
         }
     }
@@ -39,7 +42,31 @@ internal sealed class MainViewModel(SearchService search, ILog log) : Observable
     public int SelectedIndex
     {
         get => _selectedIndex;
-        set => SetProperty(ref _selectedIndex, value);
+        set
+        {
+            if (SetProperty(ref _selectedIndex, value))
+            {
+                OnPropertyChanged(nameof(GhostSuffix));
+            }
+        }
+    }
+
+    private Result? Selected => SelectedIndex >= 0 && SelectedIndex < Results.Count ? Results[SelectedIndex] : null;
+
+    /// <summary>Kutuda yazılanın devamı olarak soluk görünen öneri ("vis" → "ual Studio Code").</summary>
+    public string GhostSuffix => Completion.GhostSuffix(QueryText, Selected);
+
+    /// <summary>Tab: seçili sonucun tamamlama metnini kutuya yazar.</summary>
+    /// <returns>Kutu değiştiyse true.</returns>
+    public bool TryComplete()
+    {
+        if (Completion.Complete(QueryText, Selected) is not { } completed)
+        {
+            return false;
+        }
+
+        QueryText = completed;
+        return true;
     }
 
     public void MoveSelection(int delta) =>

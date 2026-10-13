@@ -13,11 +13,15 @@ internal sealed class ThemeService : IDisposable
     private readonly bool _translucent;
     private ResourceDictionary? _current;
 
+    private readonly bool _followSystem;
+
     /// <param name="translucent">Akrilik arka plan destekleniyorsa yarı saydam renkler kullanılır.</param>
-    public ThemeService(Application app, bool translucent)
+    /// <param name="followSystem">false ise Windows ayarı ne olursa olsun koyu tema kullanılır.</param>
+    public ThemeService(Application app, bool translucent, bool followSystem)
     {
         _app = app;
         _translucent = translucent;
+        _followSystem = followSystem;
         Apply();
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
     }
@@ -36,7 +40,7 @@ internal sealed class ThemeService : IDisposable
 
     private void Apply()
     {
-        var dark = ReadIsDark();
+        var dark = !_followSystem || ReadIsDark();
         if (_current is not null && dark == IsDark)
         {
             return;

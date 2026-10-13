@@ -88,6 +88,22 @@
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                          FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
                 <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kısayol: &quot;kelime | hedef&quot; veya &quot;kelime | ad | hedef&quot;. Hedef bir site, dosya, klasör ya da uygulama olabilir. Hedefte {0} varsa kelimeden sonra yazılan metin oraya konur. Örnek: /okul | Okul portalı | https://okul.example.com, ekşi | https://eksisozluk.com/?q={0}" />
+
+                <TextBlock Text="Takvim (/takvim)" Style="{StaticResource Heading}" />
+                <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
+                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir takvimin gizli ICS adresi. Google Takvim: takvim ayarları → &quot;Takvimi entegre et&quot; → &quot;iCal biçiminde gizli adres&quot;. Outlook.com: Ayarlar → Takvim → Paylaşılan takvimler → Takvim yayımla → ICS bağlantısı. Adresi bilen herkes takvimi okuyabilir; bu yüzden şifreli (Windows hesabına bağlı) saklanır ve yalnızca takvim indirmek için kullanılır." />
+
+                <TextBlock Text="Mail (/mail)" Style="{StaticResource Heading}" />
+                <TextBlock Text="Mail adresi" Margin="0,0,0,2" />
+                <TextBox x:Name="MailAddressBox" Padding="6,4" />
+                <TextBlock Text="Şifre (Gmail için uygulama şifresi)" Margin="0,8,0,2" />
+                <PasswordBox x:Name="MailPasswordBox" Padding="6,4" />
+                <TextBlock x:Name="MailPasswordNote" Style="{StaticResource Note}" />
+                <TextBlock Text="IMAP sunucusu (Gmail, Yahoo, Yandex, iCloud için boş bırak)" Margin="0,8,0,2" />
+                <TextBox x:Name="MailServerBox" Padding="6,4" />
+                <TextBlock Style="{StaticResource Note}" Text="Gmail: Google hesabında 2 adımlı doğrulamayı aç, myaccount.google.com/apppasswords adresinden bir uygulama şifresi üret ve buraya yapıştır; normal şifren çalışmaz. Gmail'de IMAP'in açık olması gerekir (Ayarlar → Tüm ayarlar → Yönlendirme ve POP/IMAP). Outlook, Hotmail ve Microsoft 365 desteklenmiyor. Mailler okundu işaretlenmez, yalnızca gönderen ve konu okunur. Şifre Windows hesabına bağlı şifreli dosyada tutulur. Adresi boşaltıp kaydedersen hesap silinir." />
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

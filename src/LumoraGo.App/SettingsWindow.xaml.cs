@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using LumoraGo.App.Services;
+using LumoraGo.Core.Accounts;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Settings;
 
@@ -10,16 +11,18 @@ namespace LumoraGo.App;
 internal partial class SettingsWindow : Window
 {
     private readonly SettingsStore _store;
+    private readonly SecretStore _secrets;
     private readonly Func<string, bool> _tryHotkey;
 
     /// <param name="tryHotkey">Kısayolu kaydetmeyi dener; başka uygulama kullanıyorsa false döner ve eskisi kalır.</param>
-    public SettingsWindow(SettingsStore store, Func<string, bool> tryHotkey)
+    public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey)
     {
         InitializeComponent();
 
         // Launcher'ın yarı saydam arka planı akriliksiz bir pencerede siyah görünür; temanın opak rengini kullan.
         Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)FindResource("WindowBackgroundOpaqueColor"));
         _store = store;
+        _secrets = secrets;
         _tryHotkey = tryHotkey;
 
         var s = store.Current;
@@ -32,6 +35,14 @@ internal partial class SettingsWindow : Window
         Fill(FileFoldersList, s.FileSearchFolders);
         SkipNamesBox.Text = string.Join(", ", s.DeepSearchSkipNames);
         CustomShortcutsBox.Text = CustomShortcutText.Format(s.CustomShortcuts);
+        CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
+        if (secrets.Current.Mail is { } mail)
+        {
+            MailAddressBox.Text = mail.Address;
+            MailServerBox.Text = AccountInput.ServerText(mail);
+            MailPasswordNote.Text = "Şifre kayıtlı. Değiştirmek istemiyorsan kutuyu boş bırak.";
+        }
+
         DefaultSkipNote.Text = "Virgülle ayır. Bunlar her zaman atlanır: "
             + string.Join(", ", DeepSearchOptions.DefaultSkipDirectoryNames.Order(StringComparer.OrdinalIgnoreCase));
     }
@@ -112,6 +123,20 @@ internal partial class SettingsWindow : Window
             return;
         }
 
+        var calendarUrls = AccountInput.ParseCalendarUrls(CalendarUrlsBox.Text, out var calendarErrors);
+        if (calendarErrors.Count > 0)
+        {
+            MessageBox.Show(this, string.Join(Environment.NewLine, calendarErrors), "Takvim (/takvim)", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var (mail, mailError) = AccountInput.BuildMail(MailAddressBox.Text, MailPasswordBox.Password, MailServerBox.Text, _secrets.Current.Mail);
+        if (mailError is not null)
+        {
+            MessageBox.Show(this, mailError, "Mail (/mail)", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         if (HotkeyBox.Text != current.Hotkey && !_tryHotkey(HotkeyBox.Text))
         {
             MessageBox.Show(this, $"{HotkeyBox.Text} başka bir uygulama tarafından kullanılıyor. Başka bir birleşim dene.",
@@ -122,6 +147,11 @@ internal partial class SettingsWindow : Window
         if (StartupBox.IsChecked != StartupRegistration.IsEnabled)
         {
             StartupRegistration.SetEnabled(StartupBox.IsChecked == true);
+        }
+
+        if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail)
+        {
+            _secrets.Save(new AccountSecrets { CalendarUrls = calendarUrls, Mail = mail });
         }
 
         _store.Save(current with

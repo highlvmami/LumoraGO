@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.14.0
+- Takvim: "/takvim" bugünün kalan toplantılarını, "/takvim yarın" ve "/takvim hafta" ilerisini gösterir; Enter toplantı bağlantısını (Meet, Teams, Zoom) açar. Google Takvim ve Outlook.com için takvimin gizli ICS adresi Ayarlar'a yapıştırılır, uygulama kaydı gerekmez. Tekrarlayan toplantılar ve saat dilimleri desteklenir
+- Mail: "/mail" okunmamış mailleri (gönderen, konu, zaman) listeler, yazınca süzer; Enter gelen kutusunu açar. Gmail, Yahoo, Yandex, iCloud ve diğer IMAP sunucuları çalışır; Gmail için uygulama şifresi gerekir. Mailler okundu işaretlenmez ve gövdeleri indirilmez. Outlook/Hotmail/Microsoft 365 şifreyle IMAP'e kapalı olduğu için desteklenmiyor
+- Takvim adresleri ve mail şifresi Windows hesabına bağlı (DPAPI) şifreli dosyada tutulur, settings.json'a yazılmaz
+
 ## 0.13.0
 - Ağ araçları: "/ping google.com" dört kez ping atıp ortalama ve kayıp gösterir, "/dns google.com" (veya "/dns google.com mx") DNS kayıtlarını, "/whois google.com" kayıt kuruluşu ve tarihleri gösterir; IP yazınca ters DNS ve ağ sahibi gelir. Sorgular Enter ile başlar, sonuçlar geldikçe liste dolar
 - "/hiz": indirme, yükleme ve gecikme ölçen internet hız testi (Cloudflare uçları, yaklaşık 33 MB veri kullanır)

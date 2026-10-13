@@ -54,6 +54,8 @@ internal sealed class ResultIconConverter : IValueConverter
         ["lumorago.net.whois"] = "\uE946",
         ["lumorago.net.speed"] = "\uEC4A",
         ["lumorago.net.myip"] = "\uE81D",
+        ["lumorago.calendar"] = "\uE787",
+        ["lumorago.mail"] = "\uE715",
         ["lumorago.bookmarks"] = "\uE734",
         ["lumorago.winsettings"] = "\uE713",
         ["lumorago.recent"] = "\uE81C",

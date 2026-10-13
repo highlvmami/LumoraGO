@@ -11,6 +11,9 @@ using LumoraGo.Core.Browser;
 using LumoraGo.Core.Clipboard;
 using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Extensions;
+using LumoraGo.Core.Accounts;
+using LumoraGo.Core.Calendar;
+using LumoraGo.Core.Mail;
 using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
@@ -49,6 +52,7 @@ public partial class App : Application
     private DispatcherTimer? _updateTimer;
     private FileIndex? _files;
     private SettingsStore? _settings;
+    private SecretStore? _secrets;
     private SettingsWindow? _settingsWindow;
     private ClipboardHistory? _clipboard;
     private ClipboardMonitor? _clipboardMonitor;
@@ -90,6 +94,8 @@ public partial class App : Application
 
         // Varsayılan görünüm koyu; Windows açık temada olsa da değişmez.
         _settings = new SettingsStore(Path.Combine(DataRoot, "settings.json"), _log);
+        _secrets = new SecretStore(Path.Combine(DataRoot, "accounts.dat"), SecretProtection.Protect, SecretProtection.Unprotect, _log);
+        var secrets = _secrets;
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
@@ -147,6 +153,10 @@ public partial class App : Application
                 .. NetworkToolPlugins.Create(
                     new NetworkTools(Http, SystemNetwork.PingAsync, SystemNetwork.WhoisAsync),
                     new SpeedTest(LongHttp)).Select(p => new PluginEntry(p.Metadata, p)),
+                new PluginEntry(CalendarPlugin.Metadata, new CalendarPlugin(
+                    new CalendarSource(Http, () => secrets.Current.CalendarUrls), OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                new PluginEntry(MailPlugin.Metadata, new MailPlugin(
+                    () => secrets.Current.Mail, ImapClient.ConnectTlsAsync, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 new PluginEntry(BookmarksPlugin.Metadata, new BookmarksPlugin(
                     new BookmarkSource(BrowserProfiles.BookmarkFiles, _log).All, OpenUrl)),
                 new PluginEntry(WindowsSettingsPlugin.Metadata, new WindowsSettingsPlugin(OpenUrl)),
@@ -364,7 +374,7 @@ public partial class App : Application
         }
 
         _window?.HideLauncher();
-        _settingsWindow = new SettingsWindow(_settings, TryChangeHotkey);
+        _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
         _settingsWindow.Activate();

@@ -18,6 +18,7 @@ public static class Win {
 "@
 
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
+$env:LUMORAGO_KEEP_OPEN = "1"
 $exePath = (Resolve-Path $Exe).Path
 
 function Window([string]$title) {
@@ -26,6 +27,11 @@ function Window([string]$title) {
     if ($h -ne [IntPtr]::Zero -and [Win]::IsWindowVisible($h)) { return $h }
     Start-Sleep -Milliseconds 200
   }
+  $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+  $bmp = New-Object System.Drawing.Bitmap $screen.Width, $screen.Height
+  [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen(0, 0, 0, 0, $bmp.Size)
+  $bmp.Save((Join-Path $Out "_hata-ekran.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+  Get-Process LumoraGo -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "işlem: $($_.Id) '$($_.MainWindowTitle)' $($_.MainWindowHandle)" }
   throw "$title penceresi bulunamadı"
 }
 

@@ -387,6 +387,29 @@ public partial class App : Application
         };
     }
 
+    /// <summary>"/güncelle": beklemeden kontrol eder; yeni sürüm indiyse hemen kurup yeniden başlar.</summary>
+    private async Task UpdateNowAsync(IPluginHost host)
+    {
+        if (_updates is null)
+        {
+            return;
+        }
+
+        host.ShowMessage("LumoraGo güncelleme", "Yeni sürüm kontrol ediliyor…");
+        await _updates.CheckAndDownloadAsync();
+        if (_updates.IsReadyToApply)
+        {
+            host.ShowMessage("LumoraGo güncelleme", _updates.Status.Replace("launcher kapanınca yüklenecek", "kuruluyor, LumoraGo yeniden açılacak"));
+            _applyScheduled = true;
+            _updateTimer?.Stop();
+            _window?.HideLauncher();
+            _updates.ApplyAndRestart();
+            return;
+        }
+
+        host.ShowMessage("LumoraGo güncelleme", _updates.Status);
+    }
+
     private static string ReadEmbeddedChangelog()
     {
         using var stream = typeof(App).Assembly.GetManifestResourceStream("CHANGELOG.md");
@@ -535,6 +558,8 @@ public partial class App : Application
         new("/ayarlar", "Windows Ayarları'nı aç", "Ayarlar uygulaması", () => OpenUrl("ms-settings:")),
         new("/gorev", "Görev Yöneticisi'ni aç", "Çalışan uygulamalar ve performans", () => Run("taskmgr", "")),
         new("/cmd", "Komut istemini aç", "cmd.exe", () => Run("cmd", "")),
+        new("/güncelle", "LumoraGo'yu şimdi güncelle", $"Yeni sürüm varsa hemen indirip kurar · şu an {_updates?.CurrentVersion}", () => _ = UpdateNowAsync(host)),
+        new("/guncelle", "LumoraGo'yu şimdi güncelle", $"Yeni sürüm varsa hemen indirip kurar · şu an {_updates?.CurrentVersion}", () => _ = UpdateNowAsync(host)),
         new("/ip", "IP adresini kopyala", "Yerel ağdaki IPv4 adresini panoya alır", () =>
         {
             var ip = SystemActions.LocalIPv4();

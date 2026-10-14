@@ -4,169 +4,455 @@
         x:ClassModifier="internal"
         Title="LumoraGo ayarları"
         Icon="pack://application:,,,/Assets/LumoraGo.ico"
-        Width="560" Height="680"
+        Width="980" Height="720" MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
         Foreground="{DynamicResource PrimaryText}"
         FontFamily="Segoe UI Variable Text, Segoe UI"
-        FontSize="13">
+        FontSize="13.5">
     <Window.Resources>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource KeyCapBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Divider}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="20,16,20,18" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
         <Style x:Key="Heading" TargetType="TextBlock">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,18,0,6" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+        <Style x:Key="PageTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style x:Key="PageSubtitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,20" />
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,10,0,4" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
         </Style>
         <Style x:Key="Note" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SecondaryText}" />
             <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="Margin" Value="0,2,0,6" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="LineHeight" Value="19" />
+            <Setter Property="Margin" Value="0,6,0,0" />
         </Style>
+        <Style x:Key="Status" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style x:Key="Page" TargetType="StackPanel">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="MaxWidth" Value="760" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
             <Setter Property="Margin" Value="0,4" />
         </Style>
-        <Style TargetType="Button">
-            <Setter Property="Padding" Value="14,4" />
-            <Setter Property="Margin" Value="0,0,8,0" />
-        </Style>
-        <Style TargetType="ListBox">
-            <Setter Property="Height" Value="76" />
-            <Setter Property="Background" Value="{DynamicResource KeyCapBackground}" />
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
             <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Divider}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource WindowBorder}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Padding" Value="8,6" />
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource WindowBorder}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Padding" Value="8,6" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="16,7" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource WindowBorder}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SelectedBackground}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="FolderList" TargetType="ListBox">
+            <Setter Property="Height" Value="96" />
+            <Setter Property="Background" Value="{DynamicResource WindowBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource WindowBorder}" />
+        </Style>
+
+        <Style x:Key="NavItem" TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="10,9">
+                            <Grid>
+                                <Border x:Name="Bar" Width="3" Height="16" CornerRadius="1.5" Margin="-10,0,0,0"
+                                        HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}" Visibility="Hidden" />
+                                <ContentPresenter />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SelectedBackground}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SelectedBackground}" />
+                                <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
-    <DockPanel Margin="20,8,20,16">
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-            <Button Content="İptal" IsCancel="True" />
-            <Button x:Name="SaveButton" Content="Kaydet" IsDefault="True" Margin="0" Click="Save_OnClick" />
-        </StackPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <TextBlock Text="Kısayol" Style="{StaticResource Heading}" />
-                <TextBox x:Name="HotkeyBox" IsReadOnly="True" Width="220" HorizontalAlignment="Left" Padding="6,4"
-                         PreviewKeyDown="HotkeyBox_OnPreviewKeyDown" />
-                <TextBlock Style="{StaticResource Note}" Text="Kutuya tıklayıp yeni tuş birleşimine bas (örn. Ctrl+Shift+Space)." />
-
-                <TextBlock Text="Görünüm" Style="{StaticResource Heading}" />
-                <ComboBox x:Name="ThemeBox" Width="220" HorizontalAlignment="Left">
-                    <ComboBoxItem Content="Koyu" />
-                    <ComboBoxItem Content="Açık" />
-                    <ComboBoxItem Content="Windows'u takip et" />
-                </ComboBox>
-                <CheckBox x:Name="StartupBox" Content="Windows açılışında başlat" Margin="0,10,0,0" />
-
-                <TextBlock Text="Şehir (/hava, /ezan, /eczane)" Style="{StaticResource Heading}" />
-                <TextBox x:Name="WeatherCityBox" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="&quot;/hava&quot;, &quot;/ezan&quot; ve &quot;/eczane&quot; yalnız yazılınca kullanılacak şehir ya da ilçe, örn. İzmir. Boş bırakırsan hava için internet bağlantının konumu (yaklaşık), namaz vakitleri için İstanbul kullanılır." />
-
-                <TextBlock Text="Hızlı önizleme" Style="{StaticResource Heading}" />
-                <CheckBox x:Name="PreviewAlwaysOpenBox" Content="Önizlemeyi her zaman açık tut" />
-                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken önizleme Shift+Boşluk ile açılır ve kapanır. Dosya, klasör, resim, metin ve (Windows'ta önizleyicisi kuruluysa) PDF ve Office belgeleri ile pano, not ve yer imleri önizlenir." />
-
-                <TextBlock Text="Sıralama" Style="{StaticResource Heading}" />
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Öğrenilen sıralamayı sıfırla" Click="ResetLearning_OnClick" />
+        <!-- Sol menü -->
+        <Border Grid.Column="0" Background="{DynamicResource KeyCapBackground}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="14,20,14,14">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="6,0,0,22">
+                    <Image Source="pack://application:,,,/Assets/logo-64.png" Width="36" Height="36" />
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="LumoraGo" FontSize="17" FontWeight="SemiBold" />
+                        <TextBlock Text="Ayarlar" Foreground="{DynamicResource SecondaryText}" />
+                    </StackPanel>
                 </StackPanel>
-                <TextBlock x:Name="ResetLearningNote" Style="{StaticResource Note}" Text="LumoraGo hangi yazıda hangi sonucu seçtiğini öğrenir ve onu öne alır (&quot;ch&quot; yazıp hep Chrome'u seçiyorsan Chrome üstte çıkar). Eski seçimlerin etkisi zamanla azalır." />
+                <ListBox x:Name="NavList" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource NavItem}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="NavList_OnSelectionChanged">
+                    <ListBoxItem Tag="GeneralPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE713;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Genel" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="SearchPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE721;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Arama" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="ClipboardPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE77F;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Pano" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="ShortcutsPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE945;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Kısayollar ve zincirler" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="ContactsPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE77B;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Kişiler" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="GooglePage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE753;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Google" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="SpotifyPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8D6;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Spotify" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="AiPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE99A;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Yapay zekâ" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="MailPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE787;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Takvim ve mail" /></StackPanel></ListBoxItem>
+                </ListBox>
+            </DockPanel>
+        </Border>
 
-                <TextBlock Text="Pano geçmişi (/c)" Style="{StaticResource Heading}" />
-                <CheckBox x:Name="ClipboardBox" Content="Kopyaladıklarımı hatırla" />
-                <CheckBox x:Name="ClipboardPersistBox" Content="Kapatınca da hatırla (diske kaydet)" Margin="0,6,0,0"
-                          IsEnabled="{Binding IsChecked, ElementName=ClipboardBox}" />
-                <TextBlock Style="{StaticResource Note}" Text="İkinci kutu kapalıyken geçmiş sadece bellekte tutulur, LumoraGo kapanınca silinir. Açıkken son 200 kopya %LOCALAPPDATA%\LumoraGo\clipboard.json dosyasına yazılır. Kutuyu kapatınca dosya silinir; geçmişi tamamen kapatınca mevcut geçmiş de temizlenir." />
+        <!-- Sağ içerik -->
+        <DockPanel Grid.Column="1">
+            <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="28,12">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="İptal" IsCancel="True" />
+                        <Button x:Name="SaveButton" Content="Kaydet" IsDefault="True" Margin="0" Style="{StaticResource AccentButton}" Click="Save_OnClick" />
+                    </StackPanel>
+                    <TextBlock Text="Değişiklikler Kaydet'e basınca uygulanır." Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
 
-                <TextBlock Text="Derin arama (/ds) klasörleri" Style="{StaticResource Heading}" />
-                <ListBox x:Name="DeepFoldersList" />
-                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                    <Button Content="Klasör ekle" Click="AddDeepFolder_OnClick" />
-                    <Button Content="Kaldır" Click="RemoveDeepFolder_OnClick" />
-                </StackPanel>
-                <TextBlock Style="{StaticResource Note}" Text="Liste boşsa tüm sabit diskler (C:\, D:\...) aranır." />
+            <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto">
+                <Grid Margin="32,26,32,20">
 
-                <CheckBox x:Name="DeepIncludeSystemBox" Content="Sistem klasörlerini de ara (Windows, Program Files, AppData, node_modules, .git)" Margin="0,8,0,0" />
-                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken bu klasörler atlanır, arama hızlı biter. Açıkken C:\ içindeki her şey taranır, bu çok daha uzun sürer; $Recycle.Bin ve System Volume Information yine atlanır." />
+                    <!-- Genel -->
+                    <StackPanel x:Name="GeneralPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Genel" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Kısayol, görünüm ve günlük kullanım." Style="{StaticResource PageSubtitle}" />
 
-                <TextBlock Text="Derin aramada atlanacak klasör adları" Style="{StaticResource Heading}" />
-                <TextBox x:Name="SkipNamesBox" Padding="6,4" />
-                <TextBlock x:Name="DefaultSkipNote" Style="{StaticResource Note}" />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Açma kısayolu" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="HotkeyBox" IsReadOnly="True" Width="260" HorizontalAlignment="Left"
+                                         PreviewKeyDown="HotkeyBox_OnPreviewKeyDown" />
+                                <TextBlock Style="{StaticResource Note}" Text="Kutuya tıklayıp yeni tuş birleşimine bas (örn. Ctrl+Shift+Space)." />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Dosya arama (/f) ek klasörleri" Style="{StaticResource Heading}" />
-                <ListBox x:Name="FileFoldersList" />
-                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                    <Button Content="Klasör ekle" Click="AddFileFolder_OnClick" />
-                    <Button Content="Kaldır" Click="RemoveFileFolder_OnClick" />
-                </StackPanel>
-                <TextBlock Style="{StaticResource Note}" Text="Masaüstü, Belgeler, İndirilenler, Resimler, Videolar, Müzik ve OneDrive her zaman taranır." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Görünüm" Style="{StaticResource Heading}" />
+                                <ComboBox x:Name="ThemeBox" Width="260" HorizontalAlignment="Left">
+                                    <ComboBoxItem Content="Koyu" />
+                                    <ComboBoxItem Content="Açık" />
+                                    <ComboBoxItem Content="Windows'u takip et" />
+                                </ComboBox>
+                                <CheckBox x:Name="StartupBox" Content="Windows açılışında başlat" Margin="0,12,0,0" />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Özel kısayollar" Style="{StaticResource Heading}" />
-                <TextBox x:Name="CustomShortcutsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
-                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kısayol: &quot;kelime | hedef&quot; veya &quot;kelime | ad | hedef&quot;. Hedef bir site, dosya, klasör ya da uygulama olabilir. Hedefte {0} varsa kelimeden sonra yazılan metin oraya konur. Örnek: /okul | Okul portalı | https://okul.example.com, ekşi | https://eksisozluk.com/?q={0}" />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Şehir (/hava, /ezan, /eczane)" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="WeatherCityBox" />
+                                <TextBlock Style="{StaticResource Note}" Text="&quot;/hava&quot;, &quot;/ezan&quot; ve &quot;/eczane&quot; yalnız yazılınca kullanılacak şehir ya da ilçe, örn. İzmir. Boş bırakırsan hava için internet bağlantının konumu (yaklaşık), namaz vakitleri için İstanbul kullanılır." />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Eylem zincirleri" Style="{StaticResource Heading}" />
-                <TextBox x:Name="ScriptChainsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
-                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="Birkaç adımı tek isimde topla, launcher'da adını yazıp Enter'a bas. Her zincir [ad] satırıyla başlar, altına &quot;tür | değer&quot; adımları gelir. Türler: aç (dosya/klasör), uygulama, site, betik, ses (0-100), bekle (saniye), yaz (panoya), bildirim. Bir adım hata verirse zincir orada durur. Örnek: [çalışma] / uygulama | Visual Studio Code / site | https://github.com / ses | 30. Betikler için Ayarlar'a gerek yok: %LOCALAPPDATA%\LumoraGo\scripts klasörüne .ps1, .bat, .cmd ya da .py koyman yeter (&quot;betik&quot; yazınca klasör açılır)." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Hızlı önizleme" Style="{StaticResource Heading}" />
+                                <CheckBox x:Name="PreviewAlwaysOpenBox" Content="Önizlemeyi her zaman açık tut" />
+                                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken önizleme Shift+Boşluk ile açılır ve kapanır. Dosya, klasör, resim, metin ve (Windows'ta önizleyicisi kuruluysa) PDF ve Office belgeleri ile pano, not ve yer imleri önizlenir." />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Kişiler (/kisi)" Style="{StaticResource Heading}" />
-                <TextBlock x:Name="ContactsStatus" Margin="0,0,0,6" />
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Dosya seç" Click="ImportContacts_OnClick" />
-                    <Button Content="Kişileri sil" Click="ClearContacts_OnClick" />
-                </StackPanel>
-                <CheckBox x:Name="ContactsWatchBox" Content="Dosya değişince yeniden oku" Margin="0,8,0,0" />
-                <CheckBox x:Name="ContactsGlobalBox" Content="Adı yazınca /kisi olmadan da göster" Margin="0,6,0,0" />
-                <TextBlock Style="{StaticResource Note}" Text="Google Kişiler: contacts.google.com → Dışa aktar → vCard ya da Google CSV. iPhone: iCloud.com → Kişiler → hepsini seç → vCard'ı dışa aktar. Outlook: Kişiler → Dışa aktar (CSV). Kişiler şifreli (Windows hesabına bağlı) saklanır ve hiçbir yere gönderilmez. Enter numarayı kopyalar, Ctrl+Enter WhatsApp'ı, Shift+Enter yeni maili açar; sağ ok ile arama ve diğer numaralar." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Sıralama" Style="{StaticResource Heading}" />
+                                <Button Content="Öğrenilen sıralamayı sıfırla" HorizontalAlignment="Left" Click="ResetLearning_OnClick" />
+                                <TextBlock x:Name="ResetLearningNote" Style="{StaticResource Note}" Text="LumoraGo hangi yazıda hangi sonucu seçtiğini öğrenir ve onu öne alır (&quot;ch&quot; yazıp hep Chrome'u seçiyorsan Chrome üstte çıkar). Eski seçimlerin etkisi zamanla azalır." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-                <TextBlock Text="Google (Rehber, Fotoğraflar, Takvim, Görevler, Drive, YouTube)" Style="{StaticResource Heading}" />
-                <TextBlock x:Name="GoogleStatus" Margin="0,0,0,6" />
-                <TextBlock Text="İstemci kimliği (Client ID)" Margin="0,0,0,2" />
-                <TextBox x:Name="GoogleClientIdBox" Padding="6,4" />
-                <TextBlock Text="Gizli anahtar (Client secret)" Margin="0,8,0,2" />
-                <PasswordBox x:Name="GoogleClientSecretBox" Padding="6,4" />
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <Button x:Name="GoogleConnectButton" Content="Google ile bağlan" Click="ConnectGoogle_OnClick" />
-                    <Button x:Name="GoogleSyncButton" Content="Şimdi eşitle" Click="SyncGoogle_OnClick" />
-                    <Button x:Name="GoogleDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectGoogle_OnClick" />
-                </StackPanel>
-                <TextBlock Style="{StaticResource Note}" Text="Google kendi rehberine yalnızca kayıtlı uygulamaların erişmesine izin veriyor, bu yüzden bir kerelik kurulum gerekir: 1) console.cloud.google.com'da yeni proje aç. 2) API'ler ve Hizmetler → Kitaplık'ta şunların her birini aratıp Etkinleştir: People API, Google Photos Picker API, Google Calendar API, Google Tasks API, Google Drive API, YouTube Data API v3. 3) OAuth izin ekranı (Google Auth Platform): Harici seç, uygulama adı LumoraGo, kendi mailini yaz; Kitle bölümünde &quot;Uygulamayı yayınla&quot; de (Test modunda kalırsa bağlantı 7 günde bir kopar). 4) İstemciler → İstemci oluştur → Uygulama türü: Masaüstü uygulaması. 5) Çıkan istemci kimliğini ve gizli anahtarı buraya yapıştır, &quot;Google ile bağlan&quot;a bas. Tarayıcıda &quot;Google bu uygulamayı doğrulamadı&quot; uyarısında Gelişmiş → LumoraGo'ya git (güvenli değil) de; uygulama senin. İzin ekranındaki tüm kutucukları işaretle. Kişiler 3 saatte bir yenilenir; Google'da sildiğin kişi burada da silinir. Launcher'da: /foto, /takvim, /görev, /drive, /youtube." />
+                    <!-- Arama -->
+                    <StackPanel x:Name="SearchPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Arama" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Dosya (/f) ve derin arama (/ds) nerelere baksın." Style="{StaticResource PageSubtitle}" />
 
-                <TextBlock Text="Yapay zekâ (? soru, /ai)" Style="{StaticResource Heading}" />
-                <TextBlock Text="Claude API anahtarı" Margin="0,0,0,2" />
-                <PasswordBox x:Name="AnthropicKeyBox" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="Launcher'da &quot;? soru&quot; yazıp Enter'a basınca Claude yanıtlar; panoda metin varken /ai özetle, /ai çevir, /ai düzelt de çalışır. İstek yalnızca Enter'a basınca gider. Anahtar için console.anthropic.com → API Keys → Create Key; kullanım ücreti Anthropic hesabından düşer. Anahtar Windows hesabına bağlı şifreli dosyada tutulur. Kutuyu boşaltıp kaydedersen silinir." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Dosya arama (/f) ek klasörleri" Style="{StaticResource Heading}" />
+                                <ListBox x:Name="FileFoldersList" Style="{StaticResource FolderList}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Content="Klasör ekle" Click="AddFileFolder_OnClick" />
+                                    <Button Content="Kaldır" Click="RemoveFileFolder_OnClick" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Note}" Text="Masaüstü, Belgeler, İndirilenler, Resimler, Videolar, Müzik ve OneDrive her zaman taranır." />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Spotify (/spotify)" Style="{StaticResource Heading}" />
-                <TextBlock x:Name="SpotifyStatus" Margin="0,0,0,6" />
-                <TextBlock Text="Client ID" Margin="0,0,0,2" />
-                <TextBox x:Name="SpotifyClientIdBox" Padding="6,4" />
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <Button x:Name="SpotifyConnectButton" Content="Spotify ile bağlan" Click="ConnectSpotify_OnClick" />
-                    <Button x:Name="SpotifyDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectSpotify_OnClick" />
-                </StackPanel>
-                <TextBlock Style="{StaticResource Note}" Text="Bağlamadan da çalışır: /spotify tarkan aramayı Spotify uygulamasında açar, /spotify sonraki şarkı geçer. Bağlarsan sonuçlar launcher'da listelenir ve Enter çalar (çalmak için Premium gerekir). Bir kerelik kurulum: 1) developer.spotify.com/dashboard'a Spotify hesabınla gir, Create app de. 2) App name: LumoraGo, açıklamaya herhangi bir şey yaz. 3) Redirect URIs kutusuna tam olarak http://127.0.0.1:8975/callback yaz ve Add'e bas. 4) &quot;Which API/SDKs are you planning to use?&quot; altında Web API'yi işaretle, kaydet. 5) Uygulamanın Settings sayfasındaki Client ID'yi buraya yapıştırıp &quot;Spotify ile bağlan&quot;a bas, tarayıcıda Agree de. Gizli anahtar (Client secret) gerekmez." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Derin arama (/ds) klasörleri" Style="{StaticResource Heading}" />
+                                <ListBox x:Name="DeepFoldersList" Style="{StaticResource FolderList}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Content="Klasör ekle" Click="AddDeepFolder_OnClick" />
+                                    <Button Content="Kaldır" Click="RemoveDeepFolder_OnClick" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Note}" Text="Liste boşsa tüm sabit diskler (C:\, D:\...) aranır." />
+                                <CheckBox x:Name="DeepIncludeSystemBox" Content="Sistem klasörlerini de ara (Windows, Program Files, AppData, node_modules, .git)" Margin="0,14,0,0" />
+                                <TextBlock Style="{StaticResource Note}" Text="Kapalıyken bu klasörler atlanır, arama hızlı biter. Açıkken C:\ içindeki her şey taranır, bu çok daha uzun sürer; $Recycle.Bin ve System Volume Information yine atlanır." />
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Takvim (/takvim)" Style="{StaticResource Heading}" />
-                <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
-                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                         FontFamily="Cascadia Mono, Consolas" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir takvimin gizli ICS adresi. Google Takvim: takvim ayarları → &quot;Takvimi entegre et&quot; → &quot;iCal biçiminde gizli adres&quot;. Outlook.com: Ayarlar → Takvim → Paylaşılan takvimler → Takvim yayımla → ICS bağlantısı. Adresi bilen herkes takvimi okuyabilir; bu yüzden şifreli (Windows hesabına bağlı) saklanır ve yalnızca takvim indirmek için kullanılır." />
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Derin aramada atlanacak klasör adları" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="SkipNamesBox" />
+                                <TextBlock x:Name="DefaultSkipNote" Style="{StaticResource Note}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-                <TextBlock Text="Mail (/mail)" Style="{StaticResource Heading}" />
-                <TextBlock Text="Mail adresi" Margin="0,0,0,2" />
-                <TextBox x:Name="MailAddressBox" Padding="6,4" />
-                <TextBlock Text="Şifre (Gmail için uygulama şifresi)" Margin="0,8,0,2" />
-                <PasswordBox x:Name="MailPasswordBox" Padding="6,4" />
-                <TextBlock x:Name="MailPasswordNote" Style="{StaticResource Note}" />
-                <TextBlock Text="IMAP sunucusu (Gmail, Yahoo, Yandex, iCloud için boş bırak)" Margin="0,8,0,2" />
-                <TextBox x:Name="MailServerBox" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="Gmail: Google hesabında 2 adımlı doğrulamayı aç, myaccount.google.com/apppasswords adresinden bir uygulama şifresi üret ve buraya yapıştır; normal şifren çalışmaz. Gmail'de IMAP'in açık olması gerekir (Ayarlar → Tüm ayarlar → Yönlendirme ve POP/IMAP). Outlook, Hotmail ve Microsoft 365 desteklenmiyor. Mailler okundu işaretlenmez, yalnızca gönderen ve konu okunur. Şifre Windows hesabına bağlı şifreli dosyada tutulur. Adresi boşaltıp kaydedersen hesap silinir." />
-            </StackPanel>
-        </ScrollViewer>
-    </DockPanel>
+                    <!-- Pano -->
+                    <StackPanel x:Name="ClipboardPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Pano" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Kopyaladıklarını /c ile geri getir." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Pano geçmişi (/c)" Style="{StaticResource Heading}" />
+                                <CheckBox x:Name="ClipboardBox" Content="Kopyaladıklarımı hatırla" />
+                                <CheckBox x:Name="ClipboardPersistBox" Content="Kapatınca da hatırla (diske kaydet)" Margin="0,6,0,0"
+                                          IsEnabled="{Binding IsChecked, ElementName=ClipboardBox}" />
+                                <TextBlock Style="{StaticResource Note}" Text="İkinci kutu kapalıyken geçmiş sadece bellekte tutulur, LumoraGo kapanınca silinir. Açıkken son 200 kopya %LOCALAPPDATA%\LumoraGo\clipboard.json dosyasına yazılır. Kutuyu kapatınca dosya silinir; geçmişi tamamen kapatınca mevcut geçmiş de temizlenir." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Kısayollar -->
+                    <StackPanel x:Name="ShortcutsPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Kısayollar ve zincirler" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Kendi kelimelerin ve tek isimle çalışan adım dizileri." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Özel kısayollar" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="CustomShortcutsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="140"
+                                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Mono, Consolas" />
+                                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kısayol: &quot;kelime | hedef&quot; veya &quot;kelime | ad | hedef&quot;. Hedef bir site, dosya, klasör ya da uygulama olabilir. Hedefte {0} varsa kelimeden sonra yazılan metin oraya konur.&#10;Örnek: /okul | Okul portalı | https://okul.example.com&#10;Örnek: ekşi | https://eksisozluk.com/?q={0}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Eylem zincirleri" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="ScriptChainsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="160"
+                                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Mono, Consolas" />
+                                <TextBlock Style="{StaticResource Note}" Text="Birkaç adımı tek isimde topla, launcher'da adını yazıp Enter'a bas. Her zincir [ad] satırıyla başlar, altına &quot;tür | değer&quot; adımları gelir. Türler: aç (dosya/klasör), uygulama, site, betik, ses (0-100), bekle (saniye), yaz (panoya), bildirim. Bir adım hata verirse zincir orada durur.&#10;Örnek: [çalışma] / uygulama | Visual Studio Code / site | https://github.com / ses | 30&#10;Betikler için Ayarlar'a gerek yok: %LOCALAPPDATA%\LumoraGo\scripts klasörüne .ps1, .bat, .cmd ya da .py koyman yeter (&quot;betik&quot; yazınca klasör açılır)." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Kişiler -->
+                    <StackPanel x:Name="ContactsPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Kişiler" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="/kisi ile ara, kopyala, WhatsApp'tan yaz." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Rehber" Style="{StaticResource Heading}" />
+                                <TextBlock x:Name="ContactsStatus" Style="{StaticResource Status}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Dosya seç" Click="ImportContacts_OnClick" />
+                                    <Button Content="Kişileri sil" Click="ClearContacts_OnClick" />
+                                </StackPanel>
+                                <CheckBox x:Name="ContactsWatchBox" Content="Dosya değişince yeniden oku" Margin="0,12,0,0" />
+                                <CheckBox x:Name="ContactsGlobalBox" Content="Adı yazınca /kisi olmadan da göster" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Dosyadan aktarma" Style="{StaticResource Heading}" />
+                                <TextBlock Style="{StaticResource Note}" Margin="0" Text="Google Kişiler: contacts.google.com → Dışa aktar → vCard ya da Google CSV.&#10;iPhone: iCloud.com → Kişiler → hepsini seç → vCard'ı dışa aktar.&#10;Outlook: Kişiler → Dışa aktar (CSV).&#10;Kişiler şifreli (Windows hesabına bağlı) saklanır ve hiçbir yere gönderilmez. Enter numarayı kopyalar, Ctrl+Enter WhatsApp'ı, Shift+Enter yeni maili açar; sağ ok ile arama ve diğer numaralar.&#10;Google hesabını bağlarsan kişiler kendiliğinden gelir (Google bölümü)." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Google -->
+                    <StackPanel x:Name="GooglePage" Style="{StaticResource Page}">
+                        <TextBlock Text="Google" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Rehber, Fotoğraflar, Takvim, Görevler, Drive ve YouTube. Launcher'da: /foto, /takvim, /görev, /drive, /youtube." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Bağlantı" Style="{StaticResource Heading}" />
+                                <TextBlock x:Name="GoogleStatus" Style="{StaticResource Status}" />
+                                <TextBlock Text="İstemci kimliği (Client ID)" Style="{StaticResource Label}" />
+                                <TextBox x:Name="GoogleClientIdBox" />
+                                <TextBlock Text="Gizli anahtar (Client secret)" Style="{StaticResource Label}" />
+                                <PasswordBox x:Name="GoogleClientSecretBox" />
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <Button x:Name="GoogleConnectButton" Content="Google ile bağlan" Style="{StaticResource AccentButton}" Click="ConnectGoogle_OnClick" />
+                                    <Button x:Name="GoogleSyncButton" Content="Şimdi eşitle" Click="SyncGoogle_OnClick" />
+                                    <Button x:Name="GoogleDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectGoogle_OnClick" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Note}" Text="Kişiler 3 saatte bir yenilenir; Google'da sildiğin kişi burada da silinir." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Bir kerelik kurulum" Style="{StaticResource Heading}" />
+                                <TextBlock Style="{StaticResource Note}" Margin="0" Text="Google verine yalnızca kayıtlı uygulamaların erişmesine izin veriyor, bu yüzden bir kerelik kurulum gerekir.&#10;1) console.cloud.google.com'da yeni proje aç.&#10;2) API'ler ve Hizmetler → Kitaplık'ta şunların her birini aratıp Etkinleştir: People API, Google Photos Picker API, Google Calendar API, Google Tasks API, Google Drive API, YouTube Data API v3.&#10;3) OAuth izin ekranı (Google Auth Platform): Harici seç, uygulama adı LumoraGo, kendi mailini yaz; Kitle bölümünde &quot;Uygulamayı yayınla&quot; de (Test modunda kalırsa bağlantı 7 günde bir kopar).&#10;4) İstemciler → İstemci oluştur → Uygulama türü: Masaüstü uygulaması.&#10;5) Çıkan istemci kimliğini ve gizli anahtarı yukarı yapıştır, &quot;Google ile bağlan&quot;a bas.&#10;Tarayıcıda &quot;Google bu uygulamayı doğrulamadı&quot; uyarısında Gelişmiş → LumoraGo'ya git (güvenli değil) de; uygulama senin. İzin ekranındaki tüm kutucukları işaretle." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Spotify -->
+                    <StackPanel x:Name="SpotifyPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Spotify" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="/spotify ile ara, çal ve şarkı geç." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Bağlantı" Style="{StaticResource Heading}" />
+                                <TextBlock x:Name="SpotifyStatus" Style="{StaticResource Status}" />
+                                <TextBlock Text="Client ID" Style="{StaticResource Label}" />
+                                <TextBox x:Name="SpotifyClientIdBox" />
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <Button x:Name="SpotifyConnectButton" Content="Spotify ile bağlan" Style="{StaticResource AccentButton}" Click="ConnectSpotify_OnClick" />
+                                    <Button x:Name="SpotifyDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectSpotify_OnClick" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Note}" Text="Bağlamadan da çalışır: /spotify tarkan aramayı Spotify uygulamasında açar, /spotify sonraki şarkı geçer. Bağlarsan sonuçlar launcher'da listelenir ve Enter çalar (çalmak için Premium gerekir)." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Bir kerelik kurulum" Style="{StaticResource Heading}" />
+                                <TextBlock Style="{StaticResource Note}" Margin="0" Text="1) developer.spotify.com/dashboard'a Spotify hesabınla gir, Create app de.&#10;2) App name: LumoraGo, açıklamaya herhangi bir şey yaz.&#10;3) Redirect URIs kutusuna tam olarak http://127.0.0.1:8975/callback yaz ve Add'e bas.&#10;4) &quot;Which API/SDKs are you planning to use?&quot; altında Web API'yi işaretle, kaydet.&#10;5) Uygulamanın Settings sayfasındaki Client ID'yi yukarı yapıştırıp &quot;Spotify ile bağlan&quot;a bas, tarayıcıda Agree de.&#10;Gizli anahtar (Client secret) gerekmez." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Yapay zekâ -->
+                    <StackPanel x:Name="AiPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Yapay zekâ" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="&quot;? soru&quot; ve /ai özetle, çevir, düzelt." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Claude API anahtarı" Style="{StaticResource Heading}" />
+                                <PasswordBox x:Name="AnthropicKeyBox" />
+                                <TextBlock Style="{StaticResource Note}" Text="Launcher'da &quot;? soru&quot; yazıp Enter'a basınca Claude yanıtlar; panoda metin varken /ai özetle, /ai çevir, /ai düzelt de çalışır. İstek yalnızca Enter'a basınca gider.&#10;Anahtar için console.anthropic.com → API Keys → Create Key; kullanım ücreti Anthropic hesabından düşer (Claude Pro aboneliği API'yi kapsamaz).&#10;Anahtar Windows hesabına bağlı şifreli dosyada tutulur. Kutuyu boşaltıp kaydedersen silinir." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Takvim ve mail -->
+                    <StackPanel x:Name="MailPage" Style="{StaticResource Page}">
+                        <TextBlock Text="Takvim ve mail" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="ICS takvimleri ve IMAP ile gelen kutusu." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Takvim adresleri (/takvim)" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
+                                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Mono, Consolas" />
+                                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir takvimin gizli ICS adresi. Google hesabını bağladıysan buna gerek yok.&#10;Google Takvim: takvim ayarları → &quot;Takvimi entegre et&quot; → &quot;iCal biçiminde gizli adres&quot;.&#10;Outlook.com: Ayarlar → Takvim → Paylaşılan takvimler → Takvim yayımla → ICS bağlantısı.&#10;Adresi bilen herkes takvimi okuyabilir; bu yüzden şifreli (Windows hesabına bağlı) saklanır ve yalnızca takvim indirmek için kullanılır." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Mail (/mail)" Style="{StaticResource Heading}" />
+                                <TextBlock Text="Mail adresi" Style="{StaticResource Label}" Margin="0,0,0,4" />
+                                <TextBox x:Name="MailAddressBox" />
+                                <TextBlock Text="Şifre (Gmail için uygulama şifresi)" Style="{StaticResource Label}" />
+                                <PasswordBox x:Name="MailPasswordBox" />
+                                <TextBlock x:Name="MailPasswordNote" Style="{StaticResource Note}" />
+                                <TextBlock Text="IMAP sunucusu (Gmail, Yahoo, Yandex, iCloud için boş bırak)" Style="{StaticResource Label}" />
+                                <TextBox x:Name="MailServerBox" />
+                                <TextBlock Style="{StaticResource Note}" Text="Gmail: Google hesabında 2 adımlı doğrulamayı aç, myaccount.google.com/apppasswords adresinden bir uygulama şifresi üret ve buraya yapıştır; normal şifren çalışmaz. Gmail'de IMAP'in açık olması gerekir (Ayarlar → Tüm ayarlar → Yönlendirme ve POP/IMAP).&#10;Outlook, Hotmail ve Microsoft 365 desteklenmiyor. Mailler okundu işaretlenmez, yalnızca gönderen ve konu okunur. Şifre Windows hesabına bağlı şifreli dosyada tutulur. Adresi boşaltıp kaydedersen hesap silinir." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </DockPanel>
+    </Grid>
 </Window>

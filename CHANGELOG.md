@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.29.0
+- Ayarlar penceresi yenilendi: daha büyük, solda bölümler menüsü (Genel, Arama, Pano, Kısayollar, Kişiler, Google, Spotify, Yapay zekâ, Takvim ve mail) ve kartlar halinde düzen
+- Google ve Spotify kurulum adımları ayrı bir kartta, satır satır okunur halde
+
 ## 0.28.0
 - Yeni: ekrandan metin. /ocr (ya da /yazı) yazıp Enter'a bas, ekranda bir bölge seç; içindeki yazı panoya kopyalanır. Windows'un kendi metin tanıması kullanılır, internete bir şey gitmez
 - Yeni: yapay zekâ. "? soru" ya da "/ai soru" yazıp Enter'a basınca Claude yanıtlar, yanıt listede görünür (Enter kopyalar, Ctrl+Enter yapıştırır, Shift+Boşluk tamamını gösterir)

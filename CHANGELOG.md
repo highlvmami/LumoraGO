@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.22.1
+- Google Rehber: Google girişinde kişileri görme kutucuğu işaretsiz bırakılırsa artık "0 kişi" yerine bunu açıkça söyler ve kutucuğu işaretleyip yeniden bağlanmanı ister
+- Google bir hata döndürdüğünde kendi açıklaması da Ayarlar'da ve kayıtta görünür
+
 ## 0.22.0
 - Google Rehber: Ayarlar → Kişiler → "Google ile bağlan" ile Google Kişiler'deki herkes (ad, telefonlar, mailler, şirket) LumoraGo'ya gelir ve 3 saatte bir kendiliğinden yenilenir. Google'da eklediğin, değiştirdiğin ya da sildiğin kişi burada da güncellenir
 - Yalnızca okuma izni istenir, Google Rehber'inde hiçbir şey değişmez. Bağlantı bilgisi Windows hesabına bağlı şifreli dosyada tutulur; "Bağlantıyı kes" Google'dan gelen kişileri LumoraGo'dan siler

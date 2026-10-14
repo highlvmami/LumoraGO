@@ -3,9 +3,6 @@ name: Screenshots
 # README'deki ekran görüntülerini yeniler: uygulamayı temiz bir Windows'ta açıp docs/screenshots'a kaydeder ve dala gönderir.
 on:
   workflow_dispatch:
-  push:
-    branches: [claude/project-thread-y0qsg3]
-    paths: [tools/screenshots.ps1, .github/workflows/screenshots.yml]
 
 permissions:
   contents: write

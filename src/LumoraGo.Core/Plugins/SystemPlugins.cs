@@ -129,7 +129,7 @@ public static class SystemPlugins
             var sizeText = ProcessKillPlugin.FormatBytes(size);
             if (target.Clean is null)
             {
-                results.Add(new Result($"{target.Name} · {sizeText}", $"{target.Hint} · Enter ile aç", InfoPlugins.EmojiPrefix + target.Emoji, 900 - i, _ =>
+                results.Add(new Result(size > 0 ? $"{target.Name} · {sizeText}" : target.Name, $"{target.Hint} · Enter ile aç", InfoPlugins.EmojiPrefix + target.Emoji, 900 - i, _ =>
                 {
                     target.Open?.Invoke();
                     return true;

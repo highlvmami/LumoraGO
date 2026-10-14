@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.30.1
+- Döviz kurları açılışta arka planda yüklenir; ilk "100 usd tl" yazışında artık "yükleniyor" çıkmaz
+- /temizle'de Windows Disk Temizleme satırında anlamsız "0 KB" yazmıyor
+- README yenilendi: ekran görüntüleri ve komutların kategorili listesi
+
 ## 0.30.0
 - Yeni: /sistem işlemci, bellek, disk ve pil durumunu kartlarla gösterir; en çok bellek kullanan uygulamalar da listelenir (Enter ile /kill'e geçer)
 - Yeni: /temizle geçici dosyaların, Geri Dönüşüm Kutusu'nun, tarayıcı önbelleklerinin ve hata raporlarının kapladığı yeri gösterir; Enter temizler. İndirilenler'e dokunulmaz, yalnızca açılır

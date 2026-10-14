@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.22.2
+- Google Rehber: adında emoji ya da bozuk karakter olan bir kişi eşitlemeyi durduruyor ve Ayarlar "okunuyor…" yazısında takılı kalıyordu; düzeldi
+- Eşitleme beklenmedik bir hatayla durursa artık Ayarlar'da hatanın kendisi yazar
+
 ## 0.22.1
 - Google Rehber: Google girişinde kişileri görme kutucuğu işaretsiz bırakılırsa artık "0 kişi" yerine bunu açıkça söyler ve kutucuğu işaretleyip yeniden bağlanmanı ister
 - "Bağlantıyı kes" artık istemci kimliğini ve gizli anahtarı silmez; yeniden bağlanırken tekrar girmen gerekmez

@@ -181,6 +181,12 @@ internal partial class SettingsWindow : Window
             ShowContactsStatus();
             GoogleStatus.Text += $" ({message})";
         }
+        catch (Exception ex)
+        {
+            // Beklenmeyen hata "okunuyor…" yazısında takılı kalmasın.
+            ShowGoogleStatus();
+            GoogleStatus.Text += $" (beklenmeyen hata: {ex.GetType().Name}: {ex.Message})";
+        }
         finally
         {
             button.IsEnabled = true;

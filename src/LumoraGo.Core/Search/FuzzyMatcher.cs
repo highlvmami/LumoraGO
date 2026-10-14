@@ -146,7 +146,8 @@ public static class FuzzyMatcher
         }
 
         var lower = char.ToLowerInvariant(c);
-        if (lower < 128)
+        // Emoji gibi vekil çiftlerin yarıları tek başına normalize edilemez.
+        if (lower < 128 || char.IsSurrogate(lower))
         {
             return lower;
         }

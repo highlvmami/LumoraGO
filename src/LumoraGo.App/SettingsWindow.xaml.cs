@@ -77,6 +77,22 @@ internal partial class SettingsWindow : Window
 
         DefaultSkipNote.Text = "Virgülle ayır. Bunlar her zaman atlanır: "
             + string.Join(", ", DeepSearchOptions.DefaultSkipDirectoryNames.Order(StringComparer.OrdinalIgnoreCase));
+        NavList.SelectedIndex = 0;
+    }
+
+    /// <summary>Soldaki menüde seçilen bölümü gösterir; Tag, sayfanın x:Name'idir.</summary>
+    private void NavList_OnSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        var selected = (NavList.SelectedItem as System.Windows.Controls.ListBoxItem)?.Tag as string;
+        foreach (System.Windows.Controls.ListBoxItem item in NavList.Items)
+        {
+            if (item.Tag is string name && FindName(name) is UIElement page)
+            {
+                page.Visibility = name == selected ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        ContentScroll?.ScrollToTop();
     }
 
     private static void Fill(System.Windows.Controls.ListBox list, IEnumerable<string> items)

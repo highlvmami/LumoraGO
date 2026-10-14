@@ -71,10 +71,14 @@ public partial class App : Application
     private Timer? _reminderTimer;
     private GoogleContactSync? _googleContacts;
     private Timer? _googleContactsTimer;
+    private Timer? _gmailTimer;
+    private GmailWatcher? _gmailWatcher;
     private static readonly TimeSpan ReminderFirstCheck = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan ReminderInterval = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan GoogleContactsFirstSync = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan GoogleContactsInterval = TimeSpan.FromHours(3);
+    private static readonly TimeSpan GmailFirstCheck = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan GmailInterval = TimeSpan.FromMinutes(2);
     private ContactsWatcher? _contactsWatcher;
     private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
@@ -135,6 +139,9 @@ public partial class App : Application
         var assistant = new ClaudeAssistant(secrets);
         var googleCalendar = new GoogleCalendar(google);
         var googleTasks = new GoogleTasks(google);
+        var gmail = new Gmail(google);
+        _gmailWatcher = new GmailWatcher(ct => gmail.SearchAsync(Gmail.UnreadQuery + " newer_than:2d", 15, ct));
+        _gmailTimer = new Timer(_ => _ = CheckGmailAsync(google), null, GmailFirstCheck, GmailInterval);
         var youtube = new YouTubeLibrary(google, Path.Combine(DataRoot, "cache", "youtube.json"), _log);
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
@@ -229,6 +236,10 @@ public partial class App : Application
                 .. ToolPlugin.All().Select(t => new PluginEntry(t.Metadata, t)),
                 new PluginEntry(ProcessKillPlugin.Metadata, new ProcessKillPlugin(ProcessService.List, ProcessService.Kill)),
                 new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(media)),
+                .. SystemPlugins.Create(
+                    SystemManagement.SnapshotAsync, () => SystemManagement.CleanupTargets(OpenPath),
+                    SystemManagement.StartupItems, SystemManagement.SetStartupEnabled,
+                    SystemManagement.OpenTaskManager, SystemManagement.OpenStartupSettings),
                 .. new[] { "/spotify", "/sp", "/müzik", "/muzik" }.Select(keyword =>
                 {
                     var plugin = new SpotifyPlugin(spotify, media, OpenSpotify, () => Dispatcher.BeginInvoke(OpenSettings), keyword);
@@ -244,6 +255,11 @@ public partial class App : Application
                     googleTasks, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings), k))),
                 DriveEntry(DriveSearch.Create(new GoogleDrive(google), () => google.IsConnected, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 new PluginEntry(YouTubePlugin.Metadata, new YouTubePlugin(youtube, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                GmailEntry(GmailPlugin.Create(gmail, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                .. WebInfoPlugins.Create(
+                    new NewsService(Http), () => _settings.Current.NewsFeeds.Select(NewsFeed.Parse).OfType<NewsFeed>().ToList(),
+                    new MovieService(Http, () => secrets.Current.TmdbApiKey), new Translator(Http),
+                    ClipboardText, PasteText, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings)),
                 new PluginEntry(MailPlugin.Metadata, new MailPlugin(
                     () => secrets.Current.Mail, ImapClient.ConnectTlsAsync, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 .. InfoPlugins.Create(
@@ -461,6 +477,48 @@ public partial class App : Application
 
     /// <summary>Vakti gelen hatırlatıcıları tepside gösterir; LumoraGo kapalıyken kaçanlar açılıştan hemen sonra gelir.</summary>
     /// <returns>Ayarlar penceresinde gösterilecek sonuç.</returns>
+    private static PluginEntry GmailEntry(LiveLookupPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private int _gmailChecking;
+    private bool _gmailWarned;
+
+    /// <summary>Gmail'de yeni okunmamış mail varsa tepside bildirir; tıklayınca mail açılır.</summary>
+    private async Task CheckGmailAsync(GoogleApi google)
+    {
+        if (!google.IsConnected || _settings?.Current.GmailNotify != true || _gmailWatcher is null || Interlocked.Exchange(ref _gmailChecking, 1) == 1)
+        {
+            return;
+        }
+
+        try
+        {
+            var fresh = await _gmailWatcher.CheckAsync(CancellationToken.None);
+            if (fresh.Count == 1)
+            {
+                var m = fresh[0];
+                await Dispatcher.BeginInvoke(() => _tray?.ShowBalloon($"Yeni mail: {m.From}", m.Subject, () => OpenUrl(m.Url)));
+            }
+            else if (fresh.Count > 1)
+            {
+                var text = string.Join(Environment.NewLine, fresh.Take(3).Select(m => $"{m.From}: {m.Subject}"));
+                await Dispatcher.BeginInvoke(() => _tray?.ShowBalloon($"{fresh.Count} yeni mail", text, () => OpenUrl("https://mail.google.com/mail/u/0/#inbox")));
+            }
+        }
+        catch (Exception ex) when (ex is GoogleException or System.Net.Http.HttpRequestException)
+        {
+            // İzin verilmemişse (eski bağlantı) her iki dakikada bir log yazmasın.
+            if (!_gmailWarned)
+            {
+                _gmailWarned = true;
+                _log?.Warn($"Gmail kontrol edilemedi: {ex.Message}");
+            }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _gmailChecking, 0);
+        }
+    }
+
     private async Task<string> SyncGoogleContactsAsync()
     {
         try
@@ -1002,6 +1060,7 @@ public partial class App : Application
         _contactsWatcher?.Dispose();
         _reminderTimer?.Dispose();
         _googleContactsTimer?.Dispose();
+        _gmailTimer?.Dispose();
         _clipboardPersistence?.Dispose();
         _timers?.Dispose();
         _fileIndexTimer?.Dispose();

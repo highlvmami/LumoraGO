@@ -22,6 +22,9 @@ public sealed record AccountSecrets
 
     /// <summary>Yapay zekâ (Claude) için kullanıcının kendi API anahtarı.</summary>
     public string? AnthropicApiKey { get; init; }
+
+    /// <summary>"/film" için themoviedb.org API anahtarı (v3 anahtarı ya da okuma erişim anahtarı).</summary>
+    public string? TmdbApiKey { get; init; }
 }
 
 /// <summary>Kullanıcının Spotify geliştirici panelinde oluşturduğu uygulamanın kimliği ve girişten sonra alınan yenileme anahtarı.</summary>

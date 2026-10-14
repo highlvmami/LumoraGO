@@ -56,6 +56,12 @@ public sealed record LauncherSettings
 
     /// <summary>Kişi dosyası değişince yeniden içe aktar.</summary>
     public bool ContactsWatch { get; init; }
+
+    /// <summary>"/haber" kaynakları, her satır "Ad | RSS adresi".</summary>
+    public IReadOnlyList<string> NewsFeeds { get; init; } = Info.NewsFeed.Defaults;
+
+    /// <summary>Google bağlıyken Gmail'e yeni mail gelince bildirim göster.</summary>
+    public bool GmailNotify { get; init; } = true;
 }
 
 /// <summary>Ayarları JSON dosyasında tutar. Dosya bozuksa varsayılanlarla açılır.</summary>

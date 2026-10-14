@@ -41,8 +41,30 @@ internal sealed class TrayIcon : IDisposable
 
     public void ShowBalloon(string title, string text, ToolTipIcon icon = ToolTipIcon.Info)
     {
+        _balloonClick = null;
         _icon.ShowBalloonTip(3000, title, text, icon);
     }
+
+    /// <summary>Tıklanınca <paramref name="onClick"/> çalışan bildirim (yeni mail gibi).</summary>
+    public void ShowBalloon(string title, string text, Action onClick)
+    {
+        if (!_balloonHooked)
+        {
+            _balloonHooked = true;
+            _icon.BalloonTipClicked += (_, _) =>
+            {
+                var click = _balloonClick;
+                _balloonClick = null;
+                click?.Invoke();
+            };
+        }
+
+        _icon.ShowBalloonTip(5000, title, text, ToolTipIcon.Info);
+        _balloonClick = onClick;
+    }
+
+    private Action? _balloonClick;
+    private bool _balloonHooked;
 
     /// <summary>LumoraGo logosu, tepsinin küçük simge boyutunda (bulanık ölçekleme olmasın diye .ico'nun doğru boyutu).</summary>
     private static Icon LoadIcon()

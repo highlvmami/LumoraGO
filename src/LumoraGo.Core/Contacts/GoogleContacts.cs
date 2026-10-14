@@ -18,7 +18,7 @@ public static class GoogleContacts
 {
     public const string Scope = "https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/userinfo.email "
         + Photos.GooglePhotosPicker.Scope + " " + Google.GoogleCalendar.Scope + " " + Google.GoogleTasks.Scope + " "
-        + Google.GoogleDrive.Scope + " " + Google.YouTubeLibrary.Scope;
+        + Google.GoogleDrive.Scope + " " + Google.YouTubeLibrary.Scope + " " + Google.Gmail.Scope;
     private const string AuthEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
     private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
     private const string ConnectionsEndpoint = "https://people.googleapis.com/v1/people/me/connections";

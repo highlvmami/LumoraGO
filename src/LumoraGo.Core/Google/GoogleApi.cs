@@ -15,6 +15,7 @@ public sealed record GoogleService(string Name, string ApiName)
     public static readonly GoogleService Tasks = new("Google Görevler", "Google Tasks API");
     public static readonly GoogleService Drive = new("Google Drive", "Google Drive API");
     public static readonly GoogleService YouTube = new("YouTube", "YouTube Data API v3");
+    public static readonly GoogleService Gmail = new("Gmail", "Gmail API");
 }
 
 /// <summary>

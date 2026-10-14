@@ -2,6 +2,15 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.30.0
+- Yeni: /sistem işlemci, bellek, disk ve pil durumunu kartlarla gösterir; en çok bellek kullanan uygulamalar da listelenir (Enter ile /kill'e geçer)
+- Yeni: /temizle geçici dosyaların, Geri Dönüşüm Kutusu'nun, tarayıcı önbelleklerinin ve hata raporlarının kapladığı yeri gösterir; Enter temizler. İndirilenler'e dokunulmaz, yalnızca açılır
+- Yeni: /başlangıç Windows açılışında başlayan uygulamaları listeler; Enter açar ya da kapatır (Görev Yöneticisi'ndeki gibi)
+- Yeni: /haber seçtiğin sitelerin son başlıklarını gösterir (BBC Türkçe, NTV, TRT Haber, DW, Webtekno hazır). /haber bbc tek kaynak, /haber deprem kelimeyle süzer. Kaynaklar Ayarlar → İnternet'ten değişir
+- Yeni: /film ve /dizi puanı, türü, özeti ve Türkiye'de hangi platformda olduğunu gösterir. themoviedb.org'dan ücretsiz anahtar gerekir (Ayarlar → İnternet)
+- Yeni: /çevir yazdığını çevirir (Türkçeyi İngilizceye, diğerlerini Türkçeye); boş bırakınca panodakini çevirir. /çevir de günaydın gibi hedef dil de seçilebilir. Enter kopyalar, Ctrl+Enter yapıştırır
+- Yeni: /gmail okunmamışları gösterir, yazınca Gmail'in tamamında arar (from:ali, has:attachment da çalışır). Yeni mail gelince bildirim çıkar, tıklayınca mail açılır. Google Cloud'da Gmail API'yi açıp Google'a yeniden bağlanmak gerekir
+
 ## 0.29.0
 - Ayarlar penceresi yenilendi: daha büyük, solda bölümler menüsü (Genel, Arama, Pano, Kısayollar, Kişiler, Google, Spotify, Yapay zekâ, Takvim ve mail) ve kartlar halinde düzen
 - Google ve Spotify kurulum adımları ayrı bir kartta, satır satır okunur halde

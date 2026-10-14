@@ -4,6 +4,7 @@ using LumoraGo.App.Services;
 using LumoraGo.Core.Accounts;
 using LumoraGo.Core.Contacts;
 using LumoraGo.Core.DeepSearch;
+using LumoraGo.Core.Info;
 using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Settings;
 
@@ -66,6 +67,9 @@ internal partial class SettingsWindow : Window
         ShowGoogleStatus();
         SpotifyClientIdBox.Text = secrets.Current.Spotify?.ClientId ?? "";
         AnthropicKeyBox.Password = secrets.Current.AnthropicApiKey ?? "";
+        TmdbKeyBox.Password = secrets.Current.TmdbApiKey ?? "";
+        NewsFeedsBox.Text = string.Join(Environment.NewLine, s.NewsFeeds);
+        GmailNotifyBox.IsChecked = s.GmailNotify;
         ShowSpotifyStatus();
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
@@ -358,10 +362,21 @@ internal partial class SettingsWindow : Window
             StartupRegistration.SetEnabled(StartupBox.IsChecked == true);
         }
 
-        var anthropicKey = AnthropicKeyBox.Password.Trim() is { Length: > 0 } key ? key : null;
-        if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail || anthropicKey != _secrets.Current.AnthropicApiKey)
+        var newsLines = NewsFeedsBox.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        var badFeeds = newsLines.Where(l => NewsFeed.Parse(l) is null).ToList();
+        if (badFeeds.Count > 0)
         {
-            _secrets.Save(_secrets.Current with { CalendarUrls = calendarUrls, Mail = mail, AnthropicApiKey = anthropicKey });
+            MessageBox.Show(this, "Şu satırlar okunamadı (\"Ad | https://…\" biçiminde olmalı):" + Environment.NewLine + string.Join(Environment.NewLine, badFeeds),
+                "Haber kaynakları", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var anthropicKey = AnthropicKeyBox.Password.Trim() is { Length: > 0 } key ? key : null;
+        var tmdbKey = TmdbKeyBox.Password.Trim() is { Length: > 0 } tmdb ? tmdb : null;
+        if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail || anthropicKey != _secrets.Current.AnthropicApiKey
+            || tmdbKey != _secrets.Current.TmdbApiKey)
+        {
+            _secrets.Save(_secrets.Current with { CalendarUrls = calendarUrls, Mail = mail, AnthropicApiKey = anthropicKey, TmdbApiKey = tmdbKey });
         }
 
         _store.Save(current with
@@ -384,6 +399,8 @@ internal partial class SettingsWindow : Window
             ContactsFile = _contactsFile,
             ContactsWatch = ContactsWatchBox.IsChecked == true && _contactsFile.Length > 0,
             ContactsInGlobalSearch = ContactsGlobalBox.IsChecked == true,
+            NewsFeeds = newsLines,
+            GmailNotify = GmailNotifyBox.IsChecked == true,
         });
         Close();
     }

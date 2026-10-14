@@ -171,6 +171,7 @@
                     <ListBoxItem Tag="ContactsPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE77B;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Kişiler" /></StackPanel></ListBoxItem>
                     <ListBoxItem Tag="GooglePage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE753;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Google" /></StackPanel></ListBoxItem>
                     <ListBoxItem Tag="SpotifyPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8D6;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Spotify" /></StackPanel></ListBoxItem>
+                    <ListBoxItem Tag="InternetPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE774;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="İnternet" /></StackPanel></ListBoxItem>
                     <ListBoxItem Tag="AiPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE99A;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Yapay zekâ" /></StackPanel></ListBoxItem>
                     <ListBoxItem Tag="MailPage"><StackPanel Orientation="Horizontal"><TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE787;" FontSize="16" Width="30" VerticalAlignment="Center" /><TextBlock Text="Takvim ve mail" /></StackPanel></ListBoxItem>
                 </ListBox>
@@ -354,7 +355,7 @@
                     <!-- Google -->
                     <StackPanel x:Name="GooglePage" Style="{StaticResource Page}">
                         <TextBlock Text="Google" Style="{StaticResource PageTitle}" />
-                        <TextBlock Text="Rehber, Fotoğraflar, Takvim, Görevler, Drive ve YouTube. Launcher'da: /foto, /takvim, /görev, /drive, /youtube." Style="{StaticResource PageSubtitle}" />
+                        <TextBlock Text="Rehber, Fotoğraflar, Takvim, Görevler, Drive, YouTube ve Gmail. Launcher'da: /foto, /takvim, /görev, /drive, /youtube, /gmail." Style="{StaticResource PageSubtitle}" />
 
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
@@ -369,14 +370,15 @@
                                     <Button x:Name="GoogleSyncButton" Content="Şimdi eşitle" Click="SyncGoogle_OnClick" />
                                     <Button x:Name="GoogleDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectGoogle_OnClick" />
                                 </StackPanel>
-                                <TextBlock Style="{StaticResource Note}" Text="Kişiler 3 saatte bir yenilenir; Google'da sildiğin kişi burada da silinir." />
+                                <CheckBox x:Name="GmailNotifyBox" Content="Gmail'e yeni mail gelince bildirim göster" Margin="0,12,0,0" />
+                                <TextBlock Style="{StaticResource Note}" Text="Kişiler 3 saatte bir yenilenir; Google'da sildiğin kişi burada da silinir. /gmail okunmamışları gösterir ve Gmail'de arar." />
                             </StackPanel>
                         </Border>
 
                         <Border Style="{StaticResource Card}">
                             <StackPanel>
                                 <TextBlock Text="Bir kerelik kurulum" Style="{StaticResource Heading}" />
-                                <TextBlock Style="{StaticResource Note}" Margin="0" Text="Google verine yalnızca kayıtlı uygulamaların erişmesine izin veriyor, bu yüzden bir kerelik kurulum gerekir.&#10;1) console.cloud.google.com'da yeni proje aç.&#10;2) API'ler ve Hizmetler → Kitaplık'ta şunların her birini aratıp Etkinleştir: People API, Google Photos Picker API, Google Calendar API, Google Tasks API, Google Drive API, YouTube Data API v3.&#10;3) OAuth izin ekranı (Google Auth Platform): Harici seç, uygulama adı LumoraGo, kendi mailini yaz; Kitle bölümünde &quot;Uygulamayı yayınla&quot; de (Test modunda kalırsa bağlantı 7 günde bir kopar).&#10;4) İstemciler → İstemci oluştur → Uygulama türü: Masaüstü uygulaması.&#10;5) Çıkan istemci kimliğini ve gizli anahtarı yukarı yapıştır, &quot;Google ile bağlan&quot;a bas.&#10;Tarayıcıda &quot;Google bu uygulamayı doğrulamadı&quot; uyarısında Gelişmiş → LumoraGo'ya git (güvenli değil) de; uygulama senin. İzin ekranındaki tüm kutucukları işaretle." />
+                                <TextBlock Style="{StaticResource Note}" Margin="0" Text="Google verine yalnızca kayıtlı uygulamaların erişmesine izin veriyor, bu yüzden bir kerelik kurulum gerekir.&#10;1) console.cloud.google.com'da yeni proje aç.&#10;2) API'ler ve Hizmetler → Kitaplık'ta şunların her birini aratıp Etkinleştir: People API, Google Photos Picker API, Google Calendar API, Google Tasks API, Google Drive API, YouTube Data API v3, Gmail API.&#10;3) OAuth izin ekranı (Google Auth Platform): Harici seç, uygulama adı LumoraGo, kendi mailini yaz; Kitle bölümünde &quot;Uygulamayı yayınla&quot; de (Test modunda kalırsa bağlantı 7 günde bir kopar).&#10;4) İstemciler → İstemci oluştur → Uygulama türü: Masaüstü uygulaması.&#10;5) Çıkan istemci kimliğini ve gizli anahtarı yukarı yapıştır, &quot;Google ile bağlan&quot;a bas.&#10;Tarayıcıda &quot;Google bu uygulamayı doğrulamadı&quot; uyarısında Gelişmiş → LumoraGo'ya git (güvenli değil) de; uygulama senin. İzin ekranındaki tüm kutucukları işaretle." />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -404,6 +406,31 @@
                             <StackPanel>
                                 <TextBlock Text="Bir kerelik kurulum" Style="{StaticResource Heading}" />
                                 <TextBlock Style="{StaticResource Note}" Margin="0" Text="1) developer.spotify.com/dashboard'a Spotify hesabınla gir, Create app de.&#10;2) App name: LumoraGo, açıklamaya herhangi bir şey yaz.&#10;3) Redirect URIs kutusuna tam olarak http://127.0.0.1:8975/callback yaz ve Add'e bas.&#10;4) &quot;Which API/SDKs are you planning to use?&quot; altında Web API'yi işaretle, kaydet.&#10;5) Uygulamanın Settings sayfasındaki Client ID'yi yukarı yapıştırıp &quot;Spotify ile bağlan&quot;a bas, tarayıcıda Agree de.&#10;Gizli anahtar (Client secret) gerekmez." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- İnternet -->
+                    <StackPanel x:Name="InternetPage" Style="{StaticResource Page}">
+                        <TextBlock Text="İnternet" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="/haber kaynakları ve /film için anahtar. /çevir ayarsız çalışır." Style="{StaticResource PageSubtitle}" />
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Haber kaynakları (/haber)" Style="{StaticResource Heading}" />
+                                <TextBox x:Name="NewsFeedsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="120"
+                                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Cascadia Mono, Consolas" />
+                                <TextBlock Style="{StaticResource Note}" Text="Her satıra bir kaynak: &quot;Ad | RSS adresi&quot;. Çoğu haber sitesinin sayfasının altında RSS bağlantısı vardır.&#10;Launcher'da /haber hepsinin son başlıklarını gösterir; /haber bbc yalnızca o kaynağı, /haber deprem başlığında geçenleri." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Film ve dizi (/film, /dizi)" Style="{StaticResource Heading}" />
+                                <TextBlock Text="TMDB API anahtarı" Style="{StaticResource Label}" Margin="0,0,0,4" />
+                                <PasswordBox x:Name="TmdbKeyBox" />
+                                <TextBlock Style="{StaticResource Note}" Text="Ücretsiz, bir kerelik:&#10;1) themoviedb.org'da hesap aç (e-postayı onayla).&#10;2) Profil → Ayarlar → API → &quot;Create&quot; / &quot;Request an API key&quot;, kişisel kullanım seç, formu doldur.&#10;3) Çıkan &quot;API Key&quot;i (kısa olan) ya da &quot;API Read Access Token&quot;ı (uzun olan) buraya yapıştır, Kaydet.&#10;Puan, özet, tür ve Türkiye'de hangi platformda (Netflix, Prime, Disney+…) olduğu görünür." />
                             </StackPanel>
                         </Border>
                     </StackPanel>

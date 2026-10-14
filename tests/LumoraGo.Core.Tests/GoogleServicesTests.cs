@@ -103,14 +103,60 @@ public sealed class GoogleServicesTests : IDisposable
         var (api, calls, _) = Api(Secrets(), _ => FakeHandler.Json(json));
         var items = await new GoogleCalendar(api, Istanbul).GetAsync(new DateTime(2026, 10, 14), new DateTime(2026, 10, 21), null, CancellationToken.None);
 
-        Assert.Equal(["Toplantı", "Doğum günü", "Zoom"], items.Select(i => i.Title));
+        Assert.Equal(["Toplantı", "Zoom", "Doğum günü"], items.Select(i => i.Title));
         Assert.Equal(new DateTime(2026, 10, 14, 10, 0, 0), items[0].Start);
         Assert.Equal("https://meet.google.com/abc-defg-hij", items[0].MeetingUrl);
-        Assert.True(items[1].AllDay);
-        Assert.Equal(new DateTime(2026, 10, 15), items[1].Start);
-        Assert.Equal("https://us02web.zoom.us/j/123", items[2].MeetingUrl);
-        Assert.Contains("singleEvents=true", calls[0].Url);
-        Assert.Contains("calendars/primary/events", calls[0].Url);
+        Assert.True(items[2].AllDay);
+        Assert.Equal(new DateTime(2026, 10, 15), items[2].Start);
+        Assert.Equal("https://us02web.zoom.us/j/123", items[1].MeetingUrl);
+        Assert.Contains(calls, c => c.Url.Contains("singleEvents=true"));
+        Assert.Contains(calls, c => c.Url.Contains("calendars/primary/events"));
+    }
+
+    [Fact]
+    public async Task Every_shown_calendar_is_read_and_named()
+    {
+        var (api, calls, _) = Api(Secrets(), r =>
+        {
+            var url = Uri.UnescapeDataString(r.RequestUri!.ToString());
+            if (url.Contains("calendarList"))
+            {
+                return FakeHandler.Json("""
+                    {"items":[
+                      {"id":"me@gmail.com","summary":"muhammet oruçoğlu","primary":true},
+                      {"id":"aile123@group.calendar.google.com","summary":"Aile"},
+                      {"id":"addressbook#contacts@group.v.calendar.google.com","summary":"Contacts","summaryOverride":"Doğum Günleri"},
+                      {"id":"gizli@group.calendar.google.com","summary":"Gizli","selected":false},
+                      {"id":"eski@group.calendar.google.com","summary":"Eski","hidden":true}
+                    ]}
+                    """);
+            }
+
+            var title = url.Contains("calendars/me@gmail.com/") ? "Toplantı" : url.Contains("aile123") ? "Akşam yemeği" : "Ali'nin doğum günü";
+            return FakeHandler.Json($$$"""{"items":[{"summary":"{{{title}}}","start":{"date":"2026-10-15"},"end":{"date":"2026-10-16"}}]}""");
+        });
+
+        var items = await new GoogleCalendar(api, Istanbul).GetAsync(new DateTime(2026, 10, 14), new DateTime(2026, 10, 21), null, CancellationToken.None);
+
+        Assert.Equal(3, items.Count);
+        Assert.Null(items.Single(i => i.Title == "Toplantı").Location);
+        Assert.Equal("Aile", items.Single(i => i.Title == "Akşam yemeği").Location);
+        Assert.Equal("Doğum Günleri", items.Single(i => i.Title == "Ali'nin doğum günü").Location);
+        Assert.DoesNotContain(calls, c => c.Url.Contains("gizli") || c.Url.Contains("eski"));
+        Assert.Contains(calls, c => c.Url.Contains("addressbook%23contacts"));
+    }
+
+    [Fact]
+    public async Task Calendar_falls_back_to_main_calendar_when_list_is_not_allowed()
+    {
+        var (api, calls, _) = Api(Secrets(), r => r.RequestUri!.ToString().Contains("calendarList")
+            ? FakeHandler.Json("""{"error":{"details":[{"reason":"ACCESS_TOKEN_SCOPE_INSUFFICIENT"}]}}""", HttpStatusCode.Forbidden)
+            : FakeHandler.Json("""{"items":[{"summary":"Toplantı","start":{"date":"2026-10-15"}}]}"""));
+        var errors = new List<string>();
+        var items = await new GoogleCalendar(api).GetAsync(new DateTime(2026, 10, 14), new DateTime(2026, 10, 21), errors.Add, CancellationToken.None);
+        Assert.Equal("Toplantı", Assert.Single(items).Title);
+        Assert.Empty(errors);
+        Assert.Contains(calls, c => c.Url.Contains("calendars/primary/events"));
     }
 
     [Fact]

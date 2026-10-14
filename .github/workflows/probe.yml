@@ -1,0 +1,18 @@
+name: probe
+on:
+  push:
+    branches: [api-probe-2]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set +e
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
+          echo "=== aladhan"; curl -s "https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13" | head -c 1500; echo
+          echo "=== aladhan calendar"; curl -s "https://api.aladhan.com/v1/calendarByCity/2026/10?city=Izmir&country=Turkey&method=13" | head -c 600; echo
+          echo "=== emushaf ulkeler"; curl -s "https://ezanvakti.emushaf.net/sehirler/2" | head -c 800; echo
+          echo "=== eczaneler.gen.tr"; curl -sL -A "$UA" -o /tmp/e1.html -w "%{http_code} %{url_effective}\n" "https://www.eczaneler.gen.tr/nobetci-istanbul-kadikoy"; grep -o -i 'isim[^<]\{0,200\}' /tmp/e1.html | head -5; grep -c "eczane" /tmp/e1.html; sed -n '/<table/,/<\/table>/p' /tmp/e1.html | head -c 3000; echo
+          echo "=== eczaneler.gen.tr izmir"; curl -sL -A "$UA" -o /tmp/e2.html -w "%{http_code} %{url_effective}\n" "https://www.eczaneler.gen.tr/nobetci-izmir"; sed -n '/<table/,/<\/table>/p' /tmp/e2.html | head -c 2000; echo
+          echo "=== nobetcieczane"; curl -sL -A "$UA" -o /tmp/e3.html -w "%{http_code} %{url_effective}\n" "https://www.nobetcieczane.com.tr/istanbul/kadikoy"; head -c 1500 /tmp/e3.html; echo
+          echo "=== spotify"; curl -s -o /dev/null -w "%{http_code}\n" "https://api.spotify.com/v1/search?q=tarkan&type=track"

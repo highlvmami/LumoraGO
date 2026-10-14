@@ -65,6 +65,7 @@ internal partial class SettingsWindow : Window
 
         ShowGoogleStatus();
         SpotifyClientIdBox.Text = secrets.Current.Spotify?.ClientId ?? "";
+        AnthropicKeyBox.Password = secrets.Current.AnthropicApiKey ?? "";
         ShowSpotifyStatus();
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
@@ -341,9 +342,10 @@ internal partial class SettingsWindow : Window
             StartupRegistration.SetEnabled(StartupBox.IsChecked == true);
         }
 
-        if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail)
+        var anthropicKey = AnthropicKeyBox.Password.Trim() is { Length: > 0 } key ? key : null;
+        if (!calendarUrls.SequenceEqual(_secrets.Current.CalendarUrls) || mail != _secrets.Current.Mail || anthropicKey != _secrets.Current.AnthropicApiKey)
         {
-            _secrets.Save(_secrets.Current with { CalendarUrls = calendarUrls, Mail = mail });
+            _secrets.Save(_secrets.Current with { CalendarUrls = calendarUrls, Mail = mail, AnthropicApiKey = anthropicKey });
         }
 
         _store.Save(current with

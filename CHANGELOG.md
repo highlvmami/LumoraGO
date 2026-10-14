@@ -2,6 +2,12 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.28.0
+- Yeni: ekrandan metin. /ocr (ya da /yazı) yazıp Enter'a bas, ekranda bir bölge seç; içindeki yazı panoya kopyalanır. Windows'un kendi metin tanıması kullanılır, internete bir şey gitmez
+- Yeni: yapay zekâ. "? soru" ya da "/ai soru" yazıp Enter'a basınca Claude yanıtlar, yanıt listede görünür (Enter kopyalar, Ctrl+Enter yapıştırır, Shift+Boşluk tamamını gösterir)
+- Panoda metin varken /ai özetle, /ai çevir (Türkçe ya da İngilizce), /ai düzelt ve /ai resmi çalışır
+- Yapay zekâ için Ayarlar → Yapay zekâ'ya console.anthropic.com'dan alınan API anahtarı girilir. İstek yalnızca Enter'a basınca gider
+
 ## 0.27.0
 - Yeni: /spotify (ya da /sp, /müzik). Kurulum gerekmeden /spotify tarkan aramayı Spotify uygulamasında açar; /spotify sonraki, önceki, duraklat şarkıyı kontrol eder
 - Ayarlar → Spotify'dan bir kez bağlanınca şarkı, liste, albüm ve sanatçılar launcher'da listelenir ve Enter çalar (Premium gerekir; değilse uygulamada açılır). Boş /spotify şu an çalanı ve listelerini gösterir

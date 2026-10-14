@@ -9,8 +9,13 @@ jobs:
       - run: |
           set +e
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
-          echo "=== aladhan day"; curl -s "https://api.aladhan.com/v1/timingsByCity/14-10-2026?city=Istanbul&country=Turkey&method=13" | head -c 400; echo
-          for u in "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama" "https://eczaneler.gen.tr/nobetci-istanbul" "https://www.nobetcieczaneler.org/istanbul/kadikoy" "https://nobetcieczanebul.com/istanbul/kadikoy" "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/" "https://www.izmireczaciodasi.org.tr/nobetci-eczaneler" "https://www.hastaneler.net/nobetci-eczaneler/istanbul/kadikoy" "https://www.nobetci-eczane.org/istanbul/kadikoy" "https://openapi.izmir.bel.tr/api/ibb/nobetcieczaneler" "https://www.eczanem.com.tr/nobetci-eczaneler/istanbul/kadikoy"; do
-            echo "=== $u"; curl -sL -m 15 -A "$UA" -o /tmp/x.html -w "%{http_code} %{url_effective} %{size_download}\n" "$u"; grep -o -i '<title>[^<]*' /tmp/x.html | head -1; grep -o -i 'eczanesi[^<]\{0,80\}' /tmp/x.html | head -3
-          done
-          echo "=== turkiye.gov.tr form"; curl -sL -m 15 -A "$UA" "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama" | grep -o -i '<form[^>]*>\|<select[^>]*>\|<option[^>]*>[^<]*' | head -20
+          J=/tmp/jar.txt
+          curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/f.html "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama"
+          sed -n '/id="mainForm"/,/<\/form>/p' /tmp/f.html | head -c 6000; echo
+          TOKEN=$(grep -o 'name="token" value="[^"]*"' /tmp/f.html | head -1 | sed 's/.*value="//;s/"//')
+          echo "TOKEN=$TOKEN"
+          echo "=== post il 34"
+          curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/r.html -w "%{http_code} %{url_effective}\n" --data-urlencode "plakaKodu=34" --data-urlencode "token=$TOKEN" --data-urlencode "btn=Sorgula" "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama?submit"
+          sed -n '/<main/,/<\/main>/p' /tmp/r.html | sed 's/<[^>]*>/ /g' | tr -s ' \n' | head -c 4000; echo
+          grep -o '<table[^>]*>' /tmp/r.html | head; grep -o '<tr[^>]*>.\{0,600\}' /tmp/r.html | head -c 3000; echo
+          echo "=== istanbul oda"; curl -sL -m 15 -A "$UA" "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/" | head -c 3000

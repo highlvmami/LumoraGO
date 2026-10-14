@@ -16,7 +16,8 @@ public sealed class GoogleException(string message) : Exception(message);
 /// </summary>
 public static class GoogleContacts
 {
-    public const string Scope = "https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/userinfo.email";
+    public const string Scope = "https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/userinfo.email "
+        + Photos.GooglePhotosPicker.Scope;
     private const string AuthEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
     private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
     private const string ConnectionsEndpoint = "https://people.googleapis.com/v1/people/me/connections";
@@ -281,7 +282,7 @@ public static class GoogleContacts
                 : $"Google Kişiler okunamadı (HTTP {(int)status}{(GoogleMessage(body) is { } m ? ": " + m : "")}).";
 
     /// <summary>Google'ın hata gövdesindeki açıklama; kayıtta ve ayarlarda neyin ters gittiği görünsün.</summary>
-    private static string? GoogleMessage(string body)
+    internal static string? GoogleMessage(string body)
     {
         try
         {

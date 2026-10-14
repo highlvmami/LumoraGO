@@ -2,6 +2,9 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.23.1
+- Yeni: /güncelle yazınca LumoraGo yeni sürümü beklemeden kontrol eder, varsa indirip hemen kurar ve yeniden açılır
+
 ## 0.23.0
 - Yeni: /foto ile fotoğraflar. Google Fotoğraflar'dan seçtiğin fotoğraflar ve bilgisayardaki Resimler klasörü en yenisi başta listelenir, yanda önizlemesi açılır
 - /foto'da en üstteki satır Google Fotoğraflar'ın seçim sayfasını açar; seçip "Bitti" deyince fotoğraflar launcher'a iner. Google tüm kütüphanenin okunmasına izin vermediği için yalnızca seçtiklerin gelir

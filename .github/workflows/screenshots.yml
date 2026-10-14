@@ -47,6 +47,7 @@ jobs:
           path: docs/screenshots/
 
       - name: Dala gönder
+        if: always()
         shell: pwsh
         run: |
           git config user.name "Muhammet Oruçoğlu"

@@ -10,12 +10,20 @@ jobs:
           set +e
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
           J=/tmp/jar.txt
-          curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/f.html "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama"
-          sed -n '/id="mainForm"/,/<\/form>/p' /tmp/f.html | head -c 6000; echo
-          TOKEN=$(grep -o 'name="token" value="[^"]*"' /tmp/f.html | head -1 | sed 's/.*value="//;s/"//')
-          echo "TOKEN=$TOKEN"
-          echo "=== post il 34"
-          curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/r.html -w "%{http_code} %{url_effective}\n" --data-urlencode "plakaKodu=34" --data-urlencode "token=$TOKEN" --data-urlencode "btn=Sorgula" "https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama?submit"
-          sed -n '/<main/,/<\/main>/p' /tmp/r.html | sed 's/<[^>]*>/ /g' | tr -s ' \n' | head -c 4000; echo
-          grep -o '<table[^>]*>' /tmp/r.html | head; grep -o '<tr[^>]*>.\{0,600\}' /tmp/r.html | head -c 3000; echo
-          echo "=== istanbul oda"; curl -sL -m 15 -A "$UA" "https://www.istanbuleczaciodasi.org.tr/nobetci-eczane/" | head -c 3000
+          U="https://www.turkiye.gov.tr/saglik-titck-nobetci-eczane-sorgulama"
+          try() {
+            rm -f $J
+            curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/f.html "$U"
+            TOKEN=$(grep -o 'name="token" value="[^"]*"' /tmp/f.html | head -1 | sed 's/.*value="//;s/"//')
+            D=$(grep -o 'name="nobetTarihi" value="[^"]*"' /tmp/f.html | head -1 | sed 's/.*value="//;s/"//')
+            echo "=== try $* date=$D"
+            curl -sL -m 20 -A "$UA" -c $J -b $J -o /tmp/r.html -w "%{http_code} %{url_effective}\n" "$@" --data-urlencode "nobetTarihi=$D" --data-urlencode "token=$TOKEN" --data-urlencode "btn=Sorgula" "$U?submit"
+            grep -o 'hatalı alanları\|fieldError[^>]*>[^<]*\|errorMessage[^>]*>[^<]*' /tmp/r.html | head -5
+            grep -o '<table[^>]*>' /tmp/r.html | head -3
+            sed -n '/<table/,/<\/table>/p' /tmp/r.html | sed 's/<[^>]*>/|/g' | tr -s ' |\n\t' | head -c 2500; echo
+          }
+          try --data-urlencode "ilkod=34"
+          try --data-urlencode "ilkod=34" --data-urlencode "ilcekod=1421"
+          try --data-urlencode "ilkod_il=34"
+          try --data-urlencode "il=34"
+          echo "=== edv-address js"; grep -o 'src="[^"]*\.js[^"]*"' /tmp/f.html | head -20

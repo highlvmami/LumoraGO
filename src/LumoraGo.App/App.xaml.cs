@@ -27,6 +27,7 @@ using LumoraGo.Core.Plugins;
 using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Search;
 using LumoraGo.Core.Settings;
+using LumoraGo.Core.Snippets;
 using LumoraGo.Core.Timers;
 using LumoraGo.Plugin;
 
@@ -75,6 +76,8 @@ public partial class App : Application
     private ContactsWatcher? _contactsWatcher;
     private QueryLearning? _learning;
     private SettingsWindow? _settingsWindow;
+    private SnippetsWindow? _snippetsWindow;
+    private SnippetStore? _snippets;
     private ClipboardHistory? _clipboard;
     private ClipboardMonitor? _clipboardMonitor;
     private ClipboardPersistence? _clipboardPersistence;
@@ -178,6 +181,7 @@ public partial class App : Application
         }
 
         var notes = new NotesStore(Path.Combine(DataRoot, "notes.json"), _log);
+        _snippets = new SnippetStore(Path.Combine(DataRoot, "snippets.json"), _log);
         _reminders = new ReminderStore(Path.Combine(DataRoot, "reminders.json"), _log);
         var reminders = _reminders;
         _reminderTimer = new Timer(_ => CheckReminders(), null, ReminderFirstCheck, ReminderInterval);
@@ -253,6 +257,12 @@ public partial class App : Application
                 new PluginEntry(WindowSwitcherPlugin.Metadata, new WindowSwitcherPlugin(
                     WindowEnumerator.List, ActivateWindow, WindowEnumerator.Close)),
                 new PluginEntry(TimerPlugin.Metadata, new TimerPlugin(_timers)),
+                SnippetEntry(null),
+                SnippetEntry(SnippetsPlugin.Keyword),
+                SnippetEntry("/hazır"),
+                SnippetEntry("/hazir"),
+                new PluginEntry(WindowLayoutPlugin.GlobalMetadata, new WindowLayoutPlugin(PlaceWindow)),
+                new PluginEntry(WindowLayoutPlugin.KeywordMetadata, new WindowLayoutPlugin(PlaceWindow, keyword: true)),
                 .. SystemShortcuts(host).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(KeywordHintsPlugin.Metadata, new KeywordHintsPlugin(() => plugins.Plugins.Select(p => p.Metadata))),
                 new PluginEntry(CommandsPlugin.Metadata, new CommandsPlugin(commands)),
@@ -753,6 +763,76 @@ public partial class App : Application
         _window?.HideLauncher();
         await Task.Delay(PasteDelay);
         SystemActions.SendPaste();
+    });
+
+    private PluginEntry SnippetEntry(string? keyword)
+    {
+        var plugin = new SnippetsPlugin(_snippets!, PasteSnippet, id => Dispatcher.BeginInvoke(() => OpenSnippets(id)), ClipboardText, keyword);
+        return new PluginEntry(plugin.Metadata, plugin);
+    }
+
+    private static string? ClipboardText()
+    {
+        try
+        {
+            return System.Windows.Clipboard.ContainsText() ? System.Windows.Clipboard.GetText() : null;
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Hazır metni yapıştırır; içinde {imleç} varsa imleci oraya geri götürür.</summary>
+    private void PasteSnippet(ExpandedSnippet snippet) => Dispatcher.BeginInvoke(async () =>
+    {
+        try
+        {
+            System.Windows.Clipboard.SetText(snippet.Text);
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            _log?.Warn($"Panoya yazılamadı: {ex.Message}");
+            return;
+        }
+
+        _window?.HideLauncher();
+        await Task.Delay(PasteDelay);
+        SystemActions.SendPaste();
+        if (snippet.CharsAfterCursor > 0)
+        {
+            await Task.Delay(PasteDelay);
+            SystemActions.SendLeft(snippet.CharsAfterCursor);
+        }
+    });
+
+    private void OpenSnippets(Guid? select)
+    {
+        _window?.HideLauncher();
+        if (_snippetsWindow is { IsLoaded: true })
+        {
+            _snippetsWindow.Select(select);
+            _snippetsWindow.Activate();
+            return;
+        }
+
+        _snippetsWindow = new SnippetsWindow(_snippets!, ClipboardText, select);
+        _snippetsWindow.Closed += (_, _) => _snippetsWindow = null;
+        _snippetsWindow.Show();
+        _snippetsWindow.Activate();
+    }
+
+    /// <summary>Launcher'ı gizleyip ondan önce öndeki pencereyi yerleştirir.</summary>
+    private void PlaceWindow(WindowPlacement placement) => Dispatcher.BeginInvoke(async () =>
+    {
+        var target = _window?.PreviousWindow ?? IntPtr.Zero;
+        _window?.HideLauncher();
+        await Task.Delay(PasteDelay);
+        if (WindowLayout.Apply(target, placement) is { } error)
+        {
+            _log?.Warn(error);
+            System.Windows.MessageBox.Show(error, "LumoraGo");
+        }
     });
 
     private void RevealPath(string path) => Run("explorer.exe", $"/select,\"{path}\"");

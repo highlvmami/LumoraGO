@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using LumoraGo.App.Controls;
+using LumoraGo.App.Native;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
@@ -132,8 +133,17 @@ public partial class MainWindow : Window
 
     public void ShowLauncher() => ShowLauncher(null);
 
+    /// <summary>Launcher açılmadan hemen önce öndeki pencere; pencere yerleştirme buna uygulanır.</summary>
+    public IntPtr PreviousWindow { get; private set; }
+
     private void ShowLauncher(Stopwatch? sinceHotkey)
     {
+        var foreground = NativeMethods.GetForegroundWindow();
+        if (foreground != _hwnd)
+        {
+            PreviousWindow = foreground;
+        }
+
         PositionOnCursorScreen();
         Show();
         Activate();

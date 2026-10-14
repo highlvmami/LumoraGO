@@ -195,9 +195,9 @@ internal partial class SettingsWindow : Window
             return;
         }
 
-        _secrets.Save(_secrets.Current with { Google = null });
+        // İstemci kimliği ve gizli anahtar kalır; Google gizli anahtarı bir daha göstermediği için yeniden bağlanırken lazım.
+        _secrets.Save(_secrets.Current with { Google = _secrets.Current.Google is { } g ? g with { RefreshToken = "", Email = "" } : null });
         _contacts.RemoveGoogle();
-        GoogleClientSecretBox.Password = "";
         ShowGoogleStatus();
         ShowContactsStatus();
     }

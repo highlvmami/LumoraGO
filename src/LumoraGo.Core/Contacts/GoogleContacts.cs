@@ -75,6 +75,12 @@ public static class GoogleContacts
             ["grant_type"] = "authorization_code",
             ["redirect_uri"] = redirect,
         }, ct);
+        // Google izin ekranında kişiler kutucuğu işaretsiz bırakılabiliyor; o zaman giriş başarılı görünür ama rehber okunamaz.
+        if (token.Scope is { } granted && !granted.Split(' ').Contains("https://www.googleapis.com/auth/contacts.readonly"))
+        {
+            throw new GoogleException(NoContactsScope);
+        }
+
         if (token.Refresh is not { Length: > 0 } refresh)
         {
             throw new GoogleException("Google yenileme anahtarı vermedi; myaccount.google.com/permissions'tan LumoraGo erişimini kaldırıp yeniden bağlan.");
@@ -207,7 +213,10 @@ public static class GoogleContacts
         return result;
     }
 
-    private sealed record Token(string Access, string? Refresh);
+    private const string NoContactsScope =
+        "Google'da kişileri görme izni verilmedi. \"Google ile bağlan\"a yeniden bas ve izin ekranındaki tüm kutucukları işaretle.";
+
+    private sealed record Token(string Access, string? Refresh, string? Scope);
 
     private static async Task<Token> TokenAsync(HttpClient http, Dictionary<string, string> form, CancellationToken ct)
     {
@@ -222,7 +231,8 @@ public static class GoogleContacts
         var root = doc.RootElement;
         return new Token(
             root.GetProperty("access_token").GetString() ?? "",
-            root.TryGetProperty("refresh_token", out var r) ? r.GetString() : null);
+            root.TryGetProperty("refresh_token", out var r) ? r.GetString() : null,
+            root.TryGetProperty("scope", out var sc) ? sc.GetString() : null);
     }
 
     private static async Task<string> EmailAsync(HttpClient http, string accessToken, CancellationToken ct)
@@ -264,9 +274,28 @@ public static class GoogleContacts
     internal static string ApiError(HttpStatusCode status, string body) =>
         status == HttpStatusCode.Forbidden && body.Contains("SERVICE_DISABLED", StringComparison.Ordinal)
             ? "Google Cloud projesinde People API açık değil; console.cloud.google.com → API'ler → People API → Etkinleştir."
+            : status == HttpStatusCode.Forbidden && body.Contains("SCOPE_INSUFFICIENT", StringComparison.Ordinal)
+                ? NoContactsScope
             : status == HttpStatusCode.Unauthorized
                 ? "Google erişimi reddetti; Ayarlar → Kişiler'den yeniden bağlan."
-                : $"Google Kişiler okunamadı (HTTP {(int)status}).";
+                : $"Google Kişiler okunamadı (HTTP {(int)status}{(GoogleMessage(body) is { } m ? ": " + m : "")}).";
+
+    /// <summary>Google'ın hata gövdesindeki açıklama; kayıtta ve ayarlarda neyin ters gittiği görünsün.</summary>
+    private static string? GoogleMessage(string body)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            return doc.RootElement.TryGetProperty("error", out var e) && e.ValueKind == JsonValueKind.Object
+                && e.TryGetProperty("message", out var m) && m.GetString() is { Length: > 0 } text
+                ? text
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 
     internal static Dictionary<string, string> ParseQuery(string query)
     {

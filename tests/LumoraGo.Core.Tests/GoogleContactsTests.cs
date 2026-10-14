@@ -88,6 +88,14 @@ public sealed class GoogleContactsTests : IDisposable
     }
 
     [Fact]
+    public async Task Missing_contacts_permission_says_to_tick_the_box()
+    {
+        var handler = new FakeHandler(_ => FakeHandler.Json("""{"error":{"code":403,"status":"PERMISSION_DENIED","details":[{"reason":"ACCESS_TOKEN_SCOPE_INSUFFICIENT"}]}}""", HttpStatusCode.Forbidden));
+        var ex = await Assert.ThrowsAsync<GoogleException>(() => GoogleContacts.FetchAsync(new HttpClient(handler), "tok", CancellationToken.None));
+        Assert.Contains("kutucu", ex.Message);
+    }
+
+    [Fact]
     public void Auth_url_asks_read_only_offline_with_pkce()
     {
         var (verifier, challenge) = GoogleContacts.NewPkce();

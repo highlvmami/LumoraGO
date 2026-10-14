@@ -393,6 +393,11 @@ public sealed class GoogleContactSync(HttpClient http, SecretStore secrets, Cont
         {
             throw new GoogleException("Google zamanında yanıt vermedi");
         }
+        catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            _log.Error($"Google Rehber yanıtı işlenemedi: {ex}");
+            throw new GoogleException($"Google'ın yanıtı okunamadı ({ex.GetType().Name}: {ex.Message})");
+        }
         finally
         {
             Interlocked.Exchange(ref _running, 0);

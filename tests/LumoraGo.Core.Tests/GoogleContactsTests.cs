@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using LumoraGo.Core.Accounts;
 using LumoraGo.Core.Contacts;
+using LumoraGo.Core.Search;
 
 namespace LumoraGo.Core.Tests;
 
@@ -168,6 +169,15 @@ public sealed class GoogleContactsTests : IDisposable
     [InlineData("not json", "bilinmeyen")]
     public void Token_errors_are_explained(string body, string expected) =>
         Assert.Contains(expected, GoogleContacts.TokenError(body));
+
+    [Fact]
+    public void Google_contacts_with_emoji_or_broken_characters_are_saved_and_searchable()
+    {
+        var book = Book();
+        book.ReplaceGoogle([new Contact("Annem ❤️😍", ["05321234567"], []), new Contact("Bozuk\uD800 Ad", [], [])]);
+        Assert.Equal(2, book.All.Count);
+        Assert.Equal("annem ❤️😍", FuzzyMatcher.Fold("Annem ❤️😍"));
+    }
 
     [Fact]
     public void Google_contacts_replace_only_themselves_and_survive_file_import()

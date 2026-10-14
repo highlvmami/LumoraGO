@@ -16,7 +16,9 @@ public sealed class DirectActionsPlugin(
     ContactBook contacts,
     NotesStore notes,
     Action<string> open,
-    Func<DateTime>? now = null) : IPlugin
+    Func<DateTime>? now = null,
+    Google.GoogleCalendar? calendar = null,
+    Google.GoogleTasks? tasks = null) : IPlugin
 {
     public static readonly PluginMetadata Metadata = new("lumorago.actions", "Doğrudan eylemler");
 
@@ -43,6 +45,7 @@ public sealed class DirectActionsPlugin(
             "mesaj" => Message(rest),
             "mail" or "eposta" or "e-posta" => Mail(rest),
             "etkinlik" => Event(rest),
+            "gorev" or "yapilacak" when tasks is { IsConnected: true } => AddTask(rest),
             "not" when rest.Length > 0 => new Result($"Nota ekle: {rest}", "/not listesine eklenir · Enter", null, 120, _ =>
             {
                 notes.Add(rest);
@@ -155,12 +158,51 @@ public sealed class DirectActionsPlugin(
             return Hint($"Etkinlik: {rest}", "Önce zamanı sonra adı yaz: etkinlik cuma 14:00 dişçi");
         }
 
+        if (calendar is { IsConfigured: true })
+        {
+            return new Result($"Etkinlik: {date.Rest}", $"{date.Describe(now)} · Google Takvim'e eklenir · Enter", null, ActionScore, ctx =>
+            {
+                _ = Google(() => calendar.AddAsync(date.Rest, date.When, date.HasTime, CancellationToken.None), "Google Takvim", $"Eklendi: {date.Rest}");
+                return true;
+            });
+        }
+
         var url = GoogleCalendarUrl(date.Rest, date.When, date.HasTime);
         return new Result($"Etkinlik: {date.Rest}", $"{date.Describe(now)} · Google Takvim'de dolu açılır, kaydet sende", null, ActionScore, _ =>
         {
             open(url);
             return true;
         });
+    }
+
+    private Result AddTask(string rest)
+    {
+        if (rest.Length == 0)
+        {
+            return Hint("Google Görevler'e ekle", "Örnek: görev yarın fatura öde · görev süt al", 60);
+        }
+
+        var now = _now();
+        var date = TurkishDate.Parse(rest, now) is { Rest.Length: > 0 } d ? d : null;
+        var title = date?.Rest ?? rest;
+        return new Result($"Görev: {title}", $"{(date is null ? "tarihsiz" : date.Describe(now))} · Google Görevler'e eklenir · Enter", null, ActionScore, ctx =>
+        {
+            _ = Google(() => tasks!.AddAsync(title, date?.When.Date, CancellationToken.None), "Google Görevler", $"Eklendi: {title}");
+            return true;
+        });
+    }
+
+    private async Task Google(Func<Task> action, string service, string done)
+    {
+        try
+        {
+            await action();
+            _host?.ShowMessage(service, done);
+        }
+        catch (Contacts.GoogleException ex)
+        {
+            _host?.ShowMessage(service, ex.Message);
+        }
     }
 
     /// <summary>Saat varsa 1 saatlik, yoksa tüm gün etkinlik. Saat yerel yazılır; Google takvimin saat dilimini kullanır.</summary>

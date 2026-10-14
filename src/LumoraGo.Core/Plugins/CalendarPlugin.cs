@@ -17,7 +17,7 @@ public sealed class CalendarPlugin : IPlugin
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
     private const int Days = 8;
 
-    private readonly CalendarSource _source;
+    private readonly ICalendarSource _source;
     private readonly Action<string> _open;
     private readonly Action _openSettings;
     private readonly Func<DateTime> _now;
@@ -32,7 +32,7 @@ public sealed class CalendarPlugin : IPlugin
 
     /// <param name="open">Toplantı bağlantısını tarayıcıda açar.</param>
     /// <param name="openSettings">Takvim bağlı değilken Ayarlar penceresini açar.</param>
-    public CalendarPlugin(CalendarSource source, Action<string> open, Action openSettings, Func<DateTime>? now = null, TimeSpan? keep = null)
+    public CalendarPlugin(ICalendarSource source, Action<string> open, Action openSettings, Func<DateTime>? now = null, TimeSpan? keep = null)
     {
         _source = source;
         _open = open;
@@ -50,7 +50,7 @@ public sealed class CalendarPlugin : IPlugin
     {
         if (!_source.IsConfigured)
         {
-            return One(new Result("Takvim bağlı değil", "Enter ile Ayarlar'ı aç ve gizli takvim adresini (ICS) yapıştır", null, 1000, _ =>
+            return One(new Result("Takvim bağlı değil", "Enter ile Ayarlar'ı aç: Google ile bağlan ya da gizli takvim adresini (ICS) yapıştır", null, 1000, _ =>
             {
                 _openSettings();
                 return true;

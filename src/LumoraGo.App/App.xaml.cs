@@ -21,6 +21,7 @@ using LumoraGo.Core.Mail;
 using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
+using LumoraGo.Core.Google;
 using LumoraGo.Core.Photos;
 using LumoraGo.Core.Plugins;
 using LumoraGo.Core.Scripts;
@@ -124,6 +125,10 @@ public partial class App : Application
         _googleContactsTimer = new Timer(_ => _ = SyncGoogleContactsAsync(), null, GoogleContactsFirstSync, GoogleContactsInterval);
         var photos = new PhotoLibrary(Path.Combine(DataRoot, "photos", "google"), () => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), _log);
         var photoImport = new GooglePhotoImport(Http, secrets, photos, OpenUrl, _log);
+        var google = new GoogleApi(Http, secrets);
+        var googleCalendar = new GoogleCalendar(google);
+        var googleTasks = new GoogleTasks(google);
+        var youtube = new YouTubeLibrary(google, Path.Combine(DataRoot, "cache", "youtube.json"), _log);
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
@@ -200,7 +205,7 @@ public partial class App : Application
                 WebSearchEntry(WebSearchPlugin.GitHubSearch(OpenUrl)),
                 new PluginEntry(CustomShortcutsPlugin.Metadata, new CustomShortcutsPlugin(
                     () => _settings.Current.CustomShortcuts, OpenUrl)),
-                new PluginEntry(DirectActionsPlugin.Metadata, new DirectActionsPlugin(reminders, contacts, notes, OpenUrl)),
+                new PluginEntry(DirectActionsPlugin.Metadata, new DirectActionsPlugin(reminders, contacts, notes, OpenUrl, null, googleCalendar, googleTasks)),
                 RemindersEntry(new RemindersPlugin(reminders, "/hatırlatıcılar")),
                 RemindersEntry(new RemindersPlugin(reminders, "/hatirlaticilar")),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => _settings.Current.ContactsInGlobalSearch)),
@@ -220,7 +225,12 @@ public partial class App : Application
                     new NetworkTools(Http, SystemNetwork.PingAsync, SystemNetwork.WhoisAsync),
                     new SpeedTest(LongHttp)).Select(p => new PluginEntry(p.Metadata, p)),
                 new PluginEntry(CalendarPlugin.Metadata, new CalendarPlugin(
-                    new CalendarSource(Http, () => secrets.Current.CalendarUrls), OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                    new CombinedCalendarSource(new CalendarSource(Http, () => secrets.Current.CalendarUrls), googleCalendar),
+                    OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                .. new[] { TasksPlugin.Keyword, "/görevler", "/yapılacak", "/yapilacak", "/todo" }.Select(k => TasksEntry(new TasksPlugin(
+                    googleTasks, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings), k))),
+                DriveEntry(DriveSearch.Create(new GoogleDrive(google), () => google.IsConnected, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
+                new PluginEntry(YouTubePlugin.Metadata, new YouTubePlugin(youtube, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 new PluginEntry(MailPlugin.Metadata, new MailPlugin(
                     () => secrets.Current.Mail, ImapClient.ConnectTlsAsync, OpenUrl, () => Dispatcher.BeginInvoke(OpenSettings))),
                 .. InfoPlugins.Create(
@@ -486,6 +496,10 @@ public partial class App : Application
     private static PluginEntry ContactsEntry(ContactsPlugin plugin) => new(plugin.Metadata, plugin);
 
     private static PluginEntry PhotosEntry(PhotosPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private static PluginEntry TasksEntry(TasksPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private static PluginEntry DriveEntry(LiveLookupPlugin plugin) => new(plugin.Metadata, plugin);
 
     private static PluginEntry ScriptsEntry(ScriptsPlugin plugin) => new(plugin.Metadata, plugin);
 

@@ -10,11 +10,35 @@ namespace LumoraGo.Core.Calendar;
 /// <param name="MeetingUrl">Konum ya da açıklamada bulunan Meet/Teams/Zoom bağlantısı.</param>
 public sealed record CalendarItem(string Title, DateTime Start, DateTime End, bool AllDay, string? Location, string? MeetingUrl);
 
+/// <summary>Takvim etkinliklerinin geldiği yer: ICS adresleri ya da Google Takvim.</summary>
+public interface ICalendarSource
+{
+    bool IsConfigured { get; }
+
+    /// <summary>Verilen yerel aralıkla kesişen etkinlikler, başlangıca göre sıralı. Ulaşılamayan takvimler <paramref name="errors"/>'a yazılır.</summary>
+    Task<IReadOnlyList<CalendarItem>> GetAsync(DateTime fromLocal, DateTime toLocal, Action<string>? errors, CancellationToken ct);
+}
+
+/// <summary>Birden çok kaynağın etkinliklerini tek listede birleştirir; aynı başlık ve saatteki etkinlik bir kez görünür.</summary>
+public sealed class CombinedCalendarSource(params ICalendarSource[] sources) : ICalendarSource
+{
+    public bool IsConfigured => sources.Any(s => s.IsConfigured);
+
+    public async Task<IReadOnlyList<CalendarItem>> GetAsync(DateTime fromLocal, DateTime toLocal, Action<string>? errors, CancellationToken ct)
+    {
+        var all = await Task.WhenAll(sources.Where(s => s.IsConfigured).Select(s => s.GetAsync(fromLocal, toLocal, errors, ct)));
+        return all.SelectMany(i => i)
+            .DistinctBy(i => (i.Title, i.Start))
+            .OrderBy(i => i.Start).ThenBy(i => i.Title, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+}
+
 /// <summary>
 /// ICS adreslerinden (Google Takvim "gizli adres", Outlook "takvim yayınla") etkinlikleri okur. Tekrarlayan etkinlikler açılır,
 /// iptal edilenler atlanır. İndirilen dosya kısa süre önbellekte tutulur.
 /// </summary>
-public sealed partial class CalendarSource
+public sealed partial class CalendarSource : ICalendarSource
 {
     private readonly HttpClient _http;
     private readonly Func<IReadOnlyList<string>> _urls;

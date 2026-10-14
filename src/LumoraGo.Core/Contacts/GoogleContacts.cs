@@ -17,7 +17,8 @@ public sealed class GoogleException(string message) : Exception(message);
 public static class GoogleContacts
 {
     public const string Scope = "https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/userinfo.email "
-        + Photos.GooglePhotosPicker.Scope;
+        + Photos.GooglePhotosPicker.Scope + " " + Google.GoogleCalendar.Scope + " " + Google.GoogleTasks.Scope + " "
+        + Google.GoogleDrive.Scope + " " + Google.YouTubeLibrary.Scope;
     private const string AuthEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
     private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
     private const string ConnectionsEndpoint = "https://people.googleapis.com/v1/people/me/connections";

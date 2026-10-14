@@ -16,6 +16,14 @@ LumoraGo, Windows için bir başlatıcı (launcher) uygulamasıdır ve tamamen k
 - Seçilen fotoğraflar yalnızca bu bilgisayara (`%LOCALAPPDATA%\LumoraGo\photos`) indirilir ve launcher'da göstermek için kullanılır. Hiçbir sunucuya gönderilmez, kimseyle paylaşılmaz.
 - Google Fotoğraflar'da hiçbir değişiklik yapılmaz. Seçilenler /foto listesinden istenildiği an kaldırılabilir.
 
+## Google Takvim, Görevler, Drive ve YouTube
+
+- **Takvim** (`calendar.events`): ana takvimdeki etkinlikler launcher'da gösterilir; kullanıcı "etkinlik …" yazıp onaylarsa yeni etkinlik eklenir. Başka bir değişiklik yapılmaz.
+- **Görevler** (`tasks`): yapılacaklar listelenir; kullanıcı isterse görev eklenir ya da tamamlandı işaretlenir.
+- **Drive** (`drive.metadata.readonly`): yalnızca dosya adları, türleri ve bağlantıları aranır; dosyaların içeriği okunmaz, hiçbir dosya değiştirilmez.
+- **YouTube** (`youtube.readonly`): abonelikler, oynatma listeleri ve beğenilen videoların adları ve bağlantıları okunur ve bu bilgisayarda (`%LOCALAPPDATA%\LumoraGo\cache\youtube.json`) saklanır.
+- Bu bilgiler hiçbir sunucuya gönderilmez, kimseyle paylaşılmaz; yalnızca launcher'da göstermek için kullanılır.
+
 ## Diğer veriler
 
 Ayarlar, notlar, pano geçmişi ve hesap bilgileri yalnızca bilgisayarda (`%LOCALAPPDATA%\LumoraGo`) tutulur. LumoraGo hava durumu, kur, maç gibi bilgiler için ilgili hizmetlere yalnızca yazılan aramayı gönderir; kişisel veri göndermez.

@@ -2,6 +2,13 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.24.0
+- Yeni: Google Takvim. /takvim etkinlikleri doğrudan Google'dan gösterir (takvim adresi gerekmez); "etkinlik yarın 15:00 dişçi" yazıp Enter'a basınca Google Takvim'e hemen eklenir
+- Yeni: Google Görevler. /görev (ya da /yapılacak, /todo) tüm listelerdeki yapılacakları gösterir; Enter tamamlar, yazınca "Görev ekle" çıkar ("/görev yarın fatura öde"). Her yerde "görev süt al" da çalışır
+- Yeni: /drive ile Google Drive'da dosya adına göre arama; boşken son açtıkların. Enter tarayıcıda açar
+- Yeni: /youtube ile abone olduğun kanallar, oynatma listelerin ve beğendiğin videolar içinde arama; en altta YouTube'da arama satırı. "/youtube yenile" listeyi hemen yeniler
+- Kurulum, bir kerelik: Google Cloud'da Google Calendar API, Google Tasks API, Google Drive API ve YouTube Data API v3'ü etkinleştir, sonra Ayarlar'dan "Google ile bağlan"a yeniden bas ve tüm kutucukları işaretle
+
 ## 0.23.1
 - Yeni: /güncelle yazınca LumoraGo yeni sürümü beklemeden kontrol eder, varsa indirip hemen kurar ve yeniden açılır
 

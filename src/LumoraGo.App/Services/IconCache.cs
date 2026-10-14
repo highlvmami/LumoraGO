@@ -5,6 +5,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using LumoraGo.App.Native;
+using LumoraGo.Core.Plugins;
 
 namespace LumoraGo.App.Services;
 
@@ -18,6 +19,9 @@ internal static class IconCache
     private static StaWorker? _worker;
 
     public static void Initialize(StaWorker worker) => _worker = worker;
+
+    /// <summary>Bir küçük resim (<see cref="PhotosPlugin.ThumbnailPrefix"/>) hazır olunca, işçi iş parçacığında çağrılır.</summary>
+    public static event Action? ThumbnailLoaded;
 
     /// <returns>Simge hazırsa simge; değilse null (ve arka planda yüklemeye başlar).</returns>
     public static ImageSource? Get(string? path)
@@ -54,9 +58,23 @@ internal static class IconCache
         {
             _worker.Post(() =>
             {
+                var thumbnails = false;
                 foreach (var path in pending)
                 {
-                    Icons[path] = Load(path);
+                    if (path.StartsWith(PhotosPlugin.ThumbnailPrefix, StringComparison.Ordinal))
+                    {
+                        Icons[path] = ShellPreview.Thumbnail(path[PhotosPlugin.ThumbnailPrefix.Length..], 64);
+                        thumbnails = true;
+                    }
+                    else
+                    {
+                        Icons[path] = Load(path);
+                    }
+                }
+
+                if (thumbnails)
+                {
+                    ThumbnailLoaded?.Invoke();
                 }
             });
         }

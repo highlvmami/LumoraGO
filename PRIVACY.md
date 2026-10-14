@@ -10,6 +10,12 @@ LumoraGo, Windows için bir başlatıcı (launcher) uygulamasıdır ve tamamen k
 - Google rehberinde hiçbir değişiklik yapılmaz.
 - Bağlantı, Ayarlar → Kişiler → "Bağlantıyı kes" ile ya da https://myaccount.google.com/permissions adresinden istenildiği an kaldırılabilir; kesildiğinde Google'dan gelen kişiler LumoraGo'dan silinir.
 
+## Google Fotoğraflar
+
+- LumoraGo fotoğraf kütüphanesinin tamamını okumaz. Google'ın kendi seçim sayfası açılır ve yalnızca kullanıcının orada seçtiği fotoğraflar alınır (`photospicker.mediaitems.readonly`).
+- Seçilen fotoğraflar yalnızca bu bilgisayara (`%LOCALAPPDATA%\LumoraGo\photos`) indirilir ve launcher'da göstermek için kullanılır. Hiçbir sunucuya gönderilmez, kimseyle paylaşılmaz.
+- Google Fotoğraflar'da hiçbir değişiklik yapılmaz. Seçilenler /foto listesinden istenildiği an kaldırılabilir.
+
 ## Diğer veriler
 
 Ayarlar, notlar, pano geçmişi ve hesap bilgileri yalnızca bilgisayarda (`%LOCALAPPDATA%\LumoraGo`) tutulur. LumoraGo hava durumu, kur, maç gibi bilgiler için ilgili hizmetlere yalnızca yazılan aramayı gönderir; kişisel veri göndermez.

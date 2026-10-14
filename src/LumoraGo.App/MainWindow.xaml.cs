@@ -11,6 +11,7 @@ using LumoraGo.App.Controls;
 using LumoraGo.App.Services;
 using LumoraGo.App.ViewModels;
 using LumoraGo.Core;
+using LumoraGo.Core.Plugins;
 using LumoraGo.Plugin;
 
 namespace LumoraGo.App;
@@ -26,6 +27,11 @@ public partial class MainWindow : Window
     private bool _allowClose;
     private readonly PreviewPane _preview;
     private readonly DispatcherTimer _previewDelay;
+    private readonly DispatcherTimer _thumbnailRefresh;
+
+    /// <summary>"/foto" yazılınca önizleme kendiliğinden açıldıysa true; aramadan çıkınca yine kendiliğinden kapanır.</summary>
+    private bool _autoPreview;
+    private bool _inPhotos;
     private const double PreviewWidth = 420;
 
     // Sürükle-bırak: farenin basıldığı yer ve satır; sürükleme sürerken pencere odak kaybedince kapanmaz.
@@ -77,8 +83,28 @@ public partial class MainWindow : Window
         }, Dispatcher);
         _previewDelay.Stop();
 
+        // Küçük resimler arka planda hazırlanır; peş peşe gelenler tek yenilemede çizilsin.
+        _thumbnailRefresh = new DispatcherTimer(TimeSpan.FromMilliseconds(150), DispatcherPriority.Background, (_, _) =>
+        {
+            _thumbnailRefresh!.Stop();
+            RefreshResults(PhotosPlugin.Keyword);
+        }, Dispatcher);
+        _thumbnailRefresh.Stop();
+        IconCache.ThumbnailLoaded += () => Dispatcher.BeginInvoke(() =>
+        {
+            if (!_thumbnailRefresh.IsEnabled)
+            {
+                _thumbnailRefresh.Start();
+            }
+        });
+
         viewModel.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName == nameof(MainViewModel.QueryText))
+            {
+                UpdatePhotoPreview(viewModel.QueryText);
+            }
+
             if (e.PropertyName == nameof(MainViewModel.SelectedIndex) && viewModel.SelectedIndex >= 0)
             {
                 ResultsList.ScrollIntoView(ResultsList.Items[viewModel.SelectedIndex]);
@@ -125,6 +151,8 @@ public partial class MainWindow : Window
             SetPreview(true);
         }
 
+        UpdatePhotoPreview(_viewModel.QueryText);
+
         PlayShowAnimation();
 
         if (sinceHotkey is not null)
@@ -143,6 +171,7 @@ public partial class MainWindow : Window
             SetPreview(false);
         }
 
+        _inPhotos = _autoPreview = false;
         Hide();
     }
 
@@ -189,6 +218,31 @@ public partial class MainWindow : Window
     /// <summary>Kutudaki metin <paramref name="keyword"/> ile başlıyorsa sonuçları yeniden getirir.</summary>
     public void RefreshResults(string keyword) => _viewModel.Refresh(keyword);
 
+    /// <summary>Fotoğraf aramasına girilince önizleme yanda kendiliğinden açılır, çıkınca kapanır.</summary>
+    private void UpdatePhotoPreview(string text)
+    {
+        var inPhotos = text.StartsWith(PhotosPlugin.Keyword, StringComparison.OrdinalIgnoreCase);
+        if (inPhotos == _inPhotos)
+        {
+            return;
+        }
+
+        _inPhotos = inPhotos;
+        if (inPhotos && !IsPreviewOpen)
+        {
+            SetPreview(true);
+            _autoPreview = true;
+        }
+        else if (!inPhotos && _autoPreview)
+        {
+            _autoPreview = false;
+            if (!PreviewAlwaysOpen)
+            {
+                SetPreview(false);
+            }
+        }
+    }
+
     internal void AllowClose()
     {
         _allowClose = true;
@@ -225,10 +279,12 @@ public partial class MainWindow : Window
         switch (e.Key)
         {
             case Key.Space when Keyboard.Modifiers == ModifierKeys.Shift:
+                _autoPreview = false;
                 SetPreview(!IsPreviewOpen);
                 e.Handled = true;
                 break;
             case Key.Escape when IsPreviewOpen && !PreviewAlwaysOpen:
+                _autoPreview = false;
                 SetPreview(false);
                 e.Handled = true;
                 break;

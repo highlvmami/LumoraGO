@@ -2,6 +2,12 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.23.0
+- Yeni: /foto ile fotoğraflar. Google Fotoğraflar'dan seçtiğin fotoğraflar ve bilgisayardaki Resimler klasörü en yenisi başta listelenir, yanda önizlemesi açılır
+- /foto'da en üstteki satır Google Fotoğraflar'ın seçim sayfasını açar; seçip "Bitti" deyince fotoğraflar launcher'a iner. Google tüm kütüphanenin okunmasına izin vermediği için yalnızca seçtiklerin gelir
+- Ada, klasöre ya da tarihe göre arayabilirsin ("/foto tatil", "/foto mart 2024"); sağ ok menüsünde klasörde göster ve listeden kaldır var
+- Google fotoğrafları için bir kerelik: Google Cloud'da "Google Photos Picker API"yi etkinleştir ve Ayarlar → Kişiler'den "Google ile bağlan"a yeniden bas
+
 ## 0.22.2
 - Google Rehber: adında emoji ya da bozuk karakter olan bir kişi eşitlemeyi durduruyor ve Ayarlar "okunuyor…" yazısında takılı kalıyordu; düzeldi
 - Eşitleme beklenmedik bir hatayla durursa artık Ayarlar'da hatanın kendisi yazar

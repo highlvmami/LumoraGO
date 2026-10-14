@@ -21,6 +21,7 @@ using LumoraGo.Core.Mail;
 using LumoraGo.Core.Network;
 using LumoraGo.Core.Files;
 using LumoraGo.Core.Notes;
+using LumoraGo.Core.Photos;
 using LumoraGo.Core.Plugins;
 using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Search;
@@ -121,6 +122,8 @@ public partial class App : Application
         _contactsWatcher.Watch(_settings.Current.ContactsFile, _settings.Current.ContactsWatch);
         _googleContacts = new GoogleContactSync(Http, secrets, contacts, _log);
         _googleContactsTimer = new Timer(_ => _ = SyncGoogleContactsAsync(), null, GoogleContactsFirstSync, GoogleContactsInterval);
+        var photos = new PhotoLibrary(Path.Combine(DataRoot, "photos", "google"), () => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), _log);
+        var photoImport = new GooglePhotoImport(Http, secrets, photos, OpenUrl, _log);
         _theme = new ThemeService(this, WindowEffects.SupportsBackdrop, _settings.Current.Theme);
         _shellWorker = new StaWorker("LumoraGo.Shell");
         IconCache.Initialize(_shellWorker);
@@ -204,6 +207,9 @@ public partial class App : Application
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), ContactsPlugin.Keyword)),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/kişi")),
                 ContactsEntry(new ContactsPlugin(contacts, OpenUrl, () => true, () => Dispatcher.BeginInvoke(OpenSettings), "/rehber")),
+                .. new[] { PhotosPlugin.Keyword, "/fotoğraf", "/fotograf" }.Select(k => PhotosEntry(new PhotosPlugin(
+                    photos, photoImport, () => secrets.Current.Google is { RefreshToken.Length: > 0 }, OpenPath, RevealPath,
+                    () => Dispatcher.BeginInvoke(OpenSettings), k))),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, ScriptsPlugin.RunKeyword)),
                 ScriptsEntry(new ScriptsPlugin(scripts, Chains, scriptHost, "/çalıştır")),
@@ -455,6 +461,8 @@ public partial class App : Application
     }
 
     private static PluginEntry ContactsEntry(ContactsPlugin plugin) => new(plugin.Metadata, plugin);
+
+    private static PluginEntry PhotosEntry(PhotosPlugin plugin) => new(plugin.Metadata, plugin);
 
     private static PluginEntry ScriptsEntry(ScriptsPlugin plugin) => new(plugin.Metadata, plugin);
 

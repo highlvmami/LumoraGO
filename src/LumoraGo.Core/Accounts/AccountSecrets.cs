@@ -16,7 +16,13 @@ public sealed record AccountSecrets
 
     /// <summary>Google Rehber bağlantısı; "Google ile bağlan" yapılmadıysa null.</summary>
     public GoogleAccount? Google { get; init; }
+
+    /// <summary>"Spotify ile bağlan" yapılmadıysa null.</summary>
+    public SpotifyAccount? Spotify { get; init; }
 }
+
+/// <summary>Kullanıcının Spotify geliştirici panelinde oluşturduğu uygulamanın kimliği ve girişten sonra alınan yenileme anahtarı.</summary>
+public sealed record SpotifyAccount(string ClientId, string RefreshToken = "", string Name = "", bool Premium = false);
 
 /// <summary>Kullanıcının Google Cloud'da oluşturduğu masaüstü OAuth istemcisi ve girişten sonra alınan yenileme anahtarı.</summary>
 /// <param name="RefreshToken">Boşsa istemci kayıtlı ama giriş yapılmamış.</param>

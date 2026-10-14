@@ -28,6 +28,7 @@ using LumoraGo.Core.Scripts;
 using LumoraGo.Core.Search;
 using LumoraGo.Core.Settings;
 using LumoraGo.Core.Snippets;
+using LumoraGo.Core.Spotify;
 using LumoraGo.Core.Timers;
 using LumoraGo.Plugin;
 
@@ -129,6 +130,7 @@ public partial class App : Application
         var photos = new PhotoLibrary(Path.Combine(DataRoot, "photos", "google"), () => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), _log);
         var photoImport = new GooglePhotoImport(Http, secrets, photos, OpenUrl, _log);
         var google = new GoogleApi(Http, secrets);
+        var spotify = new SpotifyApi(Http, secrets);
         var googleCalendar = new GoogleCalendar(google);
         var googleTasks = new GoogleTasks(google);
         var youtube = new YouTubeLibrary(google, Path.Combine(DataRoot, "cache", "youtube.json"), _log);
@@ -225,6 +227,11 @@ public partial class App : Application
                 .. ToolPlugin.All().Select(t => new PluginEntry(t.Metadata, t)),
                 new PluginEntry(ProcessKillPlugin.Metadata, new ProcessKillPlugin(ProcessService.List, ProcessService.Kill)),
                 new PluginEntry(MediaPlugin.Metadata, new MediaPlugin(media)),
+                .. new[] { "/spotify", "/sp", "/müzik", "/muzik" }.Select(keyword =>
+                {
+                    var plugin = new SpotifyPlugin(spotify, media, OpenSpotify, () => Dispatcher.BeginInvoke(OpenSettings), keyword);
+                    return new PluginEntry(plugin.Metadata, plugin);
+                }),
                 .. NetworkToolPlugins.Create(
                     new NetworkTools(Http, SystemNetwork.PingAsync, SystemNetwork.WhoisAsync),
                     new SpeedTest(LongHttp)).Select(p => new PluginEntry(p.Metadata, p)),
@@ -483,6 +490,21 @@ public partial class App : Application
         return await SyncGoogleContactsAsync();
     }
 
+    /// <returns>Hata mesajı; bağlandıysa null.</returns>
+    private async Task<string?> ConnectSpotifyAsync(string clientId)
+    {
+        try
+        {
+            var account = await SpotifyApi.SignInAsync(Http, clientId, OpenUrl, CancellationToken.None);
+            _secrets!.Save(_secrets.Current with { Spotify = account });
+            return null;
+        }
+        catch (SpotifyException ex)
+        {
+            return ex.Message;
+        }
+    }
+
     private void CheckReminders()
     {
         if (_reminders is null)
@@ -614,7 +636,7 @@ public partial class App : Application
 
         _window?.HideLauncher();
         _settingsWindow = new SettingsWindow(_settings, _secrets!, TryChangeHotkey, () => _learning?.Clear(), _contacts!,
-            ConnectGoogleAsync, SyncGoogleContactsAsync);
+            ConnectGoogleAsync, SyncGoogleContactsAsync, ConnectSpotifyAsync);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
         _settingsWindow.Activate();
@@ -860,6 +882,19 @@ public partial class App : Application
         catch (Exception ex)
         {
             _log?.Warn($"Tarayıcı açılamadı: {url}: {ex.Message}");
+        }
+    }
+
+    /// <summary>"spotify:..." adresini uygulamada açar; Spotify kurulu değilse web oynatıcıda.</summary>
+    private void OpenSpotify(string uri)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            OpenUrl(SpotifyApi.WebUrl(uri));
         }
     }
 

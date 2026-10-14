@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.27.0
+- Yeni: /spotify (ya da /sp, /müzik). Kurulum gerekmeden /spotify tarkan aramayı Spotify uygulamasında açar; /spotify sonraki, önceki, duraklat şarkıyı kontrol eder
+- Ayarlar → Spotify'dan bir kez bağlanınca şarkı, liste, albüm ve sanatçılar launcher'da listelenir ve Enter çalar (Premium gerekir; değilse uygulamada açılır). Boş /spotify şu an çalanı ve listelerini gösterir
+
 ## 0.26.0
 - Yeni: /ezan (ya da /namaz, /vakit) bugünün namaz vakitlerini ve sıradaki vakte kalan süreyi gösterir ("Akşama 1 sa 22 dk"). /ezan ankara başka şehir, /ezan yarın yarının vakitleri. Vakitler Diyanet hesabıyla aladhan.com'dan gelir
 - Yeni: /eczane nöbetçi eczaneleri Google Haritalar'da ve e-Devlet'in resmi listesinde açar; /eczane kadıköy gibi ilçe de yazılabilir. İstanbul için Eczacı Odası listesi de çıkar

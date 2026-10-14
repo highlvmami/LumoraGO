@@ -19,11 +19,12 @@ internal partial class SettingsWindow : Window
     private readonly ContactBook _contacts;
     private readonly Func<string, string, Task<string>> _connectGoogle;
     private readonly Func<Task<string>> _syncGoogle;
+    private readonly Func<string, Task<string?>> _connectSpotify;
     private string _contactsFile;
 
     /// <param name="tryHotkey">Kısayolu kaydetmeyi dener; başka uygulama kullanıyorsa false döner ve eskisi kalır.</param>
     public SettingsWindow(SettingsStore store, SecretStore secrets, Func<string, bool> tryHotkey, Action resetLearning, ContactBook contacts,
-        Func<string, string, Task<string>> connectGoogle, Func<Task<string>> syncGoogle)
+        Func<string, string, Task<string>> connectGoogle, Func<Task<string>> syncGoogle, Func<string, Task<string?>> connectSpotify)
     {
         InitializeComponent();
 
@@ -36,6 +37,7 @@ internal partial class SettingsWindow : Window
         _contacts = contacts;
         _connectGoogle = connectGoogle;
         _syncGoogle = syncGoogle;
+        _connectSpotify = connectSpotify;
 
         var s = store.Current;
         HotkeyBox.Text = s.Hotkey;
@@ -62,6 +64,8 @@ internal partial class SettingsWindow : Window
         }
 
         ShowGoogleStatus();
+        SpotifyClientIdBox.Text = secrets.Current.Spotify?.ClientId ?? "";
+        ShowSpotifyStatus();
         CalendarUrlsBox.Text = string.Join(Environment.NewLine, secrets.Current.CalendarUrls);
         if (secrets.Current.Mail is { } mail)
         {
@@ -191,6 +195,45 @@ internal partial class SettingsWindow : Window
         {
             button.IsEnabled = true;
         }
+    }
+
+    private void ShowSpotifyStatus()
+    {
+        var spotify = _secrets.Current.Spotify;
+        SpotifyStatus.Text = spotify is { RefreshToken.Length: > 0 }
+            ? $"Bağlı: {spotify.Name}{(spotify.Premium ? " (Premium)" : " (Premium değil; sonuçlar listelenir, Enter uygulamada açar)")}"
+            : "Bağlı değil";
+        SpotifyDisconnectButton.IsEnabled = spotify is { RefreshToken.Length: > 0 };
+    }
+
+    private async void ConnectSpotify_OnClick(object sender, RoutedEventArgs e)
+    {
+        SpotifyConnectButton.IsEnabled = false;
+        SpotifyStatus.Text = "Tarayıcıda Spotify'a giriş yap ve Agree de…";
+        try
+        {
+            var error = await _connectSpotify(SpotifyClientIdBox.Text.Trim());
+            ShowSpotifyStatus();
+            if (error is not null)
+            {
+                SpotifyStatus.Text += $" ({error})";
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowSpotifyStatus();
+            SpotifyStatus.Text += $" (beklenmeyen hata: {ex.GetType().Name}: {ex.Message})";
+        }
+        finally
+        {
+            SpotifyConnectButton.IsEnabled = true;
+        }
+    }
+
+    private void DisconnectSpotify_OnClick(object sender, RoutedEventArgs e)
+    {
+        _secrets.Save(_secrets.Current with { Spotify = _secrets.Current.Spotify is { } s ? s with { RefreshToken = "", Name = "" } : null });
+        ShowSpotifyStatus();
     }
 
     private void DisconnectGoogle_OnClick(object sender, RoutedEventArgs e)

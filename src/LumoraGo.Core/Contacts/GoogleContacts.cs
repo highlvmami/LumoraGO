@@ -93,7 +93,8 @@ public static class GoogleContacts
     }
 
     /// <summary>Tarayıcının 127.0.0.1'e yaptığı ilk "GET /?code=...&state=..." isteğini okuyup kısa bir sayfa döndürür.</summary>
-    internal static async Task<string> ReceiveCodeAsync(TcpListener listener, string state, CancellationToken ct)
+    internal static async Task<string> ReceiveCodeAsync(TcpListener listener, string state, CancellationToken ct, string service = "Google",
+        string done = "LumoraGo Google Rehber'e bağlandı. Bu sekmeyi kapatabilirsin.")
     {
         while (true)
         {
@@ -119,15 +120,15 @@ public static class GoogleContacts
             }
             else if (query.GetValueOrDefault("error") is { } e)
             {
-                error = e == "access_denied" ? "Google erişimine izin verilmedi." : $"Google hata verdi: {e}";
+                error = e == "access_denied" ? $"{service} erişimine izin verilmedi." : $"{service} hata verdi: {e}";
             }
             else
             {
                 code = query.GetValueOrDefault("code");
-                error = code is { Length: > 0 } ? null : "Google kod göndermedi.";
+                error = code is { Length: > 0 } ? null : $"{service} kod göndermedi.";
             }
 
-            await RespondAsync(stream, 200, Page(error ?? "LumoraGo Google Rehber'e bağlandı. Bu sekmeyi kapatabilirsin."), ct);
+            await RespondAsync(stream, 200, Page(error ?? done), ct);
             Finish(client);
             return error is null ? code! : throw new GoogleException(error);
         }

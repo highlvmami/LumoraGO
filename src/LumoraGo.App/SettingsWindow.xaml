@@ -136,6 +136,16 @@
                 </StackPanel>
                 <TextBlock Style="{StaticResource Note}" Text="Google kendi rehberine yalnızca kayıtlı uygulamaların erişmesine izin veriyor, bu yüzden bir kerelik kurulum gerekir: 1) console.cloud.google.com'da yeni proje aç. 2) API'ler ve Hizmetler → Kitaplık'ta şunların her birini aratıp Etkinleştir: People API, Google Photos Picker API, Google Calendar API, Google Tasks API, Google Drive API, YouTube Data API v3. 3) OAuth izin ekranı (Google Auth Platform): Harici seç, uygulama adı LumoraGo, kendi mailini yaz; Kitle bölümünde &quot;Uygulamayı yayınla&quot; de (Test modunda kalırsa bağlantı 7 günde bir kopar). 4) İstemciler → İstemci oluştur → Uygulama türü: Masaüstü uygulaması. 5) Çıkan istemci kimliğini ve gizli anahtarı buraya yapıştır, &quot;Google ile bağlan&quot;a bas. Tarayıcıda &quot;Google bu uygulamayı doğrulamadı&quot; uyarısında Gelişmiş → LumoraGo'ya git (güvenli değil) de; uygulama senin. İzin ekranındaki tüm kutucukları işaretle. Kişiler 3 saatte bir yenilenir; Google'da sildiğin kişi burada da silinir. Launcher'da: /foto, /takvim, /görev, /drive, /youtube." />
 
+                <TextBlock Text="Spotify (/spotify)" Style="{StaticResource Heading}" />
+                <TextBlock x:Name="SpotifyStatus" Margin="0,0,0,6" />
+                <TextBlock Text="Client ID" Margin="0,0,0,2" />
+                <TextBox x:Name="SpotifyClientIdBox" Padding="6,4" />
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <Button x:Name="SpotifyConnectButton" Content="Spotify ile bağlan" Click="ConnectSpotify_OnClick" />
+                    <Button x:Name="SpotifyDisconnectButton" Content="Bağlantıyı kes" Click="DisconnectSpotify_OnClick" />
+                </StackPanel>
+                <TextBlock Style="{StaticResource Note}" Text="Bağlamadan da çalışır: /spotify tarkan aramayı Spotify uygulamasında açar, /spotify sonraki şarkı geçer. Bağlarsan sonuçlar launcher'da listelenir ve Enter çalar (çalmak için Premium gerekir). Bir kerelik kurulum: 1) developer.spotify.com/dashboard'a Spotify hesabınla gir, Create app de. 2) App name: LumoraGo, açıklamaya herhangi bir şey yaz. 3) Redirect URIs kutusuna tam olarak http://127.0.0.1:8975/callback yaz ve Add'e bas. 4) &quot;Which API/SDKs are you planning to use?&quot; altında Web API'yi işaretle, kaydet. 5) Uygulamanın Settings sayfasındaki Client ID'yi buraya yapıştırıp &quot;Spotify ile bağlan&quot;a bas, tarayıcıda Agree de. Gizli anahtar (Client secret) gerekmez." />
+
                 <TextBlock Text="Takvim (/takvim)" Style="{StaticResource Heading}" />
                 <TextBox x:Name="CalendarUrlsBox" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"

@@ -197,6 +197,13 @@ public partial class App : Application
         var reminders = _reminders;
         _reminderTimer = new Timer(_ => CheckReminders(), null, ReminderFirstCheck, ReminderInterval);
 
+        // Kurlar açılışta arka planda gelsin; ilk "100 usd tl" yazışında "yükleniyor" görünmesin.
+        var rates = new CurrencyRates(
+            Path.Combine(DataRoot, "cache", "rates.json"),
+            ct => Http.GetStringAsync(CurrencyRates.SourceUrl, ct),
+            _log);
+        _ = rates.RefreshIfStaleAsync(DateTime.UtcNow);
+
         var scriptRunner = new ScriptRunner();
         var scriptHost = new ScriptHost(
             scriptRunner.RunAsync,
@@ -206,10 +213,7 @@ public partial class App : Application
         plugins.Initialize(
             [
                 new PluginEntry(CalculatorPlugin.Metadata, new CalculatorPlugin()),
-                new PluginEntry(ConverterPlugin.Metadata, new ConverterPlugin(new CurrencyRates(
-                    Path.Combine(DataRoot, "cache", "rates.json"),
-                    ct => Http.GetStringAsync(CurrencyRates.SourceUrl, ct),
-                    _log))),
+                new PluginEntry(ConverterPlugin.Metadata, new ConverterPlugin(rates)),
                 new PluginEntry(ColorPlugin.Metadata, new ColorPlugin()),
                 new PluginEntry(AppsPlugin.Metadata, new AppsPlugin(apps, appLauncher, usage)),
                 WebSearchEntry(WebSearchPlugin.YouTube(OpenUrl)),

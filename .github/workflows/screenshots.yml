@@ -24,6 +24,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          Set-TimeZone -Id "Turkey Standard Time"
           Set-DisplayResolution -Width 1920 -Height 1080 -Force
           Add-Type -AssemblyName System.Windows.Forms
           [System.Windows.Forms.Screen]::PrimaryScreen.Bounds

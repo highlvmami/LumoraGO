@@ -66,7 +66,6 @@ function Capture([IntPtr]$h, [string]$name, [int]$pad = 24) {
 $shots = @(
   @("not", "uygulama-arama", 2),
   @("2+3*4", "hesap-makinesi", 2),
-  @("100 usd tl", "doviz", 6),
   @("/hava istanbul", "hava", 8),
   @("/hisse THYAO", "hisse", 8),
   @("/sistem", "sistem", 5),
@@ -74,7 +73,8 @@ $shots = @(
   @("/haber", "haber", 10),
   @("/çevir good morning, how are you?", "ceviri", 6),
   @("/ezan istanbul", "ezan", 8),
-  @("/liste", "komut-listesi", 3)
+  @("/liste", "komut-listesi", 3),
+  @("100 usd tl", "doviz", 3)
 )
 
 # Masaüstündeki diğer pencereler arkada görünmesin.

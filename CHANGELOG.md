@@ -2,6 +2,10 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.24.1
+- /takvim artık Google Takvim'de işaretli tüm takvimlerini gösterir (Aile, Doğum Günleri, Türkiye'deki Tatiller…); ana takvim dışındakilerin altında hangi takvimden geldiği yazar
+- Bunun için Ayarlar'dan "Google ile bağlan"a bir kez daha bas; basmazsan yalnızca ana takvim gelmeye devam eder
+
 ## 0.24.0
 - Yeni: Google Takvim. /takvim etkinlikleri doğrudan Google'dan gösterir (takvim adresi gerekmez); "etkinlik yarın 15:00 dişçi" yazıp Enter'a basınca Google Takvim'e hemen eklenir
 - Yeni: Google Görevler. /görev (ya da /yapılacak, /todo) tüm listelerdeki yapılacakları gösterir; Enter tamamlar, yazınca "Görev ekle" çıkar ("/görev yarın fatura öde"). Her yerde "görev süt al" da çalışır

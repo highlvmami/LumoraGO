@@ -5,11 +5,15 @@ using LumoraGo.Core.Contacts;
 
 namespace LumoraGo.Core.Google;
 
-/// <summary>Google Takvim'in ana takvimi: etkinlikleri okur ve yeni etkinlik ekler.</summary>
+/// <summary>
+/// Google Takvim: Google Takvim'de işaretli (görünen) tüm takvimlerin etkinliklerini okur (Aile, Doğum Günleri, Tatiller…);
+/// yeni etkinliği ana takvime ekler.
+/// </summary>
 public sealed class GoogleCalendar(GoogleApi api, TimeZoneInfo? zone = null) : ICalendarSource
 {
-    public const string Scope = "https://www.googleapis.com/auth/calendar.events";
-    private const string Events = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
+    public const string Scope = "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly";
+    private const string Base = "https://www.googleapis.com/calendar/v3/";
+    private const string Events = Base + "calendars/primary/events";
 
     private readonly TimeZoneInfo _zone = zone ?? TimeZoneInfo.Local;
 
@@ -17,19 +21,51 @@ public sealed class GoogleCalendar(GoogleApi api, TimeZoneInfo? zone = null) : I
 
     public async Task<IReadOnlyList<CalendarItem>> GetAsync(DateTime fromLocal, DateTime toLocal, Action<string>? errors, CancellationToken ct)
     {
+        var calendars = await CalendarsAsync(ct);
+        var range = "?singleEvents=true&orderBy=startTime&maxResults=250"
+            + "&timeMin=" + Uri.EscapeDataString(Utc(fromLocal)) + "&timeMax=" + Uri.EscapeDataString(Utc(toLocal));
+        var lists = await Task.WhenAll(calendars.Select(async c =>
+        {
+            try
+            {
+                using var doc = await api.GetAsync(GoogleService.Calendar, $"{Base}calendars/{Uri.EscapeDataString(c.Id)}/events{range}", ct);
+                var items = Parse(doc.RootElement, _zone);
+                // Ana takvim dışındakiler hangi takvimden geldiğini göstersin ("Doğum Günleri").
+                return c.Primary ? items : items.Select(i => i with { Location = i.Location ?? c.Name }).ToList();
+            }
+            catch (GoogleException ex)
+            {
+                errors?.Invoke(c.Primary ? ex.Message : $"{c.Name}: {ex.Message}");
+                return (IReadOnlyList<CalendarItem>)[];
+            }
+        }));
+        return lists.SelectMany(l => l).OrderBy(i => i.Start).ToList();
+    }
+
+    internal sealed record CalendarRef(string Id, string Name, bool Primary);
+
+    /// <summary>Google Takvim'de işaretli takvimler. Liste okunamazsa (eski bağlantının izni yetmezse) yalnızca ana takvim.</summary>
+    private async Task<IReadOnlyList<CalendarRef>> CalendarsAsync(CancellationToken ct)
+    {
         try
         {
-            var url = $"{Events}?singleEvents=true&orderBy=startTime&maxResults=250"
-                + "&timeMin=" + Uri.EscapeDataString(Utc(fromLocal)) + "&timeMax=" + Uri.EscapeDataString(Utc(toLocal));
-            using var doc = await api.GetAsync(GoogleService.Calendar, url, ct);
-            return Parse(doc.RootElement, _zone);
+            using var doc = await api.GetAsync(GoogleService.Calendar, Base + "users/me/calendarList?maxResults=250", ct);
+            var calendars = ParseCalendars(doc.RootElement);
+            return calendars.Count > 0 ? calendars : [new CalendarRef("primary", "", true)];
         }
-        catch (GoogleException ex)
+        catch (GoogleException)
         {
-            errors?.Invoke(ex.Message);
-            return [];
+            return [new CalendarRef("primary", "", true)];
         }
     }
+
+    internal static IReadOnlyList<CalendarRef> ParseCalendars(JsonElement root) =>
+        root.Items()
+            .Where(c => c.Str("id") is not null && !Flag(c, "hidden") && !(c.TryGetProperty("selected", out var s) && s.ValueKind == JsonValueKind.False))
+            .Select(c => new CalendarRef(c.Str("id")!, c.Str("summaryOverride") ?? c.Str("summary") ?? "", Flag(c, "primary")))
+            .ToList();
+
+    private static bool Flag(JsonElement e, string name) => e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.True;
 
     /// <summary>Saat varsa 1 saatlik, yoksa tüm gün etkinlik ekler.</summary>
     /// <exception cref="GoogleException">Eklenemedi.</exception>

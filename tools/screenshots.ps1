@@ -85,6 +85,8 @@ Start-Sleep -Seconds 8
 $h = Window "LumoraGo"
 
 foreach ($shot in $shots) {
+  (New-Object -ComObject Shell.Application).MinimizeAll()
+  Start-Sleep -Milliseconds 500
   Start-Process $exePath   # ikinci kopya çalışan launcher'a "göster" der
   Start-Sleep -Milliseconds 800
   $h = Window "LumoraGo"
@@ -93,6 +95,10 @@ foreach ($shot in $shots) {
   [System.Windows.Forms.SendKeys]::SendWait("^a")
   [System.Windows.Forms.SendKeys]::SendWait("^v")
   Start-Sleep -Seconds $shot[2]
+  # Arka planda yüklenen sonuçlar (döviz kurları gibi) ilk yazışta "yükleniyor" der; bir kez daha yaz.
+  [System.Windows.Forms.SendKeys]::SendWait("^a")
+  [System.Windows.Forms.SendKeys]::SendWait("^v")
+  Start-Sleep -Seconds 2
   Capture $h $shot[1]
 }
 

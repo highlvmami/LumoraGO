@@ -12,7 +12,20 @@ public static class Win {
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
-  [DllImport("user32.dll")] public static extern IntPtr FindWindow(string cls, string title);
+  public delegate bool EnumProc(IntPtr h, IntPtr p);
+  [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr p);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);
+  // Aynı başlıklı gizli yardımcı pencereler de var; görünür olanı ara.
+  public static IntPtr FindVisible(string title) {
+    IntPtr found = IntPtr.Zero;
+    EnumWindows((h, p) => {
+      var sb = new System.Text.StringBuilder(256);
+      GetWindowText(h, sb, 256);
+      if (sb.ToString() == title && IsWindowVisible(h)) { found = h; return false; }
+      return true;
+    }, IntPtr.Zero);
+    return found;
+  }
   [DllImport("dwmapi.dll")] public static extern int DwmGetWindowAttribute(IntPtr h, int attr, out RECT r, int size);
 }
 "@
@@ -23,7 +36,7 @@ $exePath = (Resolve-Path $Exe).Path
 
 function Window([string]$title) {
   for ($i = 0; $i -lt 50; $i++) {
-    $h = [Win]::FindWindow($null, $title)
+    $h = [Win]::FindVisible($title)
     if ($h -ne [IntPtr]::Zero -and [Win]::IsWindowVisible($h)) { return $h }
     Start-Sleep -Milliseconds 200
   }
@@ -64,6 +77,9 @@ $shots = @(
   @("/liste", "komut-listesi", 3)
 )
 
+# Masaüstündeki diğer pencereler arkada görünmesin.
+(New-Object -ComObject Shell.Application).MinimizeAll()
+Start-Sleep -Seconds 1
 Start-Process $exePath
 Start-Sleep -Seconds 8
 $h = Window "LumoraGo"

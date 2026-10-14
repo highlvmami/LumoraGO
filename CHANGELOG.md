@@ -4,6 +4,7 @@ Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerde
 
 ## 0.22.1
 - Google Rehber: Google girişinde kişileri görme kutucuğu işaretsiz bırakılırsa artık "0 kişi" yerine bunu açıkça söyler ve kutucuğu işaretleyip yeniden bağlanmanı ister
+- "Bağlantıyı kes" artık istemci kimliğini ve gizli anahtarı silmez; yeniden bağlanırken tekrar girmen gerekmez
 - Google bir hata döndürdüğünde kendi açıklaması da Ayarlar'da ve kayıtta görünür
 
 ## 0.22.0

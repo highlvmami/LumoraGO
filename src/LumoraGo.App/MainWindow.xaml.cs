@@ -275,10 +275,13 @@ public partial class MainWindow : Window
         Top = top + (height * 0.2);
     }
 
+    /// <summary>Ekran görüntüsü çekilirken (tools/screenshots.ps1) odak kaybında gizlenmesin.</summary>
+    private static readonly bool KeepOpen = Environment.GetEnvironmentVariable("LUMORAGO_KEEP_OPEN") == "1";
+
     protected override void OnDeactivated(EventArgs e)
     {
         base.OnDeactivated(e);
-        if (!_dragging)
+        if (!_dragging && !KeepOpen)
         {
             HideLauncher();
         }

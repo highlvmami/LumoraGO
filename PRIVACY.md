@@ -31,3 +31,9 @@ Ayarlar, notlar, pano geçmişi ve hesap bilgileri yalnızca bilgisayarda (`%LOC
 ## İletişim
 
 Sorular için: https://github.com/highlvmami/LumoraGO/issues
+
+## Spotify
+
+Ayarlar'dan "Spotify ile bağlan" yapılırsa LumoraGo, kullanıcının kendi Spotify geliştirici uygulamasıyla şu izinleri ister: profil ve abonelik türü (user-read-private), çalma durumu ve kontrolü (user-read-playback-state, user-modify-playback-state, user-read-currently-playing), çalma listeleri (playlist-read-private, playlist-read-collaborative).
+
+- Yenileme anahtarı Windows hesabına bağlı şifreli dosyada tutulur. Arama metinleri yalnızca Spotify'a gönderilir; hiçbir şey başka bir sunucuya gönderilmez.

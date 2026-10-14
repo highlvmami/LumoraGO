@@ -6,7 +6,7 @@ using LumoraGo.Plugin;
 namespace LumoraGo.Core.Plugins;
 
 /// <summary>
-/// "/takvim": bugünün kalan toplantıları; "/takvim yarın" ve "/takvim hafta" ile ilerisi. Enter toplantı bağlantısını açar
+/// "/takvim": bu hafta ve önümüzdeki bir ay, tarihleriyle; "/takvim bugün", "/takvim yarın", "/takvim hafta" daraltır. Enter toplantı bağlantısını açar
 /// (yoksa başlığı kopyalar). Takvimi ağdan almak 200 ms'yi aşabildiği için ilk açılışta "yükleniyor" gösterilip liste tazelenir.
 /// </summary>
 public sealed class CalendarPlugin : IPlugin
@@ -15,7 +15,7 @@ public sealed class CalendarPlugin : IPlugin
     public static readonly PluginMetadata Metadata = new("lumorago.calendar", "Takvim", Keyword);
 
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
-    private const int Days = 8;
+    private const int Days = 40;
 
     private readonly ICalendarSource _source;
     private readonly Action<string> _open;
@@ -81,7 +81,7 @@ public sealed class CalendarPlugin : IPlugin
         var mode = Mode(query.Search);
         if (mode is null)
         {
-            return One(new Result("Anlaşılmadı", "/takvim, /takvim yarın ya da /takvim hafta yaz", null, 1, _ => false));
+            return One(new Result("Anlaşılmadı", "/takvim, /takvim bugün, /takvim yarın ya da /takvim hafta yaz", null, 1, _ => false));
         }
 
         var results = Build(items, mode.Value, now);
@@ -99,6 +99,7 @@ public sealed class CalendarPlugin : IPlugin
 
     private enum View
     {
+        Upcoming,
         Today,
         Tomorrow,
         Week,
@@ -106,7 +107,8 @@ public sealed class CalendarPlugin : IPlugin
 
     private static View? Mode(string search) => FuzzyMatcher.Fold(search.Trim()) switch
     {
-        "" or "bugun" => View.Today,
+        "" or "ay" or "aylik" => View.Upcoming,
+        "bugun" => View.Today,
         "yarin" => View.Tomorrow,
         "hafta" or "haftalik" => View.Week,
         _ => null,
@@ -168,12 +170,13 @@ public sealed class CalendarPlugin : IPlugin
         {
             View.Tomorrow => (today.AddDays(1), today.AddDays(2), "yarın"),
             View.Week => (today, today.AddDays(7), "bu hafta"),
+            View.Upcoming => (today, today.AddMonths(1).AddDays(1), "önümüzdeki bir ay"),
             _ => (today, today.AddDays(1), "bugün"),
         };
 
         var shown = items
             .Where(i => i.Start < to && (i.End > from || i.Start >= from))
-            .Where(i => view != View.Today || i.AllDay || i.End > now || i.Start >= now)
+            .Where(i => view is not (View.Today or View.Upcoming) || i.AllDay || i.End > now || i.Start >= now)
             .ToList();
 
         var results = new List<Result>();
@@ -218,7 +221,20 @@ public sealed class CalendarPlugin : IPlugin
         return $"{day}{(running ? "şimdi" : item.Start.ToString("HH:mm", Turkish))}–{item.End.ToString("HH:mm", Turkish)} · {item.Title}";
     }
 
-    private static string Title(CalendarItem item, View view, DateTime now) => Title(item, view == View.Week, now);
+    private static string Title(CalendarItem item, View view, DateTime now) => view switch
+    {
+        View.Week => Title(item, true, now),
+        View.Upcoming => $"{DayLabel(item.Start, now)} {Title(item, false, now)}",
+        _ => Title(item, false, now),
+    };
+
+    /// <summary>"Bugün", "Yarın" ya da "Cum 16 Eki".</summary>
+    internal static string DayLabel(DateTime start, DateTime now) => (start.Date - now.Date).Days switch
+    {
+        <= 0 => "Bugün",
+        1 => "Yarın",
+        _ => start.ToString("ddd d MMM", Turkish),
+    };
 
     private static string Subtitle(CalendarItem item)
     {

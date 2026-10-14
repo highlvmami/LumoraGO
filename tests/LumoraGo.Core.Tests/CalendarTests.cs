@@ -187,9 +187,24 @@ public class CalendarTests
     public async Task Today_shows_running_and_upcoming_but_not_finished_events()
     {
         var (plugin, _) = await Ready(Day13);
-        var titles = (await Ask(plugin, "")).Select(r => r.Title).ToList();
+        var titles = (await Ask(plugin, "bugün")).Select(r => r.Title).ToList();
 
         Assert.Equal(["şimdi–12:30 · Süren", "14:00–15:00 · Planlama", "16:00–17:00 · Akşam"], titles);
+    }
+
+    [Fact]
+    public async Task Default_view_shows_this_week_and_the_next_month_with_dates()
+    {
+        var (plugin, _) = await Ready(Ics(
+            "DTSTART:20261013T110000Z\r\nDTEND:20261013T120000Z\r\nSUMMARY:Planlama",
+            "DTSTART:20261014T070000Z\r\nDTEND:20261014T080000Z\r\nSUMMARY:Yarınki",
+            "DTSTART:20261016T070000Z\r\nDTEND:20261016T080000Z\r\nSUMMARY:Cuma",
+            "DTSTART:20261112T070000Z\r\nDTEND:20261112T080000Z\r\nSUMMARY:Ay içinde",
+            "DTSTART:20261120T070000Z\r\nDTEND:20261120T080000Z\r\nSUMMARY:Çok ileride"));
+        var titles = (await Ask(plugin, "")).Select(r => r.Title).ToList();
+
+        Assert.Equal(["Bugün 14:00–15:00 · Planlama", "Yarın 10:00–11:00 · Yarınki", "Cum 16 Eki 10:00–11:00 · Cuma", "Per 12 Kas 10:00–11:00 · Ay içinde"], titles);
+        Assert.Equal(titles, (await Ask(plugin, "ay")).Select(r => r.Title));
     }
 
     [Fact]
@@ -225,7 +240,7 @@ public class CalendarTests
     public async Task Empty_day_says_so()
     {
         var (plugin, _) = await Ready(Ics("DTSTART:20261014T070000Z\r\nDTEND:20261014T080000Z\r\nSUMMARY:Yarınki"));
-        Assert.Equal("Bugün başka etkinlik yok", Assert.Single(await Ask(plugin, "")).Title);
+        Assert.Equal("Bugün başka etkinlik yok", Assert.Single(await Ask(plugin, "bugün")).Title);
     }
 
     [Fact]

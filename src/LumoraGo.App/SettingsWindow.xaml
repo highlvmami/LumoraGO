@@ -58,9 +58,9 @@
                 </ComboBox>
                 <CheckBox x:Name="StartupBox" Content="Windows açılışında başlat" Margin="0,10,0,0" />
 
-                <TextBlock Text="Hava durumu (/hava)" Style="{StaticResource Heading}" />
+                <TextBlock Text="Şehir (/hava, /ezan, /eczane)" Style="{StaticResource Heading}" />
                 <TextBox x:Name="WeatherCityBox" Padding="6,4" />
-                <TextBlock Style="{StaticResource Note}" Text="&quot;/hava&quot; yalnız yazılınca gösterilecek şehir, örn. İzmir. Boş bırakırsan internet bağlantının konumu (yaklaşık) kullanılır." />
+                <TextBlock Style="{StaticResource Note}" Text="&quot;/hava&quot;, &quot;/ezan&quot; ve &quot;/eczane&quot; yalnız yazılınca kullanılacak şehir ya da ilçe, örn. İzmir. Boş bırakırsan hava için internet bağlantının konumu (yaklaşık), namaz vakitleri için İstanbul kullanılır." />
 
                 <TextBlock Text="Hızlı önizleme" Style="{StaticResource Heading}" />
                 <CheckBox x:Name="PreviewAlwaysOpenBox" Content="Önizlemeyi her zaman açık tut" />

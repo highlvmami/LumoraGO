@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.26.0
+- Yeni: /ezan (ya da /namaz, /vakit) bugünün namaz vakitlerini ve sıradaki vakte kalan süreyi gösterir ("Akşama 1 sa 22 dk"). /ezan ankara başka şehir, /ezan yarın yarının vakitleri. Vakitler Diyanet hesabıyla aladhan.com'dan gelir
+- Yeni: /eczane nöbetçi eczaneleri Google Haritalar'da ve e-Devlet'in resmi listesinde açar; /eczane kadıköy gibi ilçe de yazılabilir. İstanbul için Eczacı Odası listesi de çıkar
+- Ayarlar'daki şehir artık /hava, /ezan ve /eczane için ortak
+
 ## 0.25.0
 - Yeni: pencere yerleştirme. Bir pencere öndeyken launcher'ı açıp "sol yarı", "sağ yarı", "sağ üst", "sol üçte bir", "ortala", "tam ekran", "küçült" ya da "diğer ekran" yaz, Enter'a bas. /pencere hepsini listeler
 - Yeni: hazır metinler. ";adres" ya da ";iban" yazıp Enter'a basınca metin önceki pencereye yapıştırılır, Ctrl+Enter panoya kopyalar. /metin hepsini gösterir ve düzenleme ekranını açar

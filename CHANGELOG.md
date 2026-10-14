@@ -2,6 +2,11 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.25.0
+- Yeni: pencere yerleştirme. Bir pencere öndeyken launcher'ı açıp "sol yarı", "sağ yarı", "sağ üst", "sol üçte bir", "ortala", "tam ekran", "küçült" ya da "diğer ekran" yaz, Enter'a bas. /pencere hepsini listeler
+- Yeni: hazır metinler. ";adres" ya da ";iban" yazıp Enter'a basınca metin önceki pencereye yapıştırılır, Ctrl+Enter panoya kopyalar. /metin hepsini gösterir ve düzenleme ekranını açar
+- Düzenleme ekranında ad, kısa ad, kategori ve çok satırlı içerik var; {tarih}, {saat}, {gün}, {yarın}, {pano} ve {imleç} gibi yer tutucular yapıştırırken doldurulur, canlı önizleme görünür. Arama, çoğaltma, silme, içe ve dışa aktarma da var
+
 ## 0.24.2
 - /takvim artık bu haftayı ve önümüzdeki bir ayı gösterir; her etkinliğin başında "Bugün", "Yarın" ya da "Cum 16 Eki" yazar. Yalnızca bugün için /takvim bugün
 

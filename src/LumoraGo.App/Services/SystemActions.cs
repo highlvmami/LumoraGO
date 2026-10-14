@@ -36,6 +36,17 @@ internal static class SystemActions
         NativeMethods.keybd_event(NativeMethods.VK_CONTROL, 0, NativeMethods.KEYEVENTF_KEYUP, UIntPtr.Zero);
     }
 
+    /// <summary>İmleci sola taşır (hazır metindeki {imleç} için).</summary>
+    public static void SendLeft(int count)
+    {
+        const byte VK_LEFT = 0x25;
+        for (var i = 0; i < count; i++)
+        {
+            NativeMethods.keybd_event(VK_LEFT, 0, NativeMethods.KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+            NativeMethods.keybd_event(VK_LEFT, 0, NativeMethods.KEYEVENTF_EXTENDEDKEY | NativeMethods.KEYEVENTF_KEYUP, UIntPtr.Zero);
+        }
+    }
+
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool LockWorkStation();

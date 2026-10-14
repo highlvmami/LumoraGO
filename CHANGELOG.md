@@ -2,6 +2,9 @@
 
 Her sürüm bir `## X.Y.Z` başlığı ve altında `- ` ile başlayan maddelerden oluşur. Launcher'da `/v` yazınca çalışan sürümün maddeleri görünür; GitHub sürüm sayfasındaki notlar da buradan alınır.
 
+## 0.24.2
+- /takvim artık bu haftayı ve önümüzdeki bir ayı gösterir; her etkinliğin başında "Bugün", "Yarın" ya da "Cum 16 Eki" yazar. Yalnızca bugün için /takvim bugün
+
 ## 0.24.1
 - /takvim artık Google Takvim'de işaretli tüm takvimlerini gösterir (Aile, Doğum Günleri, Türkiye'deki Tatiller…); ana takvim dışındakilerin altında hangi takvimden geldiği yazar
 - Bunun için Ayarlar'dan "Google ile bağlan"a bir kez daha bas; basmazsan yalnızca ana takvim gelmeye devam eder

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Anthropic" Version="12.57.0" />
     <ProjectReference Include="..\LumoraGo.Plugin.Abstractions\LumoraGo.Plugin.Abstractions.csproj" />
     <PackageReference Include="Ical.Net" Version="5.2.3" />
   </ItemGroup>

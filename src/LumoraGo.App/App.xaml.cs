@@ -15,6 +15,7 @@ using LumoraGo.Core.DeepSearch;
 using LumoraGo.Core.Desktop;
 using LumoraGo.Core.Extensions;
 using LumoraGo.Core.Accounts;
+using LumoraGo.Core.Ai;
 using LumoraGo.Core.Calendar;
 using LumoraGo.Core.Info;
 using LumoraGo.Core.Mail;
@@ -131,6 +132,7 @@ public partial class App : Application
         var photoImport = new GooglePhotoImport(Http, secrets, photos, OpenUrl, _log);
         var google = new GoogleApi(Http, secrets);
         var spotify = new SpotifyApi(Http, secrets);
+        var assistant = new ClaudeAssistant(secrets);
         var googleCalendar = new GoogleCalendar(google);
         var googleTasks = new GoogleTasks(google);
         var youtube = new YouTubeLibrary(google, Path.Combine(DataRoot, "cache", "youtube.json"), _log);
@@ -265,6 +267,11 @@ public partial class App : Application
                 new PluginEntry(WindowSwitcherPlugin.Metadata, new WindowSwitcherPlugin(
                     WindowEnumerator.List, ActivateWindow, WindowEnumerator.Close)),
                 new PluginEntry(TimerPlugin.Metadata, new TimerPlugin(_timers)),
+                .. new[] { null, AiPlugin.Keyword, "/sor" }.Select(keyword =>
+                {
+                    var plugin = new AiPlugin(assistant, ClipboardText, PasteText, () => Dispatcher.BeginInvoke(OpenSettings), keyword);
+                    return new PluginEntry(plugin.Metadata, plugin);
+                }),
                 SnippetEntry(null),
                 SnippetEntry(SnippetsPlugin.Keyword),
                 SnippetEntry("/hazır"),
@@ -605,6 +612,9 @@ public partial class App : Application
         new("/ayarlar", "Windows Ayarları'nı aç", "Ayarlar uygulaması", () => OpenUrl("ms-settings:")),
         new("/gorev", "Görev Yöneticisi'ni aç", "Çalışan uygulamalar ve performans", () => Run("taskmgr", "")),
         new("/cmd", "Komut istemini aç", "cmd.exe", () => Run("cmd", "")),
+        new("/ocr", "Ekrandan metin al", "Bir bölge seç; içindeki yazı panoya kopyalanır (çevrimdışı)", () => CaptureText()),
+        new("/yazı", "Ekrandan metin al", "Bir bölge seç; içindeki yazı panoya kopyalanır (çevrimdışı)", () => CaptureText()),
+        new("/yazi", "Ekrandan metin al", "Bir bölge seç; içindeki yazı panoya kopyalanır (çevrimdışı)", () => CaptureText()),
         new("/güncelle", "LumoraGo'yu şimdi güncelle", $"Yeni sürüm varsa hemen indirip kurar · şu an {_updates?.CurrentVersion}", () => _ = UpdateNowAsync(host)),
         new("/guncelle", "LumoraGo'yu şimdi güncelle", $"Yeni sürüm varsa hemen indirip kurar · şu an {_updates?.CurrentVersion}", () => _ = UpdateNowAsync(host)),
         new("/ip", "IP adresini kopyala", "Yerel ağdaki IPv4 adresini panoya alır", () =>
@@ -884,6 +894,48 @@ public partial class App : Application
             _log?.Warn($"Tarayıcı açılamadı: {url}: {ex.Message}");
         }
     }
+
+    /// <summary>Ekran alıntısı aracını açar, seçilen bölgedeki yazıyı okuyup panoya koyar ve bildirim gösterir.</summary>
+    private void CaptureText() => Dispatcher.BeginInvoke(async () =>
+    {
+        _window?.HideLauncher();
+        await Task.Delay(PasteDelay);
+        string? text;
+        try
+        {
+            text = await ScreenText.CaptureAsync(OpenUrl, TimeSpan.FromMinutes(1));
+        }
+        catch (Exception ex)
+        {
+            _log?.Warn($"Ekrandan metin okunamadı: {ex}");
+            _tray?.ShowBalloon("Ekrandan metin okunamadı", ex.Message);
+            return;
+        }
+
+        if (text is null)
+        {
+            return;
+        }
+
+        if (text.Length == 0)
+        {
+            _tray?.ShowBalloon("Yazı bulunamadı", "Seçtiğin bölgede okunabilir bir yazı yok. Daha büyük bir alan seçip tekrar dene.");
+            return;
+        }
+
+        try
+        {
+            System.Windows.Clipboard.SetText(text);
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            _log?.Warn($"Panoya yazılamadı: {ex.Message}");
+            return;
+        }
+
+        var preview = text.ReplaceLineEndings(" ");
+        _tray?.ShowBalloon("Metin panoya kopyalandı", preview.Length > 120 ? preview[..120] + "…" : preview);
+    });
 
     /// <summary>"spotify:..." adresini uygulamada açar; Spotify kurulu değilse web oynatıcıda.</summary>
     private void OpenSpotify(string uri)

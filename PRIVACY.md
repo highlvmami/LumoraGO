@@ -37,3 +37,8 @@ Sorular için: https://github.com/highlvmami/LumoraGO/issues
 Ayarlar'dan "Spotify ile bağlan" yapılırsa LumoraGo, kullanıcının kendi Spotify geliştirici uygulamasıyla şu izinleri ister: profil ve abonelik türü (user-read-private), çalma durumu ve kontrolü (user-read-playback-state, user-modify-playback-state, user-read-currently-playing), çalma listeleri (playlist-read-private, playlist-read-collaborative).
 
 - Yenileme anahtarı Windows hesabına bağlı şifreli dosyada tutulur. Arama metinleri yalnızca Spotify'a gönderilir; hiçbir şey başka bir sunucuya gönderilmez.
+
+## Yapay zekâ ve ekrandan metin
+
+- "? soru" ya da "/ai" ile Enter'a basıldığında yazılan soru ya da seçilen işlem için panodaki metin, kullanıcının kendi API anahtarıyla Anthropic'e (Claude API) gönderilir. Enter'a basılmadan hiçbir şey gönderilmez. Anahtar Windows hesabına bağlı şifreli dosyada tutulur.
+- Ekrandan metin (/ocr) tamamen bilgisayarda, Windows'un metin tanımasıyla çalışır; resim ya da metin hiçbir yere gönderilmez.
